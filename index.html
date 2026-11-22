@@ -43,14 +43,54 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
   </form>
 </main>
 
-<p id="lookup-status" role="status" hidden></p>
+<section id="lookup-status" aria-live="polite" hidden style="max-width:42rem;margin:auto;padding:1.5rem;text-align:left;background:#fffaf2">
+<h2 id="word"></h2><p id="message"></p><div id="senses"></div>
+<a id="credit" hidden target="_blank" rel="noopener">查看萌典原词条</a>
+<button id="retry" hidden>重新查询</button> · <a href="nian.html">阅读「年」的精选故事</a>
+</section>
 <script>
-const lookup = query.get('hanzi')?.trim();
-if (lookup && lookup !== '年') {
-  document.querySelector('[name=hanzi]').value = lookup;
-  const status = document.querySelector('#lookup-status');
-  status.textContent = '当前已收录「年」字，请试试输入「年」。';
-  status.hidden = false;
-  status.scrollIntoView({block:'nearest'});
+const word = query.get('hanzi')?.trim();
+const panel = document.querySelector('#lookup-status');
+const message = document.querySelector('#message');
+const retry = document.querySelector('#retry');
+async function lookupWord() {
+  retry.hidden = true;
+  message.textContent = '正在查询…';
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    let entry;
+    const alternate = {门:'門',圆:'圓',团:'團',龙:'龍',灯:'燈'}[word];
+    for (const form of alternate ? [word, alternate] : [word]) {
+      const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});
+      if (response.status === 404) continue;
+      if (!response.ok) throw Error();
+      entry = await response.json();
+      if (!entry.title || !Array.isArray(entry.heteronyms)) throw Error();
+      break;
+    }
+    if (!entry) {message.textContent='词典未找到这个字。可以试试繁体写法。';return;}
+    document.querySelector('#word').textContent = word === entry.title ? word : word + ' · 词典字形「' + entry.title + '」';
+    message.textContent = [entry.radical && '部首 '+entry.radical,entry.stroke_count && '词典笔画 '+entry.stroke_count].filter(Boolean).join('　');
+    for (const reading of entry.heteronyms) {
+      const line = document.createElement('p');
+      line.textContent = [reading.pinyin || reading.bopomofo, reading.definitions?.find(s=>s.def)?.def].filter(Boolean).join('　');
+      document.querySelector('#senses').append(line);
+    }
+    const credit = document.querySelector('#credit');
+    credit.href = 'https://www.moedict.tw/' + encodeURIComponent(entry.title);
+    credit.textContent='词条摘自萌典 · 查看完整释义与出处';
+    credit.hidden=false;
+  } catch {message.textContent='暂时无法连接词典，请重试。';retry.hidden=false;}
+  finally {clearTimeout(timer);}
 }
+if (word && word !== '年') {
+  document.querySelector('[name=hanzi]').value=word;
+  document.querySelector('#word').textContent=word;
+  panel.hidden=false;
+  panel.scrollIntoView({block:'start'});
+  if (/^\p{Script=Han}$/u.test(word)) lookupWord();
+  else message.textContent='请一次输入一个汉字。';
+}
+retry.addEventListener('click',lookupWord);
 </script></body></html>
