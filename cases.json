@@ -1,0 +1,63 @@
+{
+  "cases": [
+    {
+      "character": "年",
+      "title": "一桌团圆",
+      "url": "nian.html",
+      "image": "nian-jinmen.webp"
+    }
+  ],
+  "regions": {
+    "两岸": [
+      {
+        "character": "年",
+        "place": "福建泉州",
+        "title": "赶回来吃的那顿饭",
+        "body": "泉州的年俗记录写到，过去有人常年在外谋生，到了除夕，便赶回家和家人围炉吃年饭。",
+        "source": "https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm",
+        "sourceTitle": "新春忆旧俗",
+        "image": "nian-quanzhou.webp"
+      },
+      {
+        "character": "年",
+        "place": "金门",
+        "title": "给没回来的人留一副碗筷",
+        "body": "金门的年俗记录里，家人未能返乡，年夜饭桌上仍给他留座、摆碗筷。每道菜也留一点，让缺席的人在这顿饭里有个位置。",
+        "source": "https://cabkc.kinmen.gov.tw/uploads/cabkc/files/201812/882f2606-5376-4011-a742-41570dc15277.pdf",
+        "sourceTitle": "认识金门小百科·岁时节庆及迎神祭祖篇",
+        "image": "nian-jinmen.webp"
+      }
+    ],
+    "港澳": [
+      {
+        "character": "年",
+        "place": "香港",
+        "title": "长辈先动筷，晚辈送祝福",
+        "body": "香港家庭及妇女资讯平台采访的学者提到，传统团年饭可围圆桌而坐，长辈先动筷，晚辈向长辈说祝福语。",
+        "source": "https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html",
+        "sourceTitle": "香港家庭及妇女资讯平台《春节习俗重视家庭团圆》",
+        "image": "nian-hongkong.webp"
+      },
+      {
+        "character": "年",
+        "place": "澳门",
+        "title": "贴挥春，吃团年饭",
+        "body": "澳门非遗名录公开咨询文本记载，澳门土生葡人社群也重视春节，家中会打扫、贴挥春、摆放装有贺年糖果的全盒，并吃团年饭。",
+        "source": "https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf",
+        "sourceTitle": "澳门非遗名录公开咨询文本 · 春节第5.2节",
+        "image": "nian-macao.webp"
+      }
+    ],
+    "海外": [
+      {
+        "character": "年",
+        "place": "新加坡",
+        "title": "一起把鱼生捞起来",
+        "body": "新加坡国家文物局资料记载，春节捞鱼生时，人们一起抛拌食材。参与者包括家人、朋友和同事，其他社群的人也会参与。",
+        "source": "https://www.roots.gov.sg/ich-landing/ich/yusheng-and-lo-hei",
+        "sourceTitle": "新加坡国家文物局 Roots · Yusheng and Lo Hei",
+        "image": "nian-singapore.webp"
+      }
+    ]
+  }
+}

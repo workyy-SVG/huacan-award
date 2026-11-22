@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>精选寻踪 · 字里寻踪</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f4ecdf;color:#382a20;font:16px/1.7 system-ui,sans-serif}nav,main{width:min(100% - 32px,960px);margin:auto}nav{display:flex;gap:16px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid #decdb5}main{padding:28px 0}a{color:#8c291d}h1,h2{line-height:1.35}input,select{font:inherit;padding:8px} .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px;margin-top:18px}.tile{background:#fff9ee;border:1px solid #decdb5;border-radius:10px;padding:18px}.tile img{width:100%;max-height:170px;object-fit:cover;border-radius:6px}.tile p{margin:10px 0}.filters{display:flex;gap:14px;flex-wrap:wrap}
+</style></head><body><nav aria-label="主导航"><a href="./">首页</a><a href="featured.html">精选寻踪</a><a href="regions.html">四海故事</a><a href="./#lookup">自由查字</a></nav><main><h1>精选寻踪</h1><p>请选择一个汉字，进入它的完整寻踪故事。</p><p id="status" role="status"></p><div id="records" class="grid"></div></main>
+<script>
+const statusLine = document.getElementById('status');
+const records = document.getElementById('records');
+function element(tag, label, parent) {
+  const node = document.createElement(tag);
+  node.textContent = label;
+  parent.append(node);
+  return node;
+}
+function link(url, label, parent) {
+  if (!url) return;
+  element('a', label, parent).href = url;
+}
+function card(title, text, image) {
+  const node = element('article', '', records);
+  node.className = 'tile';
+  if (image) {
+    const picture = element('img', '', node);
+    picture.src = image;
+    picture.alt = '';
+  }
+  element('h2', title, node);
+  if (text) element('p', text, node);
+  return node;
+}
+async function loadCatalogue() {
+  try {
+    const response = await fetch('cases.json');
+    if (!response.ok) throw new Error('Catalogue unavailable');
+    const data = await response.json();
+    for (const item of data.cases) {
+      const tile = card(item.character + ' · ' + item.title, '', item.image);
+      link(item.url, '查看「' + item.character + '」的故事', tile);
+    }
+  } catch {
+    statusLine.textContent = '暂时无法加载资料，请刷新重试。';
+  }
+}
+loadCatalogue();
+</script></body></html>

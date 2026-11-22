@@ -3,7 +3,7 @@
 <title>字里寻踪：两岸四海的生活印记</title>
 <script>
 const query = new URLSearchParams(location.search);
-if (query.get('hanzi')?.trim() === '年' || query.get('story') === 'nian' || /^#(?:nian-|form$|keepsake$)/.test(location.hash)) {
+if (query.get('story') === 'nian' || /^#(?:nian-|form$|keepsake$)/.test(location.hash)) {
   location.replace('nian.html' + location.hash);
 }
 </script></head><body>
@@ -37,7 +37,7 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 </style>
 <main class="globe-cover" aria-label="字里寻踪。 同一个字，连接不同地方的生活记录">
   <img class="globe-art" src="globe-cover-reference.png" width="1600" height="2848" alt="折页地图，标有两岸、香港、澳门与海外华人社群">
-  <a class="globe-start" href="nian.html" target="_self" aria-label="选一个字，开始寻踪"></a>
+  <a class="globe-start" href="featured.html" target="_self" aria-label="选一个字，开始寻踪"></a>
   <form id="lookup" class="globe-search" method="get" role="search">
     <input name="hanzi" aria-label="查一个我感兴趣的字" autocomplete="off" enterkeyhint="search" required>
   </form>
@@ -46,7 +46,7 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 <section id="lookup-status" aria-live="polite" hidden style="max-width:42rem;margin:auto;padding:1.5rem;text-align:left;background:#fffaf2">
 <h2 id="word"></h2><p id="message"></p><div id="senses"></div>
 <a id="credit" hidden target="_blank" rel="noopener">查看萌典原词条</a>
-<button id="retry" hidden>重新查询</button> · <a href="nian.html">阅读「年」的精选故事</a>
+<button id="retry" hidden>重新查询</button> <a id="featured-result" hidden>查看精选故事</a>
 </section>
 <script>
 const word = query.get('hanzi')?.trim();
@@ -84,11 +84,19 @@ async function lookupWord() {
   } catch {message.textContent='暂时无法连接词典，请重试。';retry.hidden=false;}
   finally {clearTimeout(timer);}
 }
-if (word && word !== '年') {
+if (word) {
   document.querySelector('[name=hanzi]').value=word;
   document.querySelector('#word').textContent=word;
   panel.hidden=false;
   panel.scrollIntoView({block:'start'});
+  fetch('cases.json').then(response => response.json()).then(catalogue => {
+    const featured = catalogue.cases.find(item => item.character === word);
+    if (featured) {
+      const link = document.querySelector('#featured-result');
+      link.href = featured.url;
+      link.hidden = false;
+    }
+  }).catch(() => {});
   if (/^\p{Script=Han}$/u.test(word)) lookupWord();
   else message.textContent='请一次输入一个汉字。';
 }
