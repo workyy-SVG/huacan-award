@@ -1,0 +1,34 @@
+{
+  "id": "nian-quanzhou-jinmen",
+  "character": "年",
+  "intro": "“年”是第一个精选字。福建泉州记录了在外的人赶回家吃年饭，金门记录了家人没能赶回来时，桌上仍为他留一副碗筷。这让团圆有了两个看得见的动作。",
+  "question": "除夕这顿饭，家人没能赶回来怎么办？",
+  "cases": [
+    {
+      "id": "nian-quanzhou",
+      "place": "福建泉州",
+      "title": "赶回来吃的那顿饭",
+      "meal_name": "合家“围炉”吃年饭，正文也称“团圆饭”。",
+      "recorded_action": "过去泉州有不少人外出谋生，除夕赶回家与家人同桌吃饭。",
+      "source_quote": "除夕日均要回家团聚",
+      "body": "泉州的年俗记录写到，过去有人常年在外谋生，到了除夕，便赶回家和家人围炉吃年饭。",
+      "source_title": "新春忆旧俗",
+      "source_section": "合家“围炉”吃年饭",
+      "source_url": "https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm"
+    },
+    {
+      "id": "nian-jinmen",
+      "place": "金门",
+      "title": "给没回来的人留一副碗筷",
+      "meal_name": "“除夕守岁围炉”一节使用“年夜饭”。",
+      "recorded_action": "游子未能返乡时，家人留座、摆碗筷，还从每道菜象征性地留一点。",
+      "source_quote": "未克返鄉過年的遊子，則保留席次及碗筷",
+      "body": "金门的年俗记录里，家人未能返乡，年夜饭桌上仍给他留座、摆碗筷。每道菜也留一点，让缺席的人在这顿饭里有个位置。",
+      "source_title": "认识金门小百科·岁时节庆及迎神祭祖篇",
+      "source_section": "第4-3-3节",
+      "source_url": "https://cabkc.kinmen.gov.tw/uploads/cabkc/files/201812/882f2606-5376-4011-a742-41570dc15277.pdf"
+    }
+  ],
+  "card_text": "读到泉州，我记住了赶回家吃饭的人；读到金门，我记住了桌上为他留下的那副碗筷。",
+  "editor_note": "两份资料各自记录了不同细节。泉州原文未说明家人缺席时如何处理，不能据此推断泉州没有留座习俗。"
+}
