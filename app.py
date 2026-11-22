@@ -31,7 +31,10 @@ h1,h2,h3 { font-family:"Noto Serif CJK SC","Songti SC","SimSun",serif !important
 </style>
 """, unsafe_allow_html=True)
 
-case_ids = {case["id"] for case in story["cases"]}
+all_cases = story["cases"] + [
+    case for section in story["extensions"] for case in section["cases"]
+]
+case_ids = {case["id"] for case in all_cases}
 selected = st.query_params.get("story")
 lookup = st.query_params.get("hanzi", "").strip()
 if lookup == story["character"] and not selected:
@@ -85,8 +88,10 @@ else:
     st.title(story["question"])
     st.write(story["intro"])
     if selected in case_ids:
-        case = next(item for item in story["cases"] if item["id"] == selected)
+        case = next(item for item in all_cases if item["id"] == selected)
         st.caption(f"从{case['place']}出发")
+    st.header("第一站 · 两岸")
+    st.write(story["cross_strait_question"])
     for heading, field in [
         ("这顿饭怎么称呼？", "meal_name"),
         ("记录了什么动作？", "recorded_action"),
@@ -103,14 +108,27 @@ else:
             st.write(f"“{case['source_quote']}”")
             st.link_button(case["source_title"], case["source_url"])
         st.caption(story["editor_note"])
+    for section in story["extensions"]:
+        st.header(section["heading"])
+        st.write(section["question"])
+        for case in section["cases"]:
+            with st.container(border=True):
+                st.subheader(f"{case['place']} · {case['title']}")
+                st.write(case["body"])
+                st.link_button(case["source_title"], case["source_url"])
+    st.header("读完五地，你发现了什么？")
+    st.write(story["discovery"])
     st.subheader("我的寻踪卡")
     choice = st.radio(
         "哪一个细节你想带走？",
-        options=story["cases"],
-        index=next((i for i, case in enumerate(story["cases"]) if case["id"] == selected), 0),
+        options=all_cases,
+        index=next((i for i, case in enumerate(all_cases) if case["id"] == selected), 0),
         format_func=lambda case: f"{case['place']} · {case['title']}",
     )
-    note = f"字里寻踪 · 年\n{choice['place']}｜{choice['title']}\n{choice['recorded_action']}\n出处：{choice['source_title']}"
+    note = (
+        f"字里寻踪 · 年\n{choice['place']}｜{choice['title']}\n"
+        f"{choice['recorded_action']}\n出处：{choice['source_title']}\n{choice['source_url']}"
+    )
     st.code(note, language="text")
     st.download_button("保存寻踪记录", note, "我的寻踪卡-年.txt", "text/plain")
 
