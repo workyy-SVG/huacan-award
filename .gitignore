@@ -1,8 +1,0 @@
-.DS_Store
-Thumbs.db
-~$*
-*.tmp
-*.bak
-.env
-.env.*
-!.env.example
