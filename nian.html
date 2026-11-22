@@ -1,7 +1,28 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="从年字出发，沿五地年俗看一桌团圆。"><title>字里寻踪 · 年</title><link rel="stylesheet" href="style.css"><script defer src="app.js"></script></head>
-<body><div class="page">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="从年字出发，沿五地年俗看一桌团圆。"><title>字里寻踪 · 年</title><link rel="stylesheet" href="style.css"><script defer src="app.js"></script><style id="journey-sidebar-style">
+.journey-layout{display:grid;grid-template-columns:220px minmax(0,1fr);max-width:1320px;margin:auto;align-items:start}
+.journey-layout>.page{width:100%}
+.journey-sidebar{position:sticky;top:0;max-height:100dvh;overflow:auto;padding:24px 14px;background:#fcf4e6;color:#30241a;border-right:1px solid #d6b995}
+.journey-sidebar-title{font-size:1.35rem;font-weight:bold;margin:0 10px 16px;color:#8c291d}
+.journey-sidebar nav{display:grid;gap:4px}
+.journey-sidebar a{display:block;padding:8px 10px;min-height:44px;border-radius:7px;color:#30241a;text-decoration:none}
+.journey-sidebar a:hover,.journey-sidebar a:focus-visible{background:#efdfc5;color:#8c291d}
+.journey-sidebar small{display:block;color:#69533e;font-size:12px}
+#journey-sources{scroll-margin-top:145px}
+@media(max-width:750px){.journey-layout{display:block}.journey-sidebar{position:static;max-height:none;border-right:0;border-bottom:1px solid #d6b995;padding:12px}.journey-sidebar nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head>
+<body><div class="journey-layout"><aside class="journey-sidebar" id="journey-sidebar" aria-label="功能目录">
+<p class="journey-sidebar-title">字里寻踪</p>
+<nav aria-label="寻踪功能">
+<a href="./">首页<small>了解作品、选择入口</small></a>
+<a href="#top">精选寻踪<small>沿一个字读完整故事 · 当前案例「年」</small></a>
+<a href="#nian-strait">四海故事<small>按地点浏览两岸、港澳与海外记录</small></a>
+<a href="./#lookup">自由查字<small>查读音、部首、笔画与释义</small></a>
+<a href="#keepsake">我的寻踪卡<small>回看并带走自己的发现</small></a>
+<a href="#journey-sources">资料与来源<small>查看出处与素材说明</small></a>
+</nav>
+</aside><div class="page">
 <header><a class="home-link" href="./">返回首页</a><a class="brand" href="#top">字里寻踪 <span>年</span></a><nav aria-label="章节"><a href="#form">字形观察</a><a href="#nian-strait">两岸</a><a href="#nian-hongkong">港澳</a><a href="#nian-singapore">海外</a><a href="#keepsake">寻踪卡</a></nav></header>
 <main id="top">
 <section id="form"><h2>字形观察</h2><div class="observation"><div class="glyph" aria-hidden="true">年</div><div><p>「年」读作 nián。早期字形与谷物成熟、收获有关，后来也用来指岁时与新年。</p><a class="outline" href="https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word=%E5%B9%B4" target="_blank" rel="noopener">查阅字源</a></div></div></section>
@@ -23,63 +44,18 @@ if (location.hash === '#comparison') document.getElementById('comparison').open 
 </script>
 <section id="keepsake"><h2>我的寻踪卡</h2><div class="keepsake"><img id="keepsake-image" src="nian-jinmen.webp" alt=""><div class="note"><label for="place">选择想带走的记录</label><select id="place"><option value="nian-quanzhou">福建泉州｜团圆饭</option><option value="nian-jinmen" selected>金门｜围炉</option><option value="nian-hongkong">香港｜长辈先动筷</option><option value="nian-macao">澳门｜贴挥春</option><option value="nian-singapore">新加坡｜一起捞鱼生</option></select><h3 id="selected-title"></h3><p id="selected-detail" aria-live="polite"></p><button id="save" class="solid">保存寻踪记录</button></div></div></section>
 <details><summary>资料核验与素材说明</summary><ul><li><a href="https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm" target="_blank" rel="noopener">福建泉州｜合家“围炉”吃年饭</a>：「除夕日均要回家团聚」</li><li><a href="https://cabkc.kinmen.gov.tw/uploads/cabkc/files/201812/882f2606-5376-4011-a742-41570dc15277.pdf" target="_blank" rel="noopener">金门｜第4-3-3节</a>：「未克返鄉過年的遊子，則保留席次及碗筷」</li><li><a href="https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html" target="_blank" rel="noopener">香港｜第3节「團年飯」</a>：「先由長輩起筷，而後輩會向長輩說一些祝福語」</li><li><a href="https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf" target="_blank" rel="noopener">澳门｜春节第5.2节「存續狀況」</a>：「貼揮春、置全盒、吃團年飯」</li><li><a href="https://www.roots.gov.sg/ich-landing/ich/yusheng-and-lo-hei" target="_blank" rel="noopener">新加坡｜Yusheng and Lo Hei，关于参与者的段落</a>：「lo hei is also enjoyed by many from other communities」</li></ul><p>场景配图为 AI 示意。资料使用摘要、短引与原文链接，未采用原文图片。</p></details><footer>场景配图为 AI 示意。民俗资料见各卡片出处。</footer>
-</main></div>
+</main></div></div>
 <dialog aria-labelledby="record-title"><form method="dialog"><button class="close" aria-label="关闭记录">×</button></form><img id="record-image" alt=""><div class="record"><h2 id="record-title"></h2><p id="record-body"></p><blockquote id="record-quote"></blockquote><div class="actions"><a id="record-source" target="_blank" rel="noopener">查看出处</a><button id="keep" class="solid">加入寻踪卡</button></div></div></dialog>
 <script id="records" type="application/json">[{"id":"nian-quanzhou","place":"福建泉州","title":"赶回来吃的那顿饭","meal_name":"合家“围炉”吃年饭，正文也称“团圆饭”。","recorded_action":"过去泉州有不少人外出谋生，除夕赶回家与家人同桌吃饭。","source_quote":"除夕日均要回家团聚","body":"泉州的年俗记录写到，过去有人常年在外谋生，到了除夕，便赶回家和家人围炉吃年饭。","source_title":"新春忆旧俗","source_section":"合家“围炉”吃年饭","source_url":"https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm","short":"团圆饭","material_use":"文字采用摘要、短引和原文链接。场景配图为 AI 示意，未采用原文图片。"},{"id":"nian-jinmen","place":"金门","title":"给没回来的人留一副碗筷","meal_name":"“除夕守岁围炉”一节使用“年夜饭”。","recorded_action":"游子未能返乡时，家人留座、摆碗筷，还从每道菜象征性地留一点。","source_quote":"未克返鄉過年的遊子，則保留席次及碗筷","body":"金门的年俗记录里，家人未能返乡，年夜饭桌上仍给他留座、摆碗筷。每道菜也留一点，让缺席的人在这顿饭里有个位置。","source_title":"认识金门小百科·岁时节庆及迎神祭祖篇","source_section":"第4-3-3节","source_url":"https://cabkc.kinmen.gov.tw/uploads/cabkc/files/201812/882f2606-5376-4011-a742-41570dc15277.pdf","short":"围炉","material_use":"文字采用摘要、短引和原文链接。场景配图为 AI 示意，未采用原文图片。"},{"id":"nian-hongkong","place":"香港","title":"长辈先动筷，晚辈送祝福","body":"香港家庭及妇女资讯平台采访的学者提到，传统团年饭可围圆桌而坐，长辈先动筷，晚辈向长辈说祝福语。","recorded_action":"长辈先动筷，晚辈给长辈送上祝福。","source_title":"香港家庭及妇女资讯平台《春节习俗重视家庭团圆》","source_url":"https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html","short":"长辈先动筷","source_section":"第3节「團年飯」","source_quote":"先由長輩起筷，而後輩會向長輩說一些祝福語","material_use":"文字采用摘要、短引和原文链接。场景配图为 AI 示意，未采用原文图片。"},{"id":"nian-macao","place":"澳门","title":"贴挥春，吃团年饭","body":"澳门非遗名录公开咨询文本记载，澳门土生葡人社群也重视春节，家中会打扫、贴挥春、摆放装有贺年糖果的全盒，并吃团年饭。","recorded_action":"澳门土生葡人家庭贴挥春、摆全盒，也吃团年饭。","source_title":"澳门非遗名录公开咨询文本 · 春节第5.2节","source_url":"https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf","short":"贴挥春","source_section":"春节第5.2节「存續狀況」","source_quote":"貼揮春、置全盒、吃團年飯","material_use":"文字采用摘要、短引和原文链接。场景配图为 AI 示意，未采用原文图片。"},{"id":"nian-singapore","place":"新加坡","title":"一起把鱼生捞起来","body":"新加坡国家文物局资料记载，春节捞鱼生时，人们一起抛拌食材。参与者包括家人、朋友和同事，其他社群的人也会参与。","recorded_action":"亲友和同事一起捞鱼生，其他社群的人也会参与。","source_title":"新加坡国家文物局 Roots · Yusheng and Lo Hei","source_url":"https://www.roots.gov.sg/ich-landing/ich/yusheng-and-lo-hei","short":"一起捞鱼生","source_section":"Yusheng and Lo Hei，关于参与者的段落","source_quote":"lo hei is also enjoyed by many from other communities","material_use":"文字采用摘要、短引和原文链接。场景配图为 AI 示意，未采用原文图片。"}]</script>
-<style id="journey-sidebar-style">
-.journey-menu-toggle{position:fixed;left:12px;top:16px;z-index:6;min-height:44px;padding:8px 13px;border:1px solid #d6b995;border-radius:8px;background:#fcf4e6;color:#8c291d;font:inherit;cursor:pointer;box-shadow:0 2px 8px #30241a18}
-.journey-sidebar{position:fixed;inset:0 auto 0 0;width:min(240px,85vw);padding:78px 16px 24px;z-index:5;background:#fcf4e6;color:#30241a;border-right:1px solid #d6b995;box-shadow:6px 0 24px #30241a18;overflow-y:auto;transform:translateX(-105%);visibility:hidden}
-.journey-sidebar.is-open{transform:translateX(0);visibility:visible}
-.journey-sidebar-title{font-size:1.35rem;font-weight:bold;margin:0 10px 20px;color:#8c291d}
-.journey-sidebar nav{display:grid;gap:5px}
-.journey-sidebar a{display:block;padding:10px;border-radius:7px;color:#30241a;text-decoration:none;min-height:44px}
-.journey-sidebar a:hover,.journey-sidebar a[aria-current="location"]{background:#efdfc5;color:#8c291d}
-.journey-sidebar small{display:block;color:#69533e;font-size:12px;margin-top:2px}
-.journey-sidebar a:focus-visible,.journey-menu-toggle:focus-visible{outline:3px solid #a35a23;outline-offset:3px}
-@media(max-width:700px){.journey-menu-toggle{top:auto;bottom:18px}.journey-sidebar{padding-top:24px;padding-bottom:88px}}
-</style>
-<button class="journey-menu-toggle" id="journey-menu-toggle" type="button" aria-controls="journey-sidebar" aria-expanded="false">☰ 功能目录</button>
-<aside class="journey-sidebar" id="journey-sidebar" aria-label="功能目录" inert>
-<p class="journey-sidebar-title">字里寻踪</p>
-<nav aria-label="寻踪功能">
-<a href="./">首页<small>了解作品、选择入口</small></a>
-<a href="#top">精选寻踪<small>沿一个字读完整故事 · 当前案例「年」</small></a>
-<a href="#nian-strait">四海故事<small>按地点浏览两岸、港澳与海外记录</small></a>
-<a href="./#lookup">自由查字<small>查读音、部首、笔画与释义</small></a>
-<a href="#keepsake">我的寻踪卡<small>回看并带走自己的发现</small></a>
-<a href="#journey-sources">资料与来源<small>查看出处与素材说明</small></a>
-</nav>
-</aside>
 <script>
-(()=>{
-const sidebar=document.getElementById('journey-sidebar');
-const toggle=document.getElementById('journey-menu-toggle');
-const sources=document.querySelector('main details');
-if(sources) sources.id='journey-sources';
-function setOpen(open){
- sidebar.classList.toggle('is-open',open);
- sidebar.inert=!open;
- toggle.setAttribute('aria-expanded',String(open));
- toggle.textContent=open?'× 收起目录':'☰ 功能目录';
+const journeySources = document.querySelector('main details:last-of-type');
+if (journeySources) {
+  journeySources.id = 'journey-sources';
+  const showSources = () => {
+    if (location.hash === '#journey-sources') journeySources.open = true;
+  };
+  window.addEventListener('hashchange', showSources);
+  showSources();
 }
-toggle.addEventListener('click',()=>setOpen(toggle.getAttribute('aria-expanded')!=='true'));
-sidebar.addEventListener('click',event=>{
- const link=event.target.closest('a');
- if(!link)return;
- if(link.hash==='#journey-sources'&&sources) sources.open=true;
- sidebar.querySelectorAll('a').forEach(item=>item.removeAttribute('aria-current'));
- link.setAttribute('aria-current','location');
- setOpen(false);
- toggle.focus({preventScroll:true});
-});
-document.addEventListener('keydown',event=>{
- if(event.key==='Escape'&&toggle.getAttribute('aria-expanded')==='true'){
-  setOpen(false);toggle.focus({preventScroll:true});
- }
-});
-document.addEventListener('click',event=>{
- if(!sidebar.contains(event.target)&&!toggle.contains(event.target))setOpen(false);
-});
-})();
 </script>
 </body></html>
