@@ -279,7 +279,7 @@ function navigate(page, hash = '', tab = '') {
   const attributedPage = cover
     ? (pageHtml.split('</main>', 1)[0] + '</main></body></html>').replace(
         /<form class="globe-search"[^>]*>[\\s\\S]*?<\\/form>/,
-        '<div class="globe-search cover-picker"><select id="cover-character" aria-label="选一个字，进入故事"><option value="">选一个字，进入故事</option><option value="nian.html">年</option><option value="men.html">门</option><option value="cha.html">茶</option><option value="chuan.html">船</option><option value="deng.html">灯</option><option value="yuan.html">圆</option></select></div>'
+        '<p id="cover-case-note" class="cover-case-note">六个代表字，展示各地生活与习俗</p><div class="globe-search cover-picker"><select id="cover-character" aria-describedby="cover-case-note" aria-label="选一个字，进入故事"><option value="">选一个字，进入故事</option><option value="nian.html">年</option><option value="men.html">门</option><option value="cha.html">茶</option><option value="chuan.html">船</option><option value="deng.html">灯</option><option value="yuan.html">圆</option></select></div>'
       )
     : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
@@ -288,7 +288,7 @@ function navigate(page, hash = '', tab = '') {
       images[name] ? start + images[name] + end : match)
     .replace(/url\\((["']?)([\\w.-]+\\.(?:webp|png|jpg))\\1\\)/g, (match, quote, name) =>
       images[name] ? 'url("' + images[name] + '")' : match);
-  const pickerStyle = cover ? '<style>.globe-cover .cover-picker{display:block}.cover-picker select{width:100%;height:100%;padding:0 14px;border-radius:999px;font:clamp(15px,3.5cqw,20px) system-ui,sans-serif}</style>' : '';
+  const pickerStyle = cover ? '<style>.globe-cover .cover-case-note{position:absolute;top:129.5cqw;left:50%;transform:translateX(-50%);max-width:88%;width:max-content;margin:0;padding:3px 8px;border-radius:6px;background:#fff7e9;color:#79291e;text-align:center;font:600 clamp(11px,2.6cqw,16px)/1.35 system-ui,sans-serif}.globe-cover .cover-picker{display:block}.cover-picker select{width:100%;height:100%;padding:0 14px;border-radius:999px;font:clamp(15px,3.5cqw,20px) system-ui,sans-serif}</style>' : '';
   frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + pickerStyle + '</head>');
 }
 function openFunction(key) {
