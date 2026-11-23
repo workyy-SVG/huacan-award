@@ -203,7 +203,13 @@ function navigate(page, hash = '', tab = '') {
     ? '<style>.globe-cover{width:min(92%,620px);aspect-ratio:auto;padding:28px 12px;background:none;overflow:visible}.globe-cover .globe-art,.globe-cover .globe-start{display:none}.globe-cover .globe-search{position:static;width:100%;height:46px}</style>'
     : '';
   const lookupSizing = cover ? '' : '<style>.story-lookup .story-lookup-form,.globe-cover .globe-search{min-height:52px;grid-template-columns:minmax(0,1fr) 84px 64px}.story-lookup .story-lookup-form{max-width:700px}.story-lookup .story-lookup-form>*,.globe-cover .globe-search>*{font-size:16px}.story-lookup-form select,.globe-search select{padding-inline:10px}@media(max-width:420px){.story-lookup .story-lookup-form,.globe-cover .globe-search{grid-template-columns:minmax(0,1fr) 74px 56px}}</style>';
-  frame.srcdoc = pages[page].replace('</head>', innerStyles + lookupLanding + lookupSizing + '</head>');
+  const creditStyle = '<style>.lookup-credit{margin:7px 0 0;color:#695849;font:clamp(11px,2.4vw,14px)/1.3 system-ui,sans-serif}.globe-cover .lookup-credit{position:absolute;top:146cqw;left:7.7%;width:84.8%;margin:0;text-align:center;font-size:clamp(10px,2.25cqw,14px)}.globe-cover:has(.globe-search) .lookup-credit a{color:inherit}.globe-cover.lookup-credit-flow .lookup-credit{position:static;width:auto;margin-top:7px}</style>';
+  const pageHtml = pages[page].replace(
+    /(<form class="(?:globe-search|story-lookup-form)"[^>]*>[\\s\\S]*?<\\/form>)/,
+    '$1<p class="lookup-credit">字典数据来源：萌典（Moedict）公开接口</p>'
+  );
+  const lookupHtml = lookupLanding ? pageHtml.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : pageHtml;
+  frame.srcdoc = lookupHtml.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
