@@ -5,8 +5,15 @@
   const definitionNodes = [...result.children].filter(node => node !== heading);
   const grid = document.createElement('div');
   grid.className = 'lookup-three';
-  grid.innerHTML = '<section class="lookup-tile"><h3>萌典 · 看字义</h3></section><section class="lookup-tile"><h3>Unihan · 看简繁</h3><div class="lookup-forms" role="group" aria-label="切换字形"></div><div class="lookup-glyph"></div><p class="lookup-variant-note"></p></section><section class="lookup-tile"><h3>Hanzi Writer · 看笔顺</h3><p class="lookup-stroke-form"></p><div class="lookup-stroke-board" hidden></div><div class="lookup-stroke-controls"><button type="button" class="lookup-play">播放笔顺</button><p class="lookup-stroke-status" role="status"></p></div></section>';
+  grid.innerHTML = '<section class="lookup-tile lookup-definition"><h3>萌典 · 看字义</h3></section><section class="lookup-tile"><h3>Unihan · 看简繁</h3><div class="lookup-forms" role="group" aria-label="切换字形"></div><div class="lookup-glyph"></div><p class="lookup-variant-note"></p></section><section class="lookup-tile"><h3>Hanzi Writer · 看笔顺</h3><p class="lookup-stroke-form"></p><div class="lookup-stroke-board" hidden></div><div class="lookup-stroke-controls"><button type="button" class="lookup-play">播放笔顺</button><p class="lookup-stroke-status" role="status"></p></div></section>';
   grid.firstElementChild.append(...definitionNodes);
+  for (const link of grid.firstElementChild.querySelectorAll('a')) {
+    const arrow = document.createElement('span');
+    arrow.className = 'lookup-link-arrow';
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = ' →';
+    link.append(arrow);
+  }
   result.append(grid);
 
   const buttons = grid.querySelector('.lookup-forms');
@@ -16,8 +23,10 @@
   const strokeStatus = grid.querySelector('.lookup-stroke-status');
   let writer, selected;
   let paused = false;
+  let autoplayTimer;
   for (const tile of [...grid.children].slice(1)) tile.hidden = true;
   function choose(form) {
+    clearTimeout(autoplayTimer);
     writer?.pauseAnimation();
     writer = undefined;
     paused = false;
@@ -29,10 +38,16 @@
     }
     board.replaceChildren();
     board.hidden = true;
-    play.textContent = '播放笔顺';
     const ready = Boolean(parent.ziliStrokeData?.[form] && globalThis.HanziWriter);
-    play.disabled = !ready;
+    play.disabled = true;
+    play.textContent = ready ? '即将播放' : '播放笔顺';
     strokeStatus.textContent = ready ? '' : '暂无该字形的笔顺数据。';
+    if (ready) {
+      autoplayTimer = setTimeout(() => {
+        play.disabled = false;
+        togglePlayback();
+      }, 2000);
+    }
   }
   document.addEventListener('zili:lookup', event => {
     const word = event.detail;
@@ -46,7 +61,9 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = form;
-      button.addEventListener('click', () => choose(form));
+      button.addEventListener('click', () => {
+        if (form !== selected) choose(form);
+      });
       return button;
     }));
     grid.querySelector('.lookup-variant-note').textContent = forms.length > 1
@@ -54,7 +71,7 @@
       : 'Unihan 暂无其他简繁关联字形。';
     choose(word);
   });
-  play.addEventListener('click', async () => {
+  async function togglePlayback() {
     const form = selected;
     const data = parent.ziliStrokeData?.[form];
     if (play.disabled || !data) return;
@@ -68,7 +85,7 @@
         return;
       }
 
-      const size = 216;
+      const size = 260;
       writer = HanziWriter.create(board, form, {
         width: size,
         height: size,
@@ -95,5 +112,6 @@
       play.textContent = '播放笔顺';
       strokeStatus.textContent = '笔顺暂时无法播放。';
     }
-  });
+  }
+  play.addEventListener('click', togglePlayback);
 })();

@@ -97,12 +97,16 @@ def bundle_site(version):
 .lookup-tile h3{margin:0 0 12px;color:#8c291e;font-size:clamp(1.2rem,1.65vw,1.5rem);line-height:1.35}
 .lookup-tile p{font-size:inherit;line-height:inherit}
 .lookup-tile button{font:inherit}
+.lookup-definition{font-size:1.1875rem;line-height:1.7}
+.lookup-definition a:any-link{color:#702117;font-weight:700;line-height:1.5;text-underline-offset:.19em}
+.lookup-definition a:hover,.lookup-definition a:focus-visible{color:#49140d}
+.lookup-link-arrow{display:inline-block;margin-inline-start:.3em;text-decoration:none}
 .lookup-forms{display:flex;gap:8px;flex-wrap:wrap}
 .lookup-forms button,.lookup-play{border:1px solid #d7c2a4;border-radius:8px;background:#fff8ed;color:#8c291e;padding:7px 13px}
 .lookup-forms button{font:28px/1.2 KaiTi,serif}
 .lookup-forms button[aria-pressed=true],.lookup-play:not(:disabled){background:#8c291e;color:#fff}
 .lookup-glyph{font:clamp(76px,8vw,110px)/1.25 KaiTi,serif;text-align:center;color:#8c291e}
-.lookup-stroke-board{margin:12px auto;width:min(100%,216px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}
+.lookup-stroke-board{margin:12px auto;width:min(100%,260px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}
 .lookup-stroke-board svg{display:block;width:100%;height:auto}
 .lookup-stroke-controls{display:grid;justify-items:start;gap:10px;margin-top:14px}
 .lookup-stroke-controls .lookup-stroke-status{margin:0}
