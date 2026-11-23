@@ -10,7 +10,7 @@ if (window.parent !== window) {
 </head><body>
 <style>
 * {box-sizing:border-box}
-body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee 60%,#e6e5e1); color:#302b28}
+body {margin:0; min-height:100dvh; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee 60%,#e6e5e1); color:#302b28}
 #lookup-status {text-align:center;font:1rem/1.5 sans-serif;margin:0 auto;padding:10px}
 
 
@@ -23,6 +23,7 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 .globe-art {
   position:absolute; top:-20cqw; left:0; display:block;
   width:100%; height:auto; pointer-events:none;
+  clip-path:inset(0 0 calc(100% - 165cqw) 0);
 }
 .globe-start,.globe-search { position:absolute; border-radius:999px; }
 .globe-start { left:27%; top:116.53cqw; width:46.5%; height:9.97cqw; }

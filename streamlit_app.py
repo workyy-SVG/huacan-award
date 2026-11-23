@@ -91,12 +91,19 @@ window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');
 function navigate(page, hash = '') {
   if (!Object.hasOwn(pages, page)) return;
+  document.body.style.background = page === 'index.html' ? '#e6e5e1' : '#e9decd';
   frame.onload = () => {
     const doc = frame.contentDocument;
+    const scrollToSection = (node) => {
+      if (!node) return;
+      const view = frame.contentWindow;
+      const offset = Number.parseFloat(view.getComputedStyle(node).scrollMarginTop) || 0;
+      view.scrollTo(0, view.scrollY + node.getBoundingClientRect().top - offset);
+    };
     if (hash) {
       const node = doc.getElementById(hash);
       if (node?.tagName === 'DETAILS') node.open = true;
-      node?.scrollIntoView();
+      scrollToSection(node);
     }
     doc.addEventListener('click', event => {
       const anchor = event.target.closest('a[href]');
@@ -107,7 +114,7 @@ function navigate(page, hash = '') {
         event.preventDefault();
         const node = doc.getElementById(href.slice(1));
         if (node?.tagName === 'DETAILS') node.open = true;
-        node?.scrollIntoView();
+        scrollToSection(node);
         return;
       }
       const [path, fragment] = href.split('#');
