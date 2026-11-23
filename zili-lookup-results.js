@@ -5,7 +5,7 @@
   const definitionNodes = [...result.children].filter(node => node !== heading);
   const grid = document.createElement('div');
   grid.className = 'lookup-three';
-  grid.innerHTML = '<section class="lookup-tile"><h3>萌典 · 看字义</h3></section><section class="lookup-tile"><h3>Unihan · 看简繁</h3><div class="lookup-forms" role="group" aria-label="切换字形"></div><div class="lookup-glyph"></div><p class="lookup-variant-note"></p></section><section class="lookup-tile"><h3>Hanzi Writer · 看笔顺</h3><p class="lookup-stroke-form"></p><div class="lookup-stroke-board" hidden></div><button type="button" class="lookup-play">播放笔顺</button><p class="lookup-stroke-status" role="status"></p></section>';
+  grid.innerHTML = '<section class="lookup-tile"><h3>萌典 · 看字义</h3></section><section class="lookup-tile"><h3>Unihan · 看简繁</h3><div class="lookup-forms" role="group" aria-label="切换字形"></div><div class="lookup-glyph"></div><p class="lookup-variant-note"></p></section><section class="lookup-tile"><h3>Hanzi Writer · 看笔顺</h3><p class="lookup-stroke-form"></p><div class="lookup-stroke-board" hidden></div><div class="lookup-stroke-controls"><button type="button" class="lookup-play">播放笔顺</button><p class="lookup-stroke-status" role="status"></p></div></section>';
   grid.firstElementChild.append(...definitionNodes);
   result.append(grid);
 
@@ -15,10 +15,12 @@
   const play = grid.querySelector('.lookup-play');
   const strokeStatus = grid.querySelector('.lookup-stroke-status');
   let writer, selected;
+  let paused = false;
   for (const tile of [...grid.children].slice(1)) tile.hidden = true;
   function choose(form) {
     writer?.pauseAnimation();
     writer = undefined;
+    paused = false;
     selected = form;
     glyph.textContent = form;
     grid.querySelector('.lookup-stroke-form').textContent = '当前字形：' + form;
@@ -35,7 +37,10 @@
   document.addEventListener('zili:lookup', event => {
     const word = event.detail;
     for (const tile of [...grid.children].slice(1)) tile.hidden = !word;
-    if (!word) return;
+    if (!word) {
+      choose('');
+      return;
+    }
     const forms = [...new Set([word, ...(parent.ziliVariants?.[word] ?? [])])];
     buttons.replaceChildren(...forms.map(form => {
       const button = document.createElement('button');
@@ -55,16 +60,37 @@
     if (play.disabled || !data) return;
     board.hidden = false;
     try {
-      writer ??= HanziWriter.create(board, form, {
-        width:160,height:160,padding:10,showOutline:true,showCharacter:false,strokeColor:'#8c291e',
-        charDataLoader:(_,complete) => complete(data),
+      if (writer) {
+        if (paused) writer.resumeAnimation();
+        else writer.pauseAnimation();
+        paused = !paused;
+        play.textContent = paused ? '继续播放' : '暂停';
+        return;
+      }
+
+      writer = HanziWriter.create(board, form, {
+        width: 160,
+        height: 160,
+        padding: 10,
+        showOutline: true,
+        showCharacter: false,
+        strokeColor: '#8c291e',
+        delayBetweenLoops: 1000,
+        charDataLoader: (_, complete) => complete(data),
       });
       const playing = writer;
-      play.textContent = '重新播放';
-      strokeStatus.textContent = '正在播放「' + form + '」的笔顺。';
-      await playing.animateCharacter();
-      if (playing === writer) strokeStatus.textContent = '「' + form + '」共 ' + data.strokes.length + ' 笔。';
+      play.textContent = '暂停';
+      strokeStatus.textContent = '「' + form + '」共 ' + data.strokes.length + ' 笔。';
+      await Promise.resolve(playing.loopCharacterAnimation()).catch(error => {
+        if (playing === writer) throw error;
+      });
     } catch {
+      writer?.pauseAnimation();
+      writer = undefined;
+      paused = false;
+      board.replaceChildren();
+      board.hidden = true;
+      play.textContent = '播放笔顺';
       strokeStatus.textContent = '笔顺暂时无法播放。';
     }
   });
