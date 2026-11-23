@@ -5,6 +5,31 @@
       "title": "一桌团圆",
       "url": "nian.html",
       "image": "nian-jinmen.webp"
+    },
+    {
+      "character": "门",
+      "title": "门上的新春祝愿",
+      "url": "men.html"
+    },
+    {
+      "character": "茶",
+      "title": "一杯茶的生活礼俗",
+      "url": "cha.html"
+    },
+    {
+      "character": "船",
+      "title": "节庆水路上的船",
+      "url": "chuan.html"
+    },
+    {
+      "character": "灯",
+      "title": "节庆里的灯火",
+      "url": "deng.html"
+    },
+    {
+      "character": "圆",
+      "title": "节庆里的团圆",
+      "url": "yuan.html"
     }
   ],
   "regions": {
@@ -26,6 +51,86 @@
         "source": "https://cabkc.kinmen.gov.tw/uploads/cabkc/files/201812/882f2606-5376-4011-a742-41570dc15277.pdf",
         "sourceTitle": "认识金门小百科·岁时节庆及迎神祭祖篇",
         "image": "nian-jinmen.webp"
+      },
+      {
+        "character": "门",
+        "place": "福建泉州",
+        "title": "除夕贴春联",
+        "body": "地方年俗资料将除夕贴春联列为一项习俗。",
+        "sourceTitle": "新春忆旧俗",
+        "source": "https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm"
+      },
+      {
+        "character": "门",
+        "place": "台湾（辞典所载）",
+        "title": "门左右贴春联",
+        "body": "辞典记录大门两边贴春联，门扇也可贴二字联。",
+        "sourceTitle": "台湾民俗文物辞典",
+        "source": "https://dict.th.gov.tw/detailPage.aspx?Ca=302&ID=1457"
+      },
+      {
+        "character": "茶",
+        "place": "中国大陆（申报范围）",
+        "title": "以茶待客",
+        "body": "名录记录以茶迎接客人，饮茶也见于家中、茶馆和仪式。",
+        "sourceTitle": "Traditional tea processing techniques and associated social practices in China",
+        "source": "https://ich.unesco.org/RL/traditional-tea-processing-techniques-and-associated-social-practices-in-china-01884"
+      },
+      {
+        "character": "茶",
+        "place": "台湾客家社群",
+        "title": "动手制作擂茶",
+        "body": "客家云条目收录庄台芳制作擂茶的记录。",
+        "sourceTitle": "莊臺芳製作擂茶",
+        "source": "https://cloud.hakka.gov.tw/Details?p=80523&pid=290056"
+      },
+      {
+        "character": "船",
+        "place": "福建厦门、泉州沿海",
+        "title": "沿海社区送王船",
+        "body": "联合申报条目将厦门湾和泉州湾沿海列为送王船习俗传承区域。",
+        "sourceTitle": "送王船联合申报",
+        "source": "https://ich.unesco.org/en/RL/ong-chun-wangchuan-wangkang-ceremony-rituals-and-related-practices-for-maintaining-the-sustainable-connection-between-man-and-the-ocean-01608"
+      },
+      {
+        "character": "船",
+        "place": "台湾屏东东港",
+        "title": "迎王祭典中的王船",
+        "body": "东港迎王平安祭典以王船为重要仪式物件。",
+        "sourceTitle": "東港迎王平安祭典",
+        "source": "https://taiwangods.moi.gov.tw/Religious_Culture/html/landscape/1_0011.aspx?i=90"
+      },
+      {
+        "character": "灯",
+        "place": "福建泉州",
+        "title": "针刺无骨灯",
+        "body": "泉州花灯有彩扎灯、刻纸灯、针刺无骨灯等制作类别。",
+        "sourceTitle": "灯彩（泉州花灯）",
+        "source": "https://www.ihchina.cn/project_details/14059"
+      },
+      {
+        "character": "灯",
+        "place": "台湾（名录所载）",
+        "title": "竹纸工艺做花灯",
+        "body": "文化资产资料将花灯联系到传统照明器具和竹纸工艺。",
+        "sourceTitle": "花灯制作",
+        "source": "https://nchdb.boch.gov.tw/embed/assets/overview/traditionalCraft/20240403000001"
+      },
+      {
+        "character": "圆",
+        "place": "浙江宁波海曙",
+        "title": "老街长桌宴的年节饮食（待补汤圆细节） · 待补证据",
+        "body": "海曙区政府记录南塘老街年节长桌宴的地方饮食。",
+        "sourceTitle": "长桌宴飘香南塘老街",
+        "source": "https://www.haishu.gov.cn/col/col1229826296/art/2026/art_8dc2da0a59c97414d99a1f926ed83935.html"
+      },
+      {
+        "character": "圆",
+        "place": "台湾（文献馆所载）",
+        "title": "元宵吃汤圆",
+        "body": "台湾文献馆将吃汤圆、赏花灯、猜灯谜列为元宵习俗。",
+        "sourceTitle": "元宵夜",
+        "source": "https://www.th.gov.tw/Epaper_Content/237/10008/"
       }
     ],
     "港澳": [
@@ -46,6 +151,86 @@
         "source": "https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf",
         "sourceTitle": "澳门非遗名录公开咨询文本 · 春节第5.2节",
         "image": "nian-macao.webp"
+      },
+      {
+        "character": "门",
+        "place": "香港",
+        "title": "写挥春迎新",
+        "body": "平台采访说明挥春写上吉祥字句，寄托对家人的祝福。",
+        "sourceTitle": "春节习俗重视家庭团圆",
+        "source": "https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html"
+      },
+      {
+        "character": "门",
+        "place": "澳门",
+        "title": "年末悬挥春贴门神",
+        "body": "咨询材料把悬挥春、贴门神放在年前大扫除之后。",
+        "sourceTitle": "非遗名录公开咨询文本",
+        "source": "https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf"
+      },
+      {
+        "character": "茶",
+        "place": "香港",
+        "title": "到茶楼饮茶",
+        "body": "香港旅游发展局以饮茶介绍茶与点心的搭配。",
+        "sourceTitle": "Yum Cha",
+        "source": "https://www.discoverhongkong.com/eng/place-to-go/travel.guide-yum-cha.html"
+      },
+      {
+        "character": "茶",
+        "place": "澳门",
+        "title": "点心配一壶茶",
+        "body": "澳门旅游局把吃点心时泡茶品尝的活动称为饮茶。",
+        "sourceTitle": "中式点心及菜肴",
+        "source": "https://www.macaotourism.gov.mo/zh-hant/dining/taste-of-macao/chinese-dimsum-and-dishes"
+      },
+      {
+        "character": "船",
+        "place": "香港大澳",
+        "title": "龙舟沿水道游涌",
+        "body": "大澳传统龙舟协会在端午前后以龙舟接神、游涌，最后送神回庙。",
+        "sourceTitle": "大澳游涌及龙舟竞渡",
+        "source": "https://www.islands.gov.hk/sc/festival-tai-o-dragon-boat-water-parade.php"
+      },
+      {
+        "character": "船",
+        "place": "澳门南湾湖",
+        "title": "端午龙舟竞渡",
+        "body": "澳门体育局赛事资料记录南湾湖龙舟赛设本地和国际组别。",
+        "sourceTitle": "澳门国际龙舟赛",
+        "source": "https://www.sport.gov.mo/zh/sites/dragonboat_sp/2026/id/929/nid/5694"
+      },
+      {
+        "character": "灯",
+        "place": "香港",
+        "title": "中秋看彩灯",
+        "body": "香港社区节目资料记录中秋彩灯会。",
+        "sourceTitle": "丙午年中秋彩灯会",
+        "source": "https://www.cpo.gov.hk/zh-hk/event/tc-mid-autumn-lantern-carnival-2026/"
+      },
+      {
+        "character": "灯",
+        "place": "澳门新街坊",
+        "title": "做鱼灯与花草纸灯",
+        "body": "澳门政府活动公告列出玲珑鱼灯和花草纸灯两个元宵手作坊。",
+        "sourceTitle": "澳门新街坊周日办元宵活动",
+        "source": "https://www.gov.mo/zh-hant/news/1122158/"
+      },
+      {
+        "character": "圆",
+        "place": "香港",
+        "title": "元宵节的汤圆",
+        "body": "香港教育局阅读材料以农历正月十五的元宵习俗介绍汤圆。",
+        "sourceTitle": "农历正月十五是中国传统的元宵节",
+        "source": "https://sense.edb.gov.hk/uploads/content/spld/chinese_read_write_summer_2.pdf"
+      },
+      {
+        "character": "圆",
+        "place": "澳门旅游学院",
+        "title": "动手搓汤丸过元宵",
+        "body": "澳门旅游学院春节活动记录学生动手制作汤丸。",
+        "sourceTitle": "承传中华文化 澳旅院一系列新春活动送鼠迎牛",
+        "source": "https://www.gov.mo/zh-hant/news/367523/"
       }
     ],
     "海外": [
@@ -57,6 +242,46 @@
         "source": "https://www.roots.gov.sg/ich-landing/ich/yusheng-and-lo-hei",
         "sourceTitle": "新加坡国家文物局 Roots · Yusheng and Lo Hei",
         "image": "nian-singapore.webp"
+      },
+      {
+        "character": "门",
+        "place": "新加坡",
+        "title": "用春联装点家里",
+        "body": "非遗条目把春联和写有吉祥字的红纸剪饰列入家庭春节布置。",
+        "sourceTitle": "Chinese New Year",
+        "source": "https://www.roots.gov.sg/ich-landing/ich/chinese-new-year"
+      },
+      {
+        "character": "茶",
+        "place": "新加坡",
+        "title": "茶作为祭祖供品",
+        "body": "国家文物局资料记载，有些家庭在中元节祭祖时以茶叶作供品。",
+        "sourceTitle": "Making and Sharing of Tea",
+        "source": "https://www.roots.gov.sg/ich-landing/ich/Making-and-Sharing-of-Tea"
+      },
+      {
+        "character": "船",
+        "place": "马来西亚马六甲",
+        "title": "华人社群传承送王船",
+        "body": "联合申报条目将马六甲华人社群列为送王船习俗传承社区。",
+        "sourceTitle": "送王船联合申报",
+        "source": "https://ich.unesco.org/en/RL/ong-chun-wangchuan-wangkang-ceremony-rituals-and-related-practices-for-maintaining-the-sustainable-connection-between-man-and-the-ocean-01608"
+      },
+      {
+        "character": "灯",
+        "place": "新加坡",
+        "title": "传统花灯制作",
+        "body": "国家文物局把传统中式灯笼制作收录为非遗项目。",
+        "sourceTitle": "Making of Traditional Chinese Lanterns",
+        "source": "https://www.roots.gov.sg/ich-landing/ich/making-of-traditional-chinese-lanterns"
+      },
+      {
+        "character": "圆",
+        "place": "新加坡",
+        "title": "春节团圆饭",
+        "body": "国家文物局条目将团圆饭描述为新加坡华人春节家庭活动，案例聚焦团圆的含义。",
+        "sourceTitle": "Chinese New Year",
+        "source": "https://www.roots.gov.sg/ich-landing/ich/chinese-new-year"
       }
     ]
   }
