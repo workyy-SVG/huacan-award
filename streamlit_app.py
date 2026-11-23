@@ -116,6 +116,7 @@ const frame = document.getElementById('site');
 const directory = document.getElementById('directory');
 const layout = document.getElementById('layout');
 let current = 'index.html', lastStory = '';
+let lookupScroll = 0;
 const isStory = page => /^(nian|men|cha|chuan|deng|yuan)\\.html$/.test(page);
 function selectTab(key) {
   for (const button of directory.querySelectorAll('[data-tab]')) {
@@ -134,7 +135,17 @@ function goToSection(doc, hash) {
 function activateLocal(doc, key) {
   if (key === 'lookup') {
     const trigger = doc.querySelector('[data-open-story-lookup]');
-    if (trigger) {trigger.click(); return;}
+    if (trigger) {
+      if (doc.body.classList.contains('lookup-only')) return;
+      lookupScroll = frame.contentWindow.scrollY;
+      const input = doc.getElementById('hanzi');
+      input.value = '';
+      input.dispatchEvent(new frame.contentWindow.Event('input', {bubbles:true}));
+      trigger.click();
+      doc.body.classList.add('lookup-only');
+      frame.contentWindow.scrollTo(0, 0);
+      return;
+    }
     goToSection(doc, 'lookup');
     doc.getElementById('hanzi')?.focus({preventScroll:true});
     return;
@@ -153,7 +164,17 @@ function navigate(page, hash = '', tab = '') {
   frame.onload = () => {
     const doc = frame.contentDocument;
     if (hash) activateLocal(doc, hash);
-    doc.getElementById('close-story-lookup')?.addEventListener('click', () => selectTab('featured'));
+    const close = doc.getElementById('close-story-lookup');
+    const restoreStory = () => {
+      if (!doc.body.classList.contains('lookup-only')) return;
+      doc.body.classList.remove('lookup-only');
+      frame.contentWindow.scrollTo(0, lookupScroll);
+      selectTab('featured');
+    };
+    close?.addEventListener('click', restoreStory);
+    doc.getElementById('story-lookup')?.addEventListener('keydown', event => {
+      if (event.key === 'Escape') restoreStory();
+    });
     doc.addEventListener('click', event => {
       const anchor = event.target.closest('a[href]');
       if (!anchor || anchor.hasAttribute('download')) return;
@@ -177,14 +198,21 @@ function navigate(page, hash = '', tab = '') {
       navigate(next, fragment);
     });
   };
-  const innerStyles = cover ? '' : '<style>.demo-shell,.journey-layout{display:block!important;max-width:1080px;margin:auto}.demo-shell>.directory,.journey-layout>.journey-sidebar{display:none!important}</style>';
-  frame.srcdoc = pages[page].replace('</head>', innerStyles + '</head>');
+  const innerStyles = cover ? '' : '<style>.demo-shell,.journey-layout{display:block!important;max-width:1080px;margin:auto}.demo-shell>.directory,.journey-layout>.journey-sidebar{display:none!important}.lookup-only .page>header,.lookup-only main>:not(#story-lookup){display:none!important}.lookup-only .page{min-height:100dvh}</style>';
+  const lookupLanding = page === 'index.html' && tab === 'lookup'
+    ? '<style>.globe-cover{width:min(92%,620px);aspect-ratio:auto;padding:28px 12px;background:none;overflow:visible}.globe-cover .globe-art,.globe-cover .globe-start{display:none}.globe-cover .globe-search{position:static;width:100%;height:46px}</style>'
+    : '';
+  frame.srcdoc = pages[page].replace('</head>', innerStyles + lookupLanding + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
   if (key === 'featured') return navigate('featured.html');
   if (key === 'regions') return navigate('regions.html');
   if (isStory(current)) {
+    const doc = frame.contentDocument;
+    if (key !== 'lookup' && doc.body.classList.contains('lookup-only')) {
+      doc.getElementById('close-story-lookup').click();
+    }
     selectTab(key);
     activateLocal(frame.contentDocument, key);
     return;
