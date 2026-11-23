@@ -8,7 +8,7 @@ import re
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
-PAGES = ("index.html", "lookup.html", "featured.html", "regions.html", "nian.html",
+PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
          "men.html", "cha.html", "chuan.html", "deng.html", "yuan.html")
 
 
@@ -89,8 +89,7 @@ const pages = """ + pages_json + """;
 const images = """ + assets_json + """;
 window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');
-let lookupOrigin = null;
-function navigate(page, hash = '', scroll = 0) {
+function navigate(page, hash = '') {
   if (!Object.hasOwn(pages, page)) return;
   document.body.style.background = page === 'index.html' ? '#e6e5e1' : '#e9decd';
   frame.onload = () => {
@@ -101,9 +100,6 @@ function navigate(page, hash = '', scroll = 0) {
       const offset = Number.parseFloat(view.getComputedStyle(node).scrollMarginTop) || 0;
       view.scrollTo(0, view.scrollY + node.getBoundingClientRect().top - offset);
     };
-    if (scroll) frame.contentWindow.scrollTo(0, scroll);
-    const back = doc.querySelector('[data-return-from-lookup]');
-    if (back && lookupOrigin) back.hidden = false;
     if (hash) {
       const node = doc.getElementById(hash);
       if (node?.tagName === 'DETAILS') node.open = true;
@@ -112,13 +108,6 @@ function navigate(page, hash = '', scroll = 0) {
     doc.addEventListener('click', event => {
       const anchor = event.target.closest('a[href]');
       if (!anchor || anchor.hasAttribute('download')) return;
-      if (anchor.hasAttribute('data-return-from-lookup') && lookupOrigin) {
-        event.preventDefault();
-        const origin = lookupOrigin;
-        lookupOrigin = null;
-        navigate(origin.page, '', origin.scroll);
-        return;
-      }
       const href = anchor.getAttribute('href');
       if (!href || /^(?:[a-z]+:|\/\/)/i.test(href)) return;
       if (href.startsWith('#')) {
@@ -132,11 +121,6 @@ function navigate(page, hash = '', scroll = 0) {
       const nextPage = path === './' ? 'index.html' : path.replace(/^\.\//, '');
       if (!Object.hasOwn(pages, nextPage)) return;
       event.preventDefault();
-      if (nextPage === 'lookup.html' && /^(nian|men|cha|chuan|deng|yuan)\.html$/.test(page)) {
-        lookupOrigin = {page, scroll: frame.contentWindow.scrollY};
-      } else if (nextPage !== 'lookup.html' || page !== 'lookup.html') {
-        lookupOrigin = null;
-      }
       navigate(nextPage, fragment);
     });
   };
