@@ -86,6 +86,31 @@ def bundle_site(version):
     strokes = json.loads((ROOT / "featured-strokes.json").read_text(encoding="utf-8"))
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
+    observation_style = """<style>
+#form .observation .glyph {
+  width: clamp(118px, 20vw, 224px);
+  font-size: clamp(4.6rem, 11.2vw, 9.4rem);
+}
+#form .observation p {
+  color: #2d2119;
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-weight: 500;
+  line-height: 1.65;
+  margin: 0 0 .65em;
+}
+#form .observation #open-glyph {
+  color: #702117;
+  font-size: clamp(1rem, 1.45vw, 1.125rem);
+  font-weight: 700;
+  min-height: 44px;
+}
+@media (min-width: 720px) {
+  #form .observation .glyph { position: relative; left: -22px; }
+}
+@media (max-width: 540px) {
+  #form .observation { grid-template-columns: 118px minmax(0, 1fr); }
+}
+</style>"""
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
     lookup_ui = (ROOT / "zili-lookup-results.js").read_text(encoding="utf-8")
     lookup_style = """<style>
@@ -135,6 +160,7 @@ def bundle_site(version):
                           lambda m: m[1] + lookup_style + writer_script +
                           "<script>" + lookup_ui + "</script>", page, count=1)
         if 'id="glyph-dialog"' in page:
+            page = page.replace("</head>", observation_style + "</head>", 1)
             page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
                                 "<script>" + stroke_ui + "</script></body>")
         pages[name] = page
