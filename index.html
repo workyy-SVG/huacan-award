@@ -29,12 +29,42 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 .globe-search input:focus,.globe-search input:valid {background:#f7f4ef;color:#302b28;}
 .globe-start:focus-visible,.globe-search input:focus-visible {outline:2px solid #8d291a;}
 
-.globe-search select{width:100%;height:100%;box-sizing:border-box;border:1px solid #dfd3c5;border-radius:999px;background:#f7f4ef;color:#3c2f29;padding:0 5%;font:clamp(16px,3.5cqw,20px) "Songti SC","SimSun",serif}
 .lookup-result{max-width:42rem;margin:12px auto;padding:18px;background:#fffaf2;color:#3c2f29}.lookup-result a{color:#8c291d}
-.globe-search{display:flex;align-items:stretch;background:#f7f4ef;border:1px solid #dfd3c5;min-height:34px}
-.globe-search input,.globe-search input:focus,.globe-search input:valid{flex:1;width:0;min-width:0;background:transparent;color:#302b28;padding:0 3%}
-.globe-search select,.globe-search button{flex:none;border:0;background:transparent;color:#6f2c22;padding:0 5px;font:clamp(12px,2.8cqw,16px) system-ui,sans-serif}
-.globe-search button{padding-right:10px;cursor:pointer}
+.globe-search {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) clamp(54px,12cqw,72px) clamp(46px,10cqw,64px);
+  align-items:center;
+  min-height:34px;
+  background:#f7f4ef;
+  border:1px solid #dfd3c5;
+}
+.globe-search input,.globe-search input:focus,.globe-search input:valid {
+  width:100%;
+  min-width:0;
+  padding:0 clamp(8px,3cqw,18px);
+  background:transparent;
+  color:#302b28;
+}
+.globe-search select,.globe-search button {
+  width:100%;
+  min-width:0;
+  height:100%;
+  border:0;
+  background:transparent;
+  color:#6f2c22;
+  padding:0 5px;
+  font:clamp(13px,2.8cqw,16px) system-ui,sans-serif;
+  white-space:nowrap;
+}
+.globe-search button {
+  padding-right:10px;
+  border-radius:0 999px 999px 0;
+  cursor:pointer;
+}
+.globe-search :is(select,button):focus-visible {
+  outline:2px solid #8d291a;
+  outline-offset:-2px;
+}
 .lookup-result{max-width:42rem;margin:12px auto;padding:18px;background:#fffaf2;color:#3c2f29}.lookup-result a{color:#8c291d}
 </style>
 <main class="globe-cover" aria-label="字里寻踪。 同一个字，连接不同地方的生活记录">
