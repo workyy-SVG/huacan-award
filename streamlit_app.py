@@ -85,7 +85,7 @@ pages_json, assets_json = bundle_site(site_version())
 st.iframe("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
-#layout{display:grid;grid-template-columns:clamp(233px,23vw,300px) minmax(0,1fr);height:100dvh}
+#layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
 #layout.home{grid-template-columns:minmax(0,1fr)}
 #directory{overflow:auto;background:#f9f0de;border-right:1px solid #d7c2a4;padding:28px 20px;color:#473326;font:16px/1.65 system-ui,sans-serif}
 #directory[hidden]{display:none}
@@ -198,7 +198,7 @@ function navigate(page, hash = '', tab = '') {
       navigate(next, fragment);
     });
   };
-  const innerStyles = cover ? '' : '<style>.demo-shell,.journey-layout{display:block!important;max-width:1080px;margin:auto}.demo-shell>.directory,.journey-layout>.journey-sidebar{display:none!important}.lookup-only .page>header,.lookup-only main>:not(#story-lookup){display:none!important}.lookup-only .page{min-height:100dvh}</style>';
+  const innerStyles = cover ? '' : '<style>.demo-shell,.journey-layout{display:block!important;width:100%;max-width:none;margin:0}.demo-shell>.page,.journey-layout>.page{width:100%;max-width:none;margin:0;min-height:100dvh;box-shadow:none}.demo-shell>.directory,.journey-layout>.journey-sidebar{display:none!important}body>main,.sheet>main{width:calc(100% - 2 * clamp(14px,3vw,44px));max-width:none}.lookup-only .page>header,.lookup-only main>:not(#story-lookup){display:none!important}.lookup-only .page{min-height:100dvh}</style>';
   const lookupLanding = page === 'index.html' && tab === 'lookup'
     ? '<style>.globe-cover{width:min(92%,620px);aspect-ratio:auto;padding:28px 12px;background:none;overflow:visible}.globe-cover .globe-art,.globe-cover .globe-start{display:none}.globe-cover .globe-search{position:static;width:100%;height:46px}</style>'
     : '';
