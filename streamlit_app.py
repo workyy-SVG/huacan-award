@@ -6,7 +6,11 @@ import mimetypes
 from pathlib import Path
 import re
 
+from io import BytesIO
+
+from PIL import Image
 import streamlit as st
+from streamlit.components.v1 import html as render_html
 
 ROOT = Path(__file__).resolve().parent
 # Region navigation is provided by the fixed Streamlit sidebar.
@@ -62,14 +66,19 @@ def bundle_site(version):
         mime = mimetypes.guess_type(name)[0]
         if not mime or not mime.startswith("image/"):
             return name
-        return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode("ascii")
+        data = path.read_bytes()
+        if name == "globe-cover-reference.png":
+            with Image.open(path) as cover:
+                buffer = BytesIO()
+                cover.convert("RGB").save(buffer, format="JPEG", quality=92, optimize=True)
+                data = buffer.getvalue()
+                mime = "image/jpeg"
+        return f"data:{mime};base64," + base64.b64encode(data).decode("ascii")
 
     def json_script(value):
         return json.dumps(value, ensure_ascii=False).replace("<", r"\u003c")
 
     catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
-    assets = {p.name: image_url(p.name) for p in ROOT.iterdir()
-              if p.suffix.lower() in (".webp", ".png", ".jpg")}
     variants = json.loads(gzip.decompress(base64.b64decode((ROOT / "unihan-variants.gz.b64").read_bytes())))
     strokes = json.loads((ROOT / "featured-strokes.json").read_text(encoding="utf-8"))
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
@@ -84,10 +93,6 @@ def bundle_site(version):
                       lambda m: "<script>" + ("document.addEventListener('DOMContentLoaded', () => {\n" if m[1] else "")
                       + (ROOT / (m[2]+".js")).read_text(encoding="utf-8")
                       + ("\n});" if m[1] else "") + "</script>", page)
-        page = re.sub(r'(src=")([\w.-]+\.(?:webp|png|jpg))(")',
-                      lambda m: m[1] + assets.get(m[2], m[2]) + m[3], page)
-        page = re.sub(r'url\((["\']?)([\w.-]+\.(?:webp|png|jpg))\1\)',
-                      lambda m: 'url("' + assets.get(m[2], m[2]) + '")', page)
         page = page.replace("fetch('cases.json')", "Promise.resolve(new Response(JSON.stringify(" + json_script(catalogue) + ")))") if "fetch('cases.json')" in page else page
         page = page.replace("return config.images?.[record.id] || record.image;", "return parent.ziliImage(config.images?.[record.id] || record.image);")
         page = page.replace("return config.images?.[record.id] || record.id + '.webp';", "return parent.ziliImage(config.images?.[record.id] || record.id + '.webp');")
@@ -98,7 +103,12 @@ def bundle_site(version):
             page = page.replace("</body>", stroke_style + "<script>" + stroke_library +
                                 "</script><script>" + stroke_ui + "</script></body>")
         pages[name] = page
-    return json_script(pages), json_script(assets), json_script(variants), json_script(strokes)
+    references = "\n".join([*pages.values(), json_script(catalogue)])
+    assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
+              if path.suffix.lower() in (".webp", ".png", ".jpg")
+              and (path.name in references or path.name.startswith("nian-"))}
+    payload = json_script({"pages": pages, "images": assets, "variants": variants, "strokes": strokes})
+    return base64.b64encode(gzip.compress(payload.encode("utf-8"), compresslevel=6)).decode("ascii")
 
 
 st.set_page_config(page_title="字里寻踪", page_icon="年", layout="wide")
@@ -119,8 +129,8 @@ iframe[data-testid="stIFrame"] {
     border: 0;
 }
 </style>""")
-pages_json, assets_json, variants_json, strokes_json = bundle_site(site_version())
-st.iframe("""<!doctype html><meta charset="utf-8"><style>
+site_payload = bundle_site(site_version())
+render_html("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
@@ -147,10 +157,13 @@ iframe{display:block;width:100%;height:100%;min-height:0;border:0}
 <button type="button" data-tab="sources">资料与来源<small>查看原文与素材说明</small></button>
 </nav></aside><iframe title="字里寻踪" id="site"></iframe></div>
 <script>
-const pages = """ + pages_json + """;
-const images = """ + assets_json + """;
-window.ziliVariants = """ + variants_json + """;
-window.ziliStrokeData = """ + strokes_json + """;
+(async () => {
+const packed = '""" + site_payload + """';
+const bytes = Uint8Array.from(atob(packed), character => character.charCodeAt(0));
+const decompressed = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+const {pages, images, variants, strokes} = await new Response(decompressed).json();
+window.ziliVariants = variants;
+window.ziliStrokeData = strokes;
 window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');
 const directory = document.getElementById('directory');
@@ -243,13 +256,20 @@ function navigate(page, hash = '', tab = '') {
     ? '<style>.globe-cover{width:min(92%,620px);aspect-ratio:auto;padding:28px 12px;background:none;overflow:visible}.globe-cover .globe-art,.globe-cover .globe-start{display:none}.globe-cover .globe-search{position:static;width:100%;height:46px}</style>'
     : '';
   const lookupSizing = cover ? '' : '<style>.story-lookup .story-lookup-form,.globe-cover .globe-search{min-height:52px;grid-template-columns:minmax(0,1fr) 84px 64px}.story-lookup .story-lookup-form{max-width:700px}.story-lookup .story-lookup-form>*,.globe-cover .globe-search>*{font-size:16px}.story-lookup-form select,.globe-search select{padding-inline:10px}@media(max-width:420px){.story-lookup .story-lookup-form,.globe-cover .globe-search{grid-template-columns:minmax(0,1fr) 74px 56px}}</style>';
-  const creditStyle = '<style>.lookup-credit{margin:7px 0 0;color:#695849;font:clamp(11px,2.4vw,14px)/1.3 system-ui,sans-serif}.globe-cover .lookup-credit{position:absolute;top:146cqw;left:7.7%;width:84.8%;margin:0;text-align:center;font-size:clamp(10px,2.25cqw,14px)}.globe-cover:has(.globe-search) .lookup-credit a{color:inherit}.globe-cover.lookup-credit-flow .lookup-credit{position:static;width:auto;margin-top:7px}</style>';
+  const creditStyle = '<style>.lookup-credit{margin:7px 0 0;color:#695849;font:clamp(11px,2.4vw,14px)/1.3 system-ui,sans-serif}.cover-credit{max-width:650px;margin:0 auto;padding:0 16px 10px;text-align:center}.globe-cover .lookup-credit{position:absolute;top:146cqw;left:7.7%;width:84.8%;margin:0;text-align:center;font-size:clamp(10px,1.8cqw,12px)}.globe-cover:has(.globe-search) .lookup-credit a{color:inherit}.globe-cover.lookup-credit-flow .lookup-credit{position:static;width:auto;margin-top:7px}</style>';
+  const credit = '<p class="lookup-credit">萌典提供读音、部首、笔画和释义；Unicode Unihan 识别简繁关联；Hanzi Writer 在精选字的字形弹窗里演示笔顺。</p>';
   const pageHtml = pages[page].replace(
     /(<form class="(?:globe-search|story-lookup-form)"[^>]*>[\\s\\S]*?<\\/form>)/,
-    '$1<p class="lookup-credit">字典数据来源：萌典（Moedict）公开接口 · 简繁关联：Unicode Unihan</p>'
+    '$1' + (cover ? '' : credit)
   );
-  const lookupHtml = lookupLanding ? pageHtml.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : pageHtml;
-  frame.srcdoc = lookupHtml.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + '</head>');
+  const attributedPage = cover ? pageHtml.replace('</main>', '</main><div class="cover-credit">' + credit + '</div>') : pageHtml;
+  const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
+  const inlineImages = lookupHtml
+    .replace(/(src=")([\\w.-]+\\.(?:webp|png|jpg))(")/g, (match, start, name, end) =>
+      images[name] ? start + images[name] + end : match)
+    .replace(/url\\((["']?)([\\w.-]+\\.(?:webp|png|jpg))\\1\\)/g, (match, quote, name) =>
+      images[name] ? 'url("' + images[name] + '")' : match);
+  frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
@@ -272,4 +292,12 @@ for (const button of directory.querySelectorAll('[data-tab]')) {
   button.addEventListener('click', () => openFunction(button.dataset.tab));
 }
 navigate('index.html');
-</script>""", height=860)
+})().catch(error => {
+  console.error('Unable to load site', error);
+  const notice = document.createElement('p');
+  notice.setAttribute('role', 'alert');
+  notice.style.cssText = 'margin:24px;font:16px system-ui';
+  notice.textContent = '暂时无法载入《字里寻踪》，请刷新页面重试。';
+  document.getElementById('layout').replaceWith(notice);
+});
+</script>""", height=860, scrolling=False)
