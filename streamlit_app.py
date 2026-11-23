@@ -314,7 +314,17 @@ function navigate(page, hash = '', tab = '') {
     .replace(/url\\((["']?)([\\w.-]+\\.(?:webp|png|jpg))\\1\\)/g, (match, quote, name) =>
       images[name] ? 'url("' + images[name] + '")' : match);
   const pickerStyle = cover ? '<style>.globe-cover:has(.cover-picker){aspect-ratio:1600/2500}.globe-cover .cover-case-note{position:absolute;top:calc(145.54cqw + 5px);left:50%;transform:translateX(-50%);max-width:88%;width:max-content;margin:0;padding:3px 8px;border-radius:6px;background:#fff7e9;color:#79291e;text-align:center;font:600 clamp(11px,2.6cqw,16px)/1.35 system-ui,sans-serif}.globe-cover .cover-picker{display:block}.cover-picker select{width:100%;height:100%;padding:0 14px;border-radius:999px;font:clamp(15px,3.5cqw,20px) system-ui,sans-serif}</style>' : '';
-  frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + pickerStyle + '</head>');
+  const coverPaperStyle = cover ? `<style>
+    body{background:linear-gradient(180deg,#f6f3ed,#f5f2eb 64%,#f7f4ee)}
+    .globe-cover{background:transparent}
+    @media (min-width:601px){
+      .globe-cover .globe-art{
+        -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+        mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+      }
+    }
+  </style>` : '';
+  frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + pickerStyle + coverPaperStyle + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
