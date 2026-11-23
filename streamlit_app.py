@@ -135,6 +135,7 @@ def bundle_site(version):
 .lookup-forms{display:flex;gap:8px;flex-wrap:wrap}
 .lookup-forms button,.lookup-play{border:1px solid #d7c2a4;border-radius:8px;background:#fff8ed;color:#8c291e;padding:7px 13px}
 .lookup-forms button{font:28px/1.2 KaiTi,serif}
+.lookup-forms button small{display:block;font:600 .8rem/1.4 system-ui,sans-serif}
 .lookup-forms button[aria-pressed=true],.lookup-play:not(:disabled){background:#8c291e;color:#fff}
 .lookup-glyph{font:clamp(76px,8vw,110px)/1.25 KaiTi,serif;text-align:center;color:#8c291e}
 .lookup-stroke-board{margin:12px auto;width:min(100%,260px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}
@@ -231,7 +232,10 @@ const packed = '""" + site_payload + """';
 const bytes = Uint8Array.from(atob(packed), character => character.charCodeAt(0));
 const decompressed = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
 const {pages, images, variants, strokes} = await new Response(decompressed).json();
-window.ziliVariants = variants;
+window.ziliVariantPairs = variants.pairs;
+window.ziliSameForms = new Set(variants.same);
+window.ziliVariants = Object.fromEntries(Object.entries(variants.pairs).map(([char, [simple, traditional]]) =>
+  [char, [...new Set([...simple, ...traditional])].filter(form => form !== char)]));
 window.ziliStrokeData = strokes;
 window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');

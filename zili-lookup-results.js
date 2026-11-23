@@ -39,7 +39,7 @@
     glyph.textContent = form;
     grid.querySelector('.lookup-stroke-form').textContent = '当前字形：' + form;
     for (const button of buttons.children) {
-      button.setAttribute('aria-pressed', String(button.textContent === form));
+      button.setAttribute('aria-pressed', String(button.dataset.form === form));
     }
     board.replaceChildren();
     board.hidden = true;
@@ -100,19 +100,35 @@
       choose('');
       return;
     }
-    const forms = [...new Set([word, ...(parent.ziliVariants?.[word] ?? [])])];
-    buttons.replaceChildren(...forms.map(form => {
+    const pair = parent.ziliVariantPairs?.[word];
+    const same = parent.ziliSameForms?.has(word);
+    const forms = new Map();
+    if (pair) {
+      const [simple, traditional] = pair;
+      for (const [values, label] of [[simple || word, '简体'], [traditional || word, '繁体']]) {
+        for (const form of values) {
+          forms.set(form, forms.has(form) ? '简繁同形' : label);
+        }
+      }
+    }
+    if (!forms.has(word)) forms.set(word, same ? '简繁同形' : '输入字');
+    buttons.replaceChildren(...Array.from(forms, ([form, label]) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = form;
+      button.dataset.form = form;
+      const caption = document.createElement('small');
+      caption.textContent = label;
+      button.append(caption, form);
       button.addEventListener('click', () => {
         if (form !== selected) choose(form);
       });
       return button;
     }));
-    grid.querySelector('.lookup-variant-note').textContent = forms.length > 1
-      ? '切换字形可比较写法，并选择对应的笔顺。'
-      : 'Unihan 暂无其他简繁关联字形。';
+    grid.querySelector('.lookup-variant-note').textContent = pair
+      ? '点击字形查看对应笔顺。若有多个繁体写法，请按词义区分。'
+      : same
+        ? '常用简体和繁体都写作「' + word + '」。'
+        : '暂未查到该字的简繁对应。';
     choose(word);
   });
   async function togglePlayback() {
