@@ -86,6 +86,12 @@ def bundle_site(version):
     strokes = json.loads((ROOT / "featured-strokes.json").read_text(encoding="utf-8"))
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
+    keepsake_style = """<style>
+#keepsake .keepsake { min-height: clamp(290px, 26vw, 360px); }
+@media (max-width: 540px) {
+  #keepsake .keepsake { min-height: 240px; }
+}
+</style>"""
     observation_style = """<style>
 #form .observation .glyph {
   width: clamp(118px, 20vw, 224px);
@@ -160,7 +166,9 @@ def bundle_site(version):
                           lambda m: m[1] + lookup_style + writer_script +
                           "<script>" + lookup_ui + "</script>", page, count=1)
         if 'id="glyph-dialog"' in page:
-            page = page.replace("</head>", observation_style + "</head>", 1)
+            page = re.sub(r'(<details(?: id="sources")?)(>\s*<summary>资料核验与素材说明</summary>)',
+                          r'\1 open\2', page, count=1)
+            page = page.replace("</head>", observation_style + keepsake_style + "</head>", 1)
             page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
                                 "<script>" + stroke_ui + "</script></body>")
         pages[name] = page
