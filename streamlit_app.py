@@ -20,7 +20,7 @@ PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
 
 def site_version():
     names = {*PAGES, "cases.json", "style.css", "app.js", "demo.js", "unihan-variants.gz.b64", "featured-strokes.json",
-             "hanzi-writer.min.js", "zili-strokes.js"}
+             "hanzi-writer.min.js", "zili-strokes.js", "zili-lookup-results.js"}
     # Include the regional gallery page in the cache fingerprint.
     # Story pages include their inline lookup panels in the cached site bundle.
     return tuple(
@@ -38,8 +38,11 @@ def enrich_lookup(page):
         """const [preferred, storyUrl] = entries[word] ?? [word];
   const variants = parent.ziliVariants?.[word] ?? [];
   const candidates = [...new Set([word, preferred, ...variants])].slice(0, 4);
-  let form = word;""",
+  let form = word;
+  document.dispatchEvent(new CustomEvent('zili:lookup', {detail:word}));""",
     )
+    page = page.replace("const word = input.value.trim();", """const word = input.value.trim();
+  document.dispatchEvent(new CustomEvent('zili:lookup', {detail:null}));""")
     old_request = "const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});"
     page = page.replace(old_request, """let response;
     for (const candidate of candidates) {
@@ -84,6 +87,9 @@ def bundle_site(version):
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
+    lookup_ui = (ROOT / "zili-lookup-results.js").read_text(encoding="utf-8")
+    lookup_style = '<style>.lookup-result:has(.lookup-three){max-width:1040px}.lookup-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.lookup-tile{min-width:0;padding:14px;background:#fffaf0;border:1px solid #d7c2a4;border-radius:10px}.lookup-tile h3{margin:0 0 10px;color:#8c291e}.lookup-forms{display:flex;gap:7px;flex-wrap:wrap}.lookup-forms button,.lookup-play{border:1px solid #d7c2a4;border-radius:8px;background:#fff8ed;color:#8c291e;padding:6px 12px}.lookup-forms button{font:25px KaiTi,serif}.lookup-forms button[aria-pressed=true],.lookup-play:not(:disabled){background:#8c291e;color:#fff}.lookup-glyph{font:72px/1.25 KaiTi,serif;text-align:center;color:#8c291e}.lookup-stroke-board{margin:8px auto;width:min(100%,160px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}.lookup-stroke-board svg{max-width:100%}.lookup-variant-note,.lookup-stroke-status{font-size:.875rem;color:#695849}@media(max-width:900px){.lookup-three{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.lookup-three{grid-template-columns:1fr}}</style>'
+    writer_script = "<script>" + stroke_library + "</script>"
     pages = {}
     for name in PAGES:
         page = (ROOT / name).read_text(encoding="utf-8")
@@ -97,11 +103,15 @@ def bundle_site(version):
         page = page.replace("return config.images?.[record.id] || record.image;", "return parent.ziliImage(config.images?.[record.id] || record.image);")
         page = page.replace("return config.images?.[record.id] || record.id + '.webp';", "return parent.ziliImage(config.images?.[record.id] || record.id + '.webp');")
         page = re.sub(r'(picture\.src\s*=\s*)image\s*;', r'\1parent.ziliImage(image);', page)
-        if 'www.moedict.tw/uni/' in page:
+        has_lookup = 'www.moedict.tw/uni/' in page
+        if has_lookup:
             page = enrich_lookup(page)
+            page = re.sub(r'(<section id="lookup-result"[\s\S]*?</section>)',
+                          lambda m: m[1] + lookup_style + writer_script +
+                          "<script>" + lookup_ui + "</script>", page, count=1)
         if 'id="glyph-dialog"' in page:
-            page = page.replace("</body>", stroke_style + "<script>" + stroke_library +
-                                "</script><script>" + stroke_ui + "</script></body>")
+            page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
+                                "<script>" + stroke_ui + "</script></body>")
         pages[name] = page
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
