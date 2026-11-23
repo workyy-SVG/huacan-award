@@ -83,49 +83,117 @@ iframe[data-testid="stIFrame"] {
 pages_json, assets_json = bundle_site(site_version())
 st.iframe("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
-iframe{display:block;width:100%;height:100%;border:0}
-</style><iframe title="字里寻踪" id="site"></iframe>
+*{box-sizing:border-box}
+#layout{display:grid;grid-template-columns:clamp(233px,23vw,300px) minmax(0,1fr);height:100dvh}
+#layout.home{grid-template-columns:minmax(0,1fr)}
+#directory{overflow:auto;background:#f9f0de;border-right:1px solid #d7c2a4;padding:28px 20px;color:#473326;font:16px/1.65 system-ui,sans-serif}
+#directory[hidden]{display:none}
+.brand{font:700 32px KaiTi,serif;color:#84281e}.subtitle{font-size:14px;color:#705946;margin:4px 0 23px}
+#directory nav{display:grid;gap:8px}
+#directory button{width:100%;border:0;border-radius:9px;background:transparent;text-align:left;padding:11px 14px;color:inherit;font:inherit;cursor:pointer}
+#directory button:hover:not([aria-current]){background:#f0e0c5}
+#directory button[aria-current]{background:#8c291e;color:white}
+#directory button:focus-visible{outline:2px solid #a35a23;outline-offset:2px}
+#directory small{display:block;font-size:13px;opacity:.86}
+iframe{display:block;width:100%;height:100%;min-height:0;border:0}
+@media(max-width:660px){#layout{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}#layout.home{grid-template-rows:minmax(0,1fr)}#directory{border-right:0;border-bottom:1px solid #d7c2a4;padding:10px 13px}.brand{font-size:24px}.subtitle,#directory small{display:none}#directory nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:7px}#directory button{padding:7px 4px;min-height:40px;text-align:center;font-size:14px}}
+</style>
+<div id="layout" class="home">
+<aside id="directory" hidden><div class="brand">字里寻踪</div><p class="subtitle">两岸四海的生活印记</p><nav aria-label="功能目录">
+<button type="button" data-tab="home">首页<small>回到封面入口</small></button>
+<button type="button" data-tab="featured">精选寻踪<small>沿一个字读完整故事</small></button>
+<button type="button" data-tab="regions">四海故事<small>按地区浏览生活记录</small></button>
+<button type="button" data-tab="lookup">自由查字<small>输入或选择感兴趣的字</small></button>
+<button type="button" data-tab="keepsake">我的寻踪卡<small>带走想记住的生活细节</small></button>
+<button type="button" data-tab="sources">资料与来源<small>查看原文与素材说明</small></button>
+</nav></aside><iframe title="字里寻踪" id="site"></iframe></div>
 <script>
 const pages = """ + pages_json + """;
 const images = """ + assets_json + """;
 window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');
-function navigate(page, hash = '') {
+const directory = document.getElementById('directory');
+const layout = document.getElementById('layout');
+let current = 'index.html', lastStory = '';
+const isStory = page => /^(nian|men|cha|chuan|deng|yuan)\\.html$/.test(page);
+function selectTab(key) {
+  for (const button of directory.querySelectorAll('[data-tab]')) {
+    if (button.dataset.tab === key) button.setAttribute('aria-current','page');
+    else button.removeAttribute('aria-current');
+  }
+}
+function goToSection(doc, hash) {
+  const node = doc.getElementById(hash === 'sources' && !doc.getElementById('sources') ? 'journey-sources' : hash);
+  if (!node) return;
+  if (node.tagName === 'DETAILS') node.open = true;
+  const view = frame.contentWindow;
+  const offset = Number.parseFloat(view.getComputedStyle(node).scrollMarginTop) || 0;
+  view.scrollTo(0, view.scrollY + node.getBoundingClientRect().top - offset);
+}
+function activateLocal(doc, key) {
+  if (key === 'lookup') {
+    const trigger = doc.querySelector('[data-open-story-lookup]');
+    if (trigger) {trigger.click(); return;}
+    goToSection(doc, 'lookup');
+    doc.getElementById('hanzi')?.focus({preventScroll:true});
+    return;
+  }
+  goToSection(doc, key);
+}
+function navigate(page, hash = '', tab = '') {
   if (!Object.hasOwn(pages, page)) return;
-  document.body.style.background = page === 'index.html' ? '#e6e5e1' : '#e9decd';
+  current = page;
+  if (isStory(page)) lastStory = page;
+  const cover = page === 'index.html' && tab !== 'lookup';
+  const selected = tab || (page === 'regions.html' ? 'regions' : cover ? 'home' : 'featured');
+  directory.hidden = cover;
+  layout.classList.toggle('home', cover);
+  selectTab(selected);
   frame.onload = () => {
     const doc = frame.contentDocument;
-    const scrollToSection = (node) => {
-      if (!node) return;
-      const view = frame.contentWindow;
-      const offset = Number.parseFloat(view.getComputedStyle(node).scrollMarginTop) || 0;
-      view.scrollTo(0, view.scrollY + node.getBoundingClientRect().top - offset);
-    };
-    if (hash) {
-      const node = doc.getElementById(hash);
-      if (node?.tagName === 'DETAILS') node.open = true;
-      scrollToSection(node);
-    }
+    if (hash) activateLocal(doc, hash);
+    doc.getElementById('close-story-lookup')?.addEventListener('click', () => selectTab('featured'));
     doc.addEventListener('click', event => {
       const anchor = event.target.closest('a[href]');
       if (!anchor || anchor.hasAttribute('download')) return;
       const href = anchor.getAttribute('href');
-      if (!href || /^(?:[a-z]+:|\/\/)/i.test(href)) return;
+      if (!href || /^(?:[a-z]+:|\\/\\/)/i.test(href)) return;
       if (href.startsWith('#')) {
         event.preventDefault();
-        const node = doc.getElementById(href.slice(1));
-        if (node?.tagName === 'DETAILS') node.open = true;
-        scrollToSection(node);
+        const id = href.slice(1);
+        if (id === 'keepsake' || id === 'sources' || id === 'journey-sources') selectTab(id === 'journey-sources' ? 'sources' : id);
+        goToSection(doc, id);
         return;
       }
       const [path, fragment] = href.split('#');
-      const nextPage = path === './' ? 'index.html' : path.replace(/^\.\//, '');
-      if (!Object.hasOwn(pages, nextPage)) return;
+      const next = path === './' ? 'index.html' : path.replace(/^\\.\\//, '');
+      if (!Object.hasOwn(pages, next)) return;
       event.preventDefault();
-      navigate(nextPage, fragment);
+      if (next === 'index.html' && fragment === 'lookup') {
+        openFunction('lookup');
+        return;
+      }
+      navigate(next, fragment);
     });
   };
-  frame.srcdoc = pages[page];
+  const innerStyles = cover ? '' : '<style>.demo-shell,.journey-layout{display:block!important;max-width:1080px;margin:auto}.demo-shell>.directory,.journey-layout>.journey-sidebar{display:none!important}</style>';
+  frame.srcdoc = pages[page].replace('</head>', innerStyles + '</head>');
+}
+function openFunction(key) {
+  if (key === 'home') return navigate('index.html');
+  if (key === 'featured') return navigate('featured.html');
+  if (key === 'regions') return navigate('regions.html');
+  if (isStory(current)) {
+    selectTab(key);
+    activateLocal(frame.contentDocument, key);
+    return;
+  }
+  if (lastStory) return navigate(lastStory, key, key);
+  if (key === 'lookup') return navigate('index.html', 'lookup', key);
+  navigate('featured.html', '', key);
+}
+for (const button of directory.querySelectorAll('[data-tab]')) {
+  button.addEventListener('click', () => openFunction(button.dataset.tab));
 }
 navigate('index.html');
 </script>""", height=860)
