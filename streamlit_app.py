@@ -12,8 +12,18 @@ PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
          "men.html", "cha.html", "chuan.html", "deng.html", "yuan.html")
 
 
+def site_version():
+    names = {*PAGES, "cases.json", "style.css", "app.js", "demo.js"}
+    return tuple(
+        (path.name, info.st_mtime_ns, info.st_size)
+        for path in sorted(ROOT.iterdir())
+        if path.is_file() and (path.name in names or path.suffix.lower() in (".webp", ".png", ".jpg"))
+        for info in (path.stat(),)
+    )
+
+
 @st.cache_data(show_spinner=False)
-def bundle_site():
+def bundle_site(version):
     def image_url(name):
         path = ROOT / name
         if path.parent != ROOT or not path.is_file():
@@ -56,7 +66,7 @@ st.html("""<style>
 [data-testid="stHeader"]{display:none}
 iframe[data-testid="stIFrame"]{width:100%;height:100dvh!important;border:0;display:block}
 </style>""")
-pages_json, assets_json = bundle_site()
+pages_json, assets_json = bundle_site(site_version())
 st.iframe("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden}
 iframe{display:block;width:100%;height:100%;border:0}
