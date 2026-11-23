@@ -62,13 +62,25 @@ def bundle_site(version):
 
 st.set_page_config(page_title="字里寻踪", page_icon="年", layout="wide")
 st.html("""<style>
-[data-testid="stMainBlockContainer"]{max-width:none;padding:0}
-[data-testid="stHeader"]{display:none}
-iframe[data-testid="stIFrame"]{width:100%;height:100dvh!important;border:0;display:block}
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {
+    background: #e9decd;
+    height: 100dvh;
+    overflow: hidden;
+}
+[data-testid="stMainBlockContainer"] { max-width: none; padding: 0; }
+[data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] { gap: 0; }
+[data-testid="stHeader"] { display: none; }
+iframe[data-testid="stIFrame"] {
+    display: block;
+    width: 100%;
+    height: 100dvh !important;
+    border: 0;
+}
 </style>""")
 pages_json, assets_json = bundle_site(site_version())
 st.iframe("""<!doctype html><meta charset="utf-8"><style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 iframe{display:block;width:100%;height:100%;border:0}
 </style><iframe title="字里寻踪" id="site"></iframe>
 <script>
