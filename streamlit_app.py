@@ -202,7 +202,8 @@ function navigate(page, hash = '', tab = '') {
   const lookupLanding = page === 'index.html' && tab === 'lookup'
     ? '<style>.globe-cover{width:min(92%,620px);aspect-ratio:auto;padding:28px 12px;background:none;overflow:visible}.globe-cover .globe-art,.globe-cover .globe-start{display:none}.globe-cover .globe-search{position:static;width:100%;height:46px}</style>'
     : '';
-  frame.srcdoc = pages[page].replace('</head>', innerStyles + lookupLanding + '</head>');
+  const lookupSizing = cover ? '' : '<style>.story-lookup .story-lookup-form,.globe-cover .globe-search{min-height:52px;grid-template-columns:minmax(0,1fr) 84px 64px}.story-lookup .story-lookup-form{max-width:700px}.story-lookup .story-lookup-form>*,.globe-cover .globe-search>*{font-size:16px}.story-lookup-form select,.globe-search select{padding-inline:10px}@media(max-width:420px){.story-lookup .story-lookup-form,.globe-cover .globe-search{grid-template-columns:minmax(0,1fr) 74px 56px}}</style>';
+  frame.srcdoc = pages[page].replace('</head>', innerStyles + lookupLanding + lookupSizing + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
