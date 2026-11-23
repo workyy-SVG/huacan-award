@@ -68,9 +68,10 @@
         return;
       }
 
+      const size = 216;
       writer = HanziWriter.create(board, form, {
-        width: 160,
-        height: 160,
+        width: size,
+        height: size,
         padding: 10,
         showOutline: true,
         showCharacter: false,
@@ -78,6 +79,7 @@
         delayBetweenLoops: 1000,
         charDataLoader: (_, complete) => complete(data),
       });
+      board.querySelector('svg')?.setAttribute('viewBox', `0 0 ${size} ${size}`);
       const playing = writer;
       play.textContent = '暂停';
       strokeStatus.textContent = '「' + form + '」共 ' + data.strokes.length + ' 笔。';

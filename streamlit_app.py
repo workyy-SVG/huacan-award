@@ -88,7 +88,28 @@ def bundle_site(version):
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
     lookup_ui = (ROOT / "zili-lookup-results.js").read_text(encoding="utf-8")
-    lookup_style = '<style>.lookup-result:has(.lookup-three){max-width:1040px}.lookup-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.lookup-tile{min-width:0;padding:14px;background:#fffaf0;border:1px solid #d7c2a4;border-radius:10px}.lookup-tile h3{margin:0 0 10px;color:#8c291e}.lookup-forms{display:flex;gap:7px;flex-wrap:wrap}.lookup-forms button,.lookup-play{border:1px solid #d7c2a4;border-radius:8px;background:#fff8ed;color:#8c291e;padding:6px 12px}.lookup-forms button{font:25px KaiTi,serif}.lookup-forms button[aria-pressed=true],.lookup-play:not(:disabled){background:#8c291e;color:#fff}.lookup-glyph{font:72px/1.25 KaiTi,serif;text-align:center;color:#8c291e}.lookup-stroke-board{margin:8px auto;width:min(100%,160px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}.lookup-stroke-board svg{max-width:100%}.lookup-stroke-controls{display:grid;justify-items:start;gap:10px;margin-top:12px}.lookup-stroke-controls .lookup-stroke-status{margin:0;line-height:1.5}.lookup-variant-note,.lookup-stroke-status{font-size:.875rem;color:#695849}@media(max-width:900px){.lookup-three{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.lookup-three{grid-template-columns:1fr}}</style>'
+    lookup_style = """<style>
+.lookup-result:has(.lookup-three){width:100%;max-width:none;box-sizing:border-box;font-size:1.0625rem;line-height:1.65}
+.lookup-result:has(.lookup-three) #word{font-size:clamp(1.75rem,3vw,2.25rem);margin:0 0 14px}
+.story-lookup .lookup-credit{font-size:1rem;line-height:1.55}
+.lookup-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,1.5vw,22px)}
+.lookup-tile{min-width:0;padding:clamp(14px,1.5vw,24px);background:#fffaf0;border:1px solid #d7c2a4;border-radius:10px;overflow-wrap:anywhere}
+.lookup-tile h3{margin:0 0 12px;color:#8c291e;font-size:clamp(1.2rem,1.65vw,1.5rem);line-height:1.35}
+.lookup-tile p{font-size:inherit;line-height:inherit}
+.lookup-tile button{font:inherit}
+.lookup-forms{display:flex;gap:8px;flex-wrap:wrap}
+.lookup-forms button,.lookup-play{border:1px solid #d7c2a4;border-radius:8px;background:#fff8ed;color:#8c291e;padding:7px 13px}
+.lookup-forms button{font:28px/1.2 KaiTi,serif}
+.lookup-forms button[aria-pressed=true],.lookup-play:not(:disabled){background:#8c291e;color:#fff}
+.lookup-glyph{font:clamp(76px,8vw,110px)/1.25 KaiTi,serif;text-align:center;color:#8c291e}
+.lookup-stroke-board{margin:12px auto;width:min(100%,216px);aspect-ratio:1;border:1px solid #d7c2a4;border-radius:8px}
+.lookup-stroke-board svg{display:block;width:100%;height:auto}
+.lookup-stroke-controls{display:grid;justify-items:start;gap:10px;margin-top:14px}
+.lookup-stroke-controls .lookup-stroke-status{margin:0}
+.lookup-variant-note,.lookup-stroke-status{color:#695849}
+@media(max-width:900px){.lookup-three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.lookup-three{grid-template-columns:minmax(0,1fr)}}
+</style>"""
     writer_script = "<script>" + stroke_library + "</script>"
     pages = {}
     for name in PAGES:
