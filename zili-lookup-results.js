@@ -24,9 +24,14 @@
   let writer, selected;
   let paused = false;
   let autoplayTimer;
+  let strokeRequest;
+  let strokeData;
   for (const tile of [...grid.children].slice(1)) tile.hidden = true;
-  function choose(form) {
+  async function choose(form) {
     clearTimeout(autoplayTimer);
+    strokeRequest?.abort();
+    strokeRequest = undefined;
+    strokeData = undefined;
     writer?.pauseAnimation();
     writer = undefined;
     paused = false;
@@ -38,16 +43,55 @@
     }
     board.replaceChildren();
     board.hidden = true;
-    const ready = Boolean(parent.ziliStrokeData?.[form] && globalThis.HanziWriter);
     play.disabled = true;
-    play.textContent = ready ? '即将播放' : '播放笔顺';
-    strokeStatus.textContent = ready ? '' : '暂无该字形的笔顺数据。';
-    if (ready) {
-      autoplayTimer = setTimeout(() => {
-        play.disabled = false;
-        togglePlayback();
-      }, 2000);
+    play.textContent = '播放笔顺';
+    strokeStatus.textContent = '';
+    if (!form) return;
+    if (!globalThis.HanziWriter) {
+      strokeStatus.textContent = '笔顺组件暂时无法加载。';
+      return;
     }
+
+    strokeData = parent.ziliStrokeData?.[form];
+    if (!strokeData) {
+      const request = new AbortController();
+      strokeRequest = request;
+      const timeout = setTimeout(() => request.abort(), 8000);
+      strokeStatus.textContent = '正在加载笔顺…';
+      try {
+        const url = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/' +
+          encodeURIComponent(form) + '.json';
+        const response = await fetch(url, {signal: request.signal});
+        if (strokeRequest !== request) return;
+        if (response.status === 404) {
+          strokeStatus.textContent = '笔顺库暂无该字形。';
+          return;
+        }
+        if (!response.ok) throw new Error('Stroke data request failed');
+        const data = await response.json();
+        if (strokeRequest !== request) return;
+        if (!Array.isArray(data.strokes) || !data.strokes.length ||
+            data.strokes.length !== data.medians?.length) {
+          throw new Error('Invalid stroke data');
+        }
+        strokeData = data;
+      } catch {
+        if (strokeRequest === request) {
+          strokeStatus.textContent = '暂时无法加载笔顺，请重新查询。';
+        }
+        return;
+      } finally {
+        clearTimeout(timeout);
+        if (strokeRequest === request) strokeRequest = undefined;
+      }
+    }
+
+    strokeStatus.textContent = '';
+    play.textContent = '即将播放';
+    autoplayTimer = setTimeout(() => {
+      play.disabled = false;
+      togglePlayback();
+    }, 2000);
   }
   document.addEventListener('zili:lookup', event => {
     const word = event.detail;
@@ -73,7 +117,7 @@
   });
   async function togglePlayback() {
     const form = selected;
-    const data = parent.ziliStrokeData?.[form];
+    const data = strokeData;
     if (play.disabled || !data) return;
     board.hidden = false;
     try {
