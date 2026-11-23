@@ -14,13 +14,37 @@ header div,main{width:min(1208px,calc(100% - 36px));margin:auto}header div{paddi
 .habit-search input:focus-visible{outline:2px solid #8c291e;outline-offset:2px}
 .habit-search button{min-height:44px;padding:6px 13px;border:1px solid #8c291e;border-radius:9px;background:#8c291e;color:#fff;white-space:nowrap}
 .habit-search button[type=reset]{background:#fffaef;color:#8c291e;border-color:#d9c5ac}
+.habit-field{position:relative;flex:1;min-width:0}
+.habit-field input{padding-inline-end:52px}
+.habit-picker{position:absolute;inset-block:0;inset-inline-end:0}
+.habit-picker summary{display:grid;place-items:center;width:44px;height:100%;list-style:none;cursor:pointer;color:#702117;border-radius:0 9px 9px 0}
+.habit-picker summary::-webkit-details-marker{display:none}
+.habit-picker summary:focus-visible{outline:2px solid #8c291e;outline-offset:-3px}
+.habit-picker summary span{width:8px;height:8px;border:solid currentColor;border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
+.habit-suggestions{position:absolute;z-index:2;inset-inline-end:0;top:calc(100% + 5px);min-width:142px;margin:0;padding:5px;display:grid;background:#fffaef;border:1px solid #d9c5ac;border-radius:9px;box-shadow:0 5px 14px #34271e24}
+.habit-search .habit-suggestions button{display:block;min-height:42px;border:0;background:transparent;color:#702117;text-align:start}
+.habit-search .habit-suggestions button:hover,.habit-search .habit-suggestions button[aria-pressed=true]{background:#f0dfc8}
 @media(max-width:640px){.gallery>section{display:contents}.habit-search{order:-1;margin:0}.gallery #status{margin:0}}
 </style></head><body>
 <main><h1>四海故事</h1><p class="intro">按习俗、汉字或地区找故事。</p>
 <div class="gallery"><aside class="region"><h2>按地区浏览</h2><div id="region" class="filters" role="group" aria-label="地区"></div></aside>
 <section aria-label="地区故事">
 <form class="habit-search" id="habit-search" role="search" aria-label="搜索习俗">
-  <input id="habit-keyword" type="search" aria-label="习俗关键词" placeholder="搜索习俗，如春联、围炉、龙舟">
+  <div class="habit-field">
+    <input id="habit-keyword" type="search" aria-label="习俗关键词" placeholder="输入关键词或选择示例" autocomplete="off">
+    <details class="habit-picker" id="habit-picker">
+      <summary aria-label="选择习俗示例"><span aria-hidden="true"></span></summary>
+      <div class="habit-suggestions" id="habit-suggestions" role="group" aria-label="习俗示例">
+        <button type="button" aria-pressed="false">春节</button>
+        <button type="button" aria-pressed="false">春联</button>
+        <button type="button" aria-pressed="false">围炉</button>
+        <button type="button" aria-pressed="false">饮茶</button>
+        <button type="button" aria-pressed="false">龙舟</button>
+        <button type="button" aria-pressed="false">花灯</button>
+        <button type="button" aria-pressed="false">汤圆</button>
+      </div>
+    </details>
+  </div>
   <button type="submit">搜索</button>
   <button type="reset" hidden>清空</button>
 </form>
@@ -33,6 +57,8 @@ const records = document.getElementById('records');
 const searchForm = document.getElementById('habit-search');
 const keywordInput = document.getElementById('habit-keyword');
 const clearSearch = searchForm.querySelector('[type=reset]');
+const picker = document.getElementById('habit-picker');
+const suggestions = document.querySelectorAll('#habit-suggestions button');
 const normalize = text => text.normalize('NFKC').toLowerCase();
 const springCustoms = /除夕|年夜饭|团年饭|围炉|春联|挥春|门神|捞鱼生|春节|年节/;
 function element(tag, label, parent) {
@@ -58,6 +84,9 @@ async function loadCatalogue() {
     function render() {
       const terms = normalize(keyword).split(/\s+/).filter(Boolean);
       clearSearch.hidden = !keyword && !keywordInput.value;
+      for (const button of suggestions) {
+        button.setAttribute('aria-pressed', String(keyword === button.textContent));
+      }
       const items = (region ? data.regions[region] : all)
         .filter(item => (!character || item.character === character) &&
           terms.every(term => searchText.get(item).includes(term)));
@@ -101,10 +130,31 @@ async function loadCatalogue() {
     }
     searchForm.addEventListener('submit', event => {
       event.preventDefault();
+      picker.open = false;
       keyword = keywordInput.value.trim();
       render();
     });
-    searchForm.addEventListener('reset', () => {
+    for (const button of suggestions) {
+      button.addEventListener('click', () => {
+        keyword = keywordInput.value = button.textContent;
+        picker.open = false;
+        keywordInput.focus();
+        render();
+      });
+    }
+    document.addEventListener('click', event => {
+      if (!picker.contains(event.target)) picker.open = false;
+    });
+    picker.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && picker.open) {
+        event.preventDefault();
+        picker.open = false;
+        picker.querySelector('summary').focus();
+      }
+    });
+    searchForm.addEventListener('reset', event => {
+      event.preventDefault();
+      picker.open = false;
       keywordInput.value = '';
       keyword = '';
       render();
@@ -126,3 +176,4 @@ async function loadCatalogue() {
 }
 loadCatalogue();
 </script></body></html>
+
