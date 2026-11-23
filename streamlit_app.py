@@ -1,5 +1,6 @@
 """Render the six-character website with its assets bundled into Streamlit."""
 import base64
+import gzip
 import json
 import mimetypes
 from pathlib import Path
@@ -14,7 +15,8 @@ PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
 
 
 def site_version():
-    names = {*PAGES, "cases.json", "style.css", "app.js", "demo.js"}
+    names = {*PAGES, "cases.json", "style.css", "app.js", "demo.js", "unihan-variants.gz.b64", "featured-strokes.json",
+             "hanzi-writer.min.js", "zili-strokes.js"}
     # Include the regional gallery page in the cache fingerprint.
     # Story pages include their inline lookup panels in the cached site bundle.
     return tuple(
@@ -22,6 +24,32 @@ def site_version():
         for path in sorted(ROOT.iterdir())
         if path.is_file() and (path.name in names or path.suffix.lower() in (".webp", ".png", ".jpg"))
         for info in (path.stat(),)
+    )
+
+
+def enrich_lookup(page):
+    """Add local Unihan candidates to the existing dictionary query."""
+    page = page.replace(
+        "const [form, storyUrl] = entries[word] ?? [word];",
+        """const [preferred, storyUrl] = entries[word] ?? [word];
+  const variants = parent.ziliVariants?.[word] ?? [];
+  const candidates = [...new Set([word, preferred, ...variants])].slice(0, 4);
+  let form = word;""",
+    )
+    old_request = "const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});"
+    page = page.replace(old_request, """let response;
+    for (const candidate of candidates) {
+      form = candidate;
+      response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});
+      if (response.status !== 404) break;
+    }""")
+    return page.replace(
+        "if (!response.ok) throw new Error('Dictionary request failed');",
+        """if (!response.ok) throw new Error('Dictionary request failed');
+    source.href = 'https://www.moedict.tw/' + encodeURIComponent(form);""",
+    ).replace(
+        """entry.stroke_count].filter(Boolean)""",
+        """entry.stroke_count, variants.length && '关联字形（Unihan） ' + variants.join('、')].filter(Boolean)""",
     )
 
 
@@ -42,6 +70,11 @@ def bundle_site(version):
     catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
     assets = {p.name: image_url(p.name) for p in ROOT.iterdir()
               if p.suffix.lower() in (".webp", ".png", ".jpg")}
+    variants = json.loads(gzip.decompress(base64.b64decode((ROOT / "unihan-variants.gz.b64").read_bytes())))
+    strokes = json.loads((ROOT / "featured-strokes.json").read_text(encoding="utf-8"))
+    stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
+    stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
+    stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
     pages = {}
     for name in PAGES:
         page = (ROOT / name).read_text(encoding="utf-8")
@@ -59,8 +92,13 @@ def bundle_site(version):
         page = page.replace("return config.images?.[record.id] || record.image;", "return parent.ziliImage(config.images?.[record.id] || record.image);")
         page = page.replace("return config.images?.[record.id] || record.id + '.webp';", "return parent.ziliImage(config.images?.[record.id] || record.id + '.webp');")
         page = re.sub(r'(picture\.src\s*=\s*)image\s*;', r'\1parent.ziliImage(image);', page)
+        if 'www.moedict.tw/uni/' in page:
+            page = enrich_lookup(page)
+        if 'id="glyph-dialog"' in page:
+            page = page.replace("</body>", stroke_style + "<script>" + stroke_library +
+                                "</script><script>" + stroke_ui + "</script></body>")
         pages[name] = page
-    return json_script(pages), json_script(assets)
+    return json_script(pages), json_script(assets), json_script(variants), json_script(strokes)
 
 
 st.set_page_config(page_title="字里寻踪", page_icon="年", layout="wide")
@@ -81,7 +119,7 @@ iframe[data-testid="stIFrame"] {
     border: 0;
 }
 </style>""")
-pages_json, assets_json = bundle_site(site_version())
+pages_json, assets_json, variants_json, strokes_json = bundle_site(site_version())
 st.iframe("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
@@ -111,6 +149,8 @@ iframe{display:block;width:100%;height:100%;min-height:0;border:0}
 <script>
 const pages = """ + pages_json + """;
 const images = """ + assets_json + """;
+window.ziliVariants = """ + variants_json + """;
+window.ziliStrokeData = """ + strokes_json + """;
 window.ziliImage = name => images[name] || name;
 const frame = document.getElementById('site');
 const directory = document.getElementById('directory');
@@ -206,7 +246,7 @@ function navigate(page, hash = '', tab = '') {
   const creditStyle = '<style>.lookup-credit{margin:7px 0 0;color:#695849;font:clamp(11px,2.4vw,14px)/1.3 system-ui,sans-serif}.globe-cover .lookup-credit{position:absolute;top:146cqw;left:7.7%;width:84.8%;margin:0;text-align:center;font-size:clamp(10px,2.25cqw,14px)}.globe-cover:has(.globe-search) .lookup-credit a{color:inherit}.globe-cover.lookup-credit-flow .lookup-credit{position:static;width:auto;margin-top:7px}</style>';
   const pageHtml = pages[page].replace(
     /(<form class="(?:globe-search|story-lookup-form)"[^>]*>[\\s\\S]*?<\\/form>)/,
-    '$1<p class="lookup-credit">字典数据来源：萌典（Moedict）公开接口</p>'
+    '$1<p class="lookup-credit">字典数据来源：萌典（Moedict）公开接口 · 简繁关联：Unicode Unihan</p>'
   );
   const lookupHtml = lookupLanding ? pageHtml.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : pageHtml;
   frame.srcdoc = lookupHtml.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + '</head>');
