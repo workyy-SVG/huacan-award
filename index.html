@@ -31,11 +31,16 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 
 .globe-search select{width:100%;height:100%;box-sizing:border-box;border:1px solid #dfd3c5;border-radius:999px;background:#f7f4ef;color:#3c2f29;padding:0 5%;font:clamp(16px,3.5cqw,20px) "Songti SC","SimSun",serif}
 .lookup-result{max-width:42rem;margin:12px auto;padding:18px;background:#fffaf2;color:#3c2f29}.lookup-result a{color:#8c291d}
+.globe-search{display:flex;align-items:stretch;background:#f7f4ef;border:1px solid #dfd3c5;min-height:34px}
+.globe-search input,.globe-search input:focus,.globe-search input:valid{flex:1;width:0;min-width:0;background:transparent;color:#302b28;padding:0 3%}
+.globe-search select,.globe-search button{flex:none;border:0;background:transparent;color:#6f2c22;padding:0 5px;font:clamp(12px,2.8cqw,16px) system-ui,sans-serif}
+.globe-search button{padding-right:10px;cursor:pointer}
+.lookup-result{max-width:42rem;margin:12px auto;padding:18px;background:#fffaf2;color:#3c2f29}.lookup-result a{color:#8c291d}
 </style>
 <main class="globe-cover" aria-label="字里寻踪。 同一个字，连接不同地方的生活记录">
   <img class="globe-art" src="globe-cover-reference.png" width="1600" height="2848" alt="折页地图，标有两岸、香港、澳门与海外华人社群">
   <a class="globe-start" href="featured.html" target="_self" aria-label="选一个字，开始寻踪"></a>
-  <div class="globe-search" id="lookup"><select id="hanzi" aria-label="查一个我感兴趣的字"><option value="">查一个我感兴趣的字</option><option value="年">年</option><option value="门">门</option><option value="茶">茶</option><option value="船">船</option><option value="灯">灯</option><option value="圆">圆</option></select></div>
+  <form class="globe-search" id="lookup" role="search"><input id="hanzi" aria-label="输入一个汉字" placeholder="查一个感兴趣的字" autocomplete="off" enterkeyhint="search"><select id="featured-word" aria-label="快速选择精选汉字"><option value="">选字</option><option value="年">年</option><option value="门">门</option><option value="茶">茶</option><option value="船">船</option><option value="灯">灯</option><option value="圆">圆</option></select><button type="submit">查询</button></form>
 </main>
 
 <section id="lookup-result" class="lookup-result" hidden>
@@ -44,7 +49,8 @@ body {margin:0; background:radial-gradient(ellipse at 52% 18%,#fdfcf9 0%,#f2f1ee
 <button id="retry" type="button" hidden>重新查询</button> <a id="story">查看精选故事</a>
 </section>
 <script>
-const select = document.getElementById('hanzi');
+const input = document.getElementById('hanzi');
+const featuredWord = document.getElementById('featured-word');
 const panel = document.getElementById('lookup-result');
 const heading = document.getElementById('word');
 const status = document.getElementById('status');
@@ -53,12 +59,26 @@ const source = document.getElementById('source');
 const retry = document.getElementById('retry');
 const story = document.getElementById('story');
 const entries = {年:['年','nian.html'],门:['門','men.html'],茶:['茶','cha.html'],船:['船','chuan.html'],灯:['燈','deng.html'],圆:['圓','yuan.html']};
+for (const character of ['门', '灯', '圆']) {
+  entries[entries[character][0]] = entries[character];
+}
 let active;
 async function lookup() {
   active?.abort();
-  if (!select.value) {panel.hidden = true; return;}
-  const word = select.value;
-  const [form, storyUrl] = entries[word];
+  active = null;
+  const word = input.value.trim();
+  panel.hidden = false;
+  definitions.replaceChildren();
+  retry.hidden = true;
+  source.hidden = true;
+  story.hidden = true;
+  heading.textContent = '';
+  if (!/^\p{Script=Han}$/u.test(word)) {
+    status.textContent = '请一次输入一个汉字。';
+    panel.scrollIntoView({block:'nearest'});
+    return;
+  }
+  const [form, storyUrl] = entries[word] ?? [word];
   const controller = new AbortController();
   active = controller;
   const timeout = setTimeout(() => controller.abort(), 10000);
@@ -68,13 +88,22 @@ async function lookup() {
   definitions.replaceChildren();
   retry.hidden = true;
   source.href = 'https://www.moedict.tw/' + encodeURIComponent(form);
-  story.href = storyUrl;
+  source.hidden = false;
+  if (storyUrl) {
+    story.href = storyUrl;
+    story.hidden = false;
+  }
   panel.scrollIntoView({block:'nearest'});
   try {
     const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});
+    if (active !== controller || input.value.trim() !== word) return;
+    if (response.status === 404) {
+      status.textContent = '萌典未找到这个字，可尝试另一种简繁写法。';
+      return;
+    }
     if (!response.ok) throw new Error('Dictionary request failed');
     const entry = await response.json();
-    if (active !== controller || select.value !== word) return;
+    if (active !== controller || input.value.trim() !== word) return;
     if (entry.title !== form || !Array.isArray(entry.heteronyms)) throw new Error('Unexpected entry');
     heading.textContent = word === form ? word : word + ' · 萌典字形「' + form + '」';
     status.textContent = [entry.radical && '部首 ' + entry.radical, entry.stroke_count && '词典字形笔画 ' + entry.stroke_count].filter(Boolean).join('　');
@@ -84,12 +113,31 @@ async function lookup() {
       definitions.append(paragraph);
     }
   } catch {
-    if (active !== controller || select.value !== word) return;
+    if (active !== controller || input.value.trim() !== word) return;
     status.textContent = '暂时无法取得词条，可重试或查看萌典原词条。';
     retry.hidden = false;
   } finally {clearTimeout(timeout);}
 }
-select.addEventListener('change', lookup);
+document.getElementById('lookup').addEventListener('submit', event => {
+  event.preventDefault();
+  lookup();
+});
+featuredWord.addEventListener('change', () => {
+  if (!featuredWord.value) return;
+  input.value = featuredWord.value;
+  lookup();
+});
+input.addEventListener('input', () => {
+  featuredWord.value = '';
+  active?.abort();
+  active = null;
+  panel.hidden = true;
+});
 retry.addEventListener('click', lookup);
+const requested = new URLSearchParams(location.search).get('hanzi');
+if (requested) {
+  input.value = requested;
+  lookup();
+}
 </script>
 </body></html>
