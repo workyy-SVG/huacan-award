@@ -15,6 +15,7 @@ PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
 def site_version():
     names = {*PAGES, "cases.json", "style.css", "app.js", "demo.js"}
     # Include the regional gallery page in the cache fingerprint.
+    # Story pages include their inline lookup panels in the cached site bundle.
     return tuple(
         (path.name, info.st_mtime_ns, info.st_size)
         for path in sorted(ROOT.iterdir())

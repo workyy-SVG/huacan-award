@@ -1,6 +1,27 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>门 · 门上的新春祝愿</title><link rel="stylesheet" href="style.css"><style>.demo-shell{display:grid;grid-template-columns:180px minmax(0,1fr);max-width:1280px;margin:auto;align-items:start}.page{width:100%}.directory{position:sticky;top:0;background:#fcf4e6;padding:20px 16px;border-right:1px solid var(--line)}.directory nav{display:grid;gap:6px;margin-top:14px}.directory a{padding:6px 0}#sources{margin-top:18px;scroll-margin-top:145px}.demo-caption{font-size:.82rem;color:#69533e}.tile img{object-position:var(--crop,50%)}
-@media(max-width:750px){.demo-shell{display:block}.directory{position:static}.directory nav{grid-template-columns:repeat(3,1fr)}.tile p{display:block}header nav{flex-wrap:wrap}}</style></head><body data-character="门"><div class="demo-shell"><aside class="directory"><strong>字里寻踪</strong><nav aria-label="功能目录"><a href="./">首页</a><a href="featured.html">精选寻踪</a><a href="regions.html">四海故事</a><a href="./#lookup">自由查字</a><a href="#keepsake">我的寻踪卡</a><a href="#sources">资料与来源</a></nav></aside><div class="page"><header><a href="featured.html">返回精选寻踪</a><div class="brand">字里寻踪 <span>门</span></div><nav aria-label="章节"><a href="#form">字形观察</a><a href="#strait">两岸</a><a href="#men-3">港澳</a><a href="#men-5">海外</a><a href="#keepsake">寻踪卡</a></nav></header>
-<main><section id="form"><h2>字形观察</h2><div class="observation"><div class="glyph">门</div><div><p>门／門是简繁写法。观察「門」的两扇门板，再看看人们把祝愿贴在哪里。</p><button class="outline" id="open-glyph" type="button" aria-haspopup="dialog" aria-controls="glyph-dialog">查看字形资料</button></div></div></section>
+@media(max-width:750px){.demo-shell{display:block}.directory{position:static}.directory nav{grid-template-columns:repeat(3,1fr)}.tile p{display:block}header nav{flex-wrap:wrap}}</style></head><body data-character="门"><div class="demo-shell"><aside class="directory"><strong>字里寻踪</strong><nav aria-label="功能目录"><a href="./">首页</a><a href="featured.html">精选寻踪</a><a href="regions.html">四海故事</a><a href="#story-lookup" data-open-story-lookup aria-controls="story-lookup" aria-expanded="false">自由查字</a><a href="#keepsake">我的寻踪卡</a><a href="#sources">资料与来源</a></nav></aside><div class="page"><header><a href="featured.html">返回精选寻踪</a><div class="brand">字里寻踪 <span>门</span></div><nav aria-label="章节"><a href="#form">字形观察</a><a href="#strait">两岸</a><a href="#men-3">港澳</a><a href="#men-5">海外</a><a href="#keepsake">寻踪卡</a></nav></header>
+<main><style>
+.story-lookup{scroll-margin-top:130px;background:#fcf7ed;border:1px solid #d9c5ac;border-radius:12px;padding:clamp(10px,3vw,22px);margin:0 0 20px}
+.story-lookup[hidden]{display:none}
+.story-lookup-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.story-lookup-heading h2{margin:0}
+.story-lookup-heading button{border:1px solid #d9c5ac;border-radius:999px;background:#fffaf2;color:#8c291d;min-height:44px;padding:4px 12px;white-space:nowrap}
+.story-lookup-form{display:grid;grid-template-columns:minmax(0,1fr) 62px 54px;max-width:550px;min-height:44px;border:1px solid #d9c5ac;border-radius:999px;background:#fffbf3}
+.story-lookup-form>*{min-width:0;width:100%;font:inherit;border:0;background:transparent;color:#8c291d;white-space:nowrap;padding:4px 6px}
+.story-lookup-form input{color:#30241a;border-radius:999px 0 0 999px;padding-left:12px}
+.story-lookup-form button{border-radius:0 999px 999px 0}
+.story-lookup-form :focus-visible{outline:2px solid #8c291d;outline-offset:-2px}
+.story-lookup .lookup-result{margin-top:12px;max-width:650px}
+</style>
+<section id="story-lookup" class="story-lookup" aria-labelledby="story-lookup-title" hidden>
+<div class="story-lookup-heading"><h2 id="story-lookup-title">自由查字</h2><button type="button" id="close-story-lookup">收起查字</button></div>
+<form class="story-lookup-form" id="story-lookup-form" role="search"><input id="hanzi" aria-label="输入一个汉字" placeholder="查一个感兴趣的字" autocomplete="off" enterkeyhint="search"><select id="featured-word" aria-label="快速选择精选汉字"><option value="">选字</option><option value="年">年</option><option value="门">门</option><option value="茶">茶</option><option value="船">船</option><option value="灯">灯</option><option value="圆">圆</option></select><button type="submit">查询</button></form>
+<section id="lookup-result" class="lookup-result" hidden>
+<h2 id="word"></h2><p id="status" role="status"></p><div id="definitions"></div>
+<p><a id="source" target="_blank" rel="noopener">查看萌典原词条</a></p>
+<button id="retry" type="button" hidden>重新查询</button> <a id="story">查看精选故事</a>
+</section>
+</section><section id="form"><h2>字形观察</h2><div class="observation"><div class="glyph">门</div><div><p>门／門是简繁写法。观察「門」的两扇门板，再看看人们把祝愿贴在哪里。</p><button class="outline" id="open-glyph" type="button" aria-haspopup="dialog" aria-controls="glyph-dialog">查看字形资料</button></div></div></section>
 <section id="strait"><h1>门上的新春祝愿</h1><p class="demo-caption">两岸对读 · 下方延伸至香港、澳门与海外</p><div class="journey"><nav class="route" aria-label="地区"><button type="button" data-record="men-1">大陆</button><button type="button" data-record="men-2">台湾</button><button type="button" data-record="men-3">香港</button><button type="button" data-record="men-4">澳门</button><button type="button" data-record="men-5">海外</button></nav><div><div class="pair"><article class="tile" id="men-1" style="--crop:20%"><button type="button" data-record="men-1"><h3><strong>福建泉州</strong>｜除夕贴春联</h3><p>地方年俗资料将除夕贴春联列为一项习俗。</p><img src="men-1-regional.webp" alt="主题场景示意"></button><a href="https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm">查看出处</a></article><article class="tile" id="men-2" style="--crop:40%"><button type="button" data-record="men-2"><h3><strong>台湾（辞典所载）</strong>｜门左右贴春联</h3><p>辞典记录大门两边贴春联，门扇也可贴二字联。</p><img src="men-2-regional.webp" alt="主题场景示意"></button><a href="https://dict.th.gov.tw/detailPage.aspx?Ca=302&amp;ID=1457">查看出处</a></article></div><div class="extras"><article class="tile" id="men-3" style="--crop:50%"><button type="button" data-record="men-3"><h3><strong>香港</strong>｜写挥春迎新</h3><p>平台采访说明挥春写上吉祥字句，寄托对家人的祝福。</p><img src="men-3-regional.webp" alt="主题场景示意"></button><a href="https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html">查看出处</a></article><article class="tile" id="men-4" style="--crop:75%"><button type="button" data-record="men-4"><h3><strong>澳门</strong>｜年末悬挥春贴门神</h3><p>咨询材料把悬挥春、贴门神放在年前大扫除之后。</p><img src="men-4-regional.webp" alt="主题场景示意"></button><a href="https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf">查看出处</a></article><article class="tile" id="men-5" style="--crop:100%"><button type="button" data-record="men-5"><h3><strong>新加坡</strong>｜用春联装点家里</h3><p>非遗条目把春联和写有吉祥字的红纸剪饰列入家庭春节布置。</p><img src="men-5-regional.webp" alt="主题场景示意"></button><a href="https://www.roots.gov.sg/ich-landing/ich/chinese-new-year">查看出处</a></article></div></div></div></section>
 <section id="keepsake"><h2>我的寻踪卡</h2><div class="keepsake"><img id="keepsake-image" src="men-1-regional.webp" alt="主题场景示意"><div class="note"><label for="place">选择想带走的记录</label><select id="place"><option value="men-1">福建泉州｜除夕贴春联</option><option value="men-2">台湾（辞典所载）｜门左右贴春联</option><option value="men-3">香港｜写挥春迎新</option><option value="men-4">澳门｜年末悬挥春贴门神</option><option value="men-5">新加坡｜用春联装点家里</option></select><h3 id="selected-title"></h3><p id="selected-detail" aria-live="polite"></p><button class="solid" id="save">保存寻踪记录</button></div></div></section>
 <details id="sources"><summary>资料核验与素材说明</summary><ul><li>福建泉州 · <a href="https://www.quanzhou.gov.cn/lyb/mfms/ssms/200901/t20090123_3174.htm">新春忆旧俗</a> · 除夕贴春联</li><li>台湾（辞典所载） · <a href="https://dict.th.gov.tw/detailPage.aspx?Ca=302&amp;ID=1457">台湾民俗文物辞典</a> · 春节布置</li><li>香港 · <a href="https://www.familyandwomen.gov.hk/tc/story/2025012012273736147.html">春节习俗重视家庭团圆</a> · 第2节 貼揮春</li><li>澳门 · <a href="https://www.gov.mo/zh-hant/wp-content/uploads/sites/4/2024/12/%E9%A0%85%E7%9B%AE%E5%88%97%E5%85%A5%E9%9D%9E%E9%81%BA%E5%90%8D%E9%8C%84%E5%85%AC%E9%96%8B%E8%AB%AE%E8%A9%A2-%E4%B8%AD%E6%96%87.pdf">非遗名录公开咨询文本</a> · 春节</li><li>新加坡 · <a href="https://www.roots.gov.sg/ich-landing/ich/chinese-new-year">Chinese New Year</a> · 春节布置段落</li></ul></details><footer>配图为 AI 场景示意。原始资料见各卡片出处。</footer></main></div></div>
@@ -28,4 +49,120 @@
   preview.addEventListener('close', () => trigger.focus({preventScroll: true}));
 })();
 </script>
-</body></html>
+<script>
+(() => {
+
+const input = document.getElementById('hanzi');
+const featuredWord = document.getElementById('featured-word');
+const panel = document.getElementById('lookup-result');
+const heading = document.getElementById('word');
+const status = document.getElementById('status');
+const definitions = document.getElementById('definitions');
+const source = document.getElementById('source');
+const retry = document.getElementById('retry');
+const story = document.getElementById('story');
+const entries = {年:['年','nian.html'],门:['門','men.html'],茶:['茶','cha.html'],船:['船','chuan.html'],灯:['燈','deng.html'],圆:['圓','yuan.html']};
+for (const character of ['门', '灯', '圆']) {
+  entries[entries[character][0]] = entries[character];
+}
+let active;
+async function lookup() {
+  active?.abort();
+  active = null;
+  const word = input.value.trim();
+  panel.hidden = false;
+  definitions.replaceChildren();
+  retry.hidden = true;
+  source.hidden = true;
+  story.hidden = true;
+  heading.textContent = '';
+  if (!/^\p{Script=Han}$/u.test(word)) {
+    status.textContent = '请一次输入一个汉字。';
+    
+    return;
+  }
+  const [form, storyUrl] = entries[word] ?? [word];
+  const controller = new AbortController();
+  active = controller;
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  panel.hidden = false;
+  heading.textContent = word;
+  status.textContent = '正在查询萌典…';
+  definitions.replaceChildren();
+  retry.hidden = true;
+  source.href = 'https://www.moedict.tw/' + encodeURIComponent(form);
+  source.hidden = false;
+  if (storyUrl) {
+    story.href = storyUrl;
+    story.hidden = false;
+  }
+  
+  try {
+    const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});
+    if (active !== controller || input.value.trim() !== word) return;
+    if (response.status === 404) {
+      status.textContent = '萌典未找到这个字，可尝试另一种简繁写法。';
+      return;
+    }
+    if (!response.ok) throw new Error('Dictionary request failed');
+    const entry = await response.json();
+    if (active !== controller || input.value.trim() !== word) return;
+    if (entry.title !== form || !Array.isArray(entry.heteronyms)) throw new Error('Unexpected entry');
+    heading.textContent = word === form ? word : word + ' · 萌典字形「' + form + '」';
+    status.textContent = [entry.radical && '部首 ' + entry.radical, entry.stroke_count && '词典字形笔画 ' + entry.stroke_count].filter(Boolean).join('　');
+    for (const reading of entry.heteronyms) {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = [reading.pinyin || reading.bopomofo, reading.definitions?.find(item => item.def)?.def].filter(Boolean).join('　');
+      definitions.append(paragraph);
+    }
+  } catch {
+    if (active !== controller || input.value.trim() !== word) return;
+    status.textContent = '暂时无法取得词条，可重试或查看萌典原词条。';
+    retry.hidden = false;
+  } finally {clearTimeout(timeout);}
+}
+document.getElementById('story-lookup-form').addEventListener('submit', event => {
+  event.preventDefault();
+  lookup();
+});
+featuredWord.addEventListener('change', () => {
+  if (!featuredWord.value) return;
+  input.value = featuredWord.value;
+  lookup();
+});
+input.addEventListener('input', () => {
+  featuredWord.value = '';
+  active?.abort();
+  active = null;
+  panel.hidden = true;
+});
+retry.addEventListener('click', lookup);
+
+const region = document.getElementById('story-lookup');
+const open = document.querySelector('[data-open-story-lookup]');
+const close = document.getElementById('close-story-lookup');
+let readingPosition;
+open.addEventListener('click', event => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (region.hidden) readingPosition = window.scrollY;
+  region.hidden = false;
+  open.setAttribute('aria-expanded', 'true');
+  window.scrollTo(0, window.scrollY + region.getBoundingClientRect().top - 130);
+  input.focus({preventScroll: true});
+});
+function closeLookup() {
+  active?.abort();
+  active = null;
+  region.hidden = true;
+  panel.hidden = true;
+  open.setAttribute('aria-expanded', 'false');
+  open.focus({preventScroll: true});
+  window.scrollTo(0, readingPosition ?? 0);
+}
+close.addEventListener('click', closeLookup);
+region.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeLookup();
+});
+})();
+</script></body></html>

@@ -1,6 +1,27 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>圆 · 节庆里的团圆</title><link rel="stylesheet" href="style.css"><style>.demo-shell{display:grid;grid-template-columns:180px minmax(0,1fr);max-width:1280px;margin:auto;align-items:start}.page{width:100%}.directory{position:sticky;top:0;background:#fcf4e6;padding:20px 16px;border-right:1px solid var(--line)}.directory nav{display:grid;gap:6px;margin-top:14px}.directory a{padding:6px 0}#sources{margin-top:18px;scroll-margin-top:145px}.demo-caption{font-size:.82rem;color:#69533e}.tile img{object-position:var(--crop,50%)}
-@media(max-width:750px){.demo-shell{display:block}.directory{position:static}.directory nav{grid-template-columns:repeat(3,1fr)}.tile p{display:block}header nav{flex-wrap:wrap}}</style></head><body data-character="圆"><div class="demo-shell"><aside class="directory"><strong>字里寻踪</strong><nav aria-label="功能目录"><a href="./">首页</a><a href="featured.html">精选寻踪</a><a href="regions.html">四海故事</a><a href="./#lookup">自由查字</a><a href="#keepsake">我的寻踪卡</a><a href="#sources">资料与来源</a></nav></aside><div class="page"><header><a href="featured.html">返回精选寻踪</a><div class="brand">字里寻踪 <span>圆</span></div><nav aria-label="章节"><a href="#form">字形观察</a><a href="#strait">两岸</a><a href="#yuan-3">港澳</a><a href="#yuan-5">海外</a><a href="#keepsake">寻踪卡</a></nav></header>
-<main><section id="form"><h2>字形观察</h2><div class="observation"><div class="glyph">圆</div><div><p>「圆／圓」的外框都是「囗」。从圆形和「团圆」的用法，走进各地的节庆餐桌。</p><button class="outline" id="open-glyph" type="button" aria-haspopup="dialog" aria-controls="glyph-dialog">查看字形资料</button></div></div></section>
+@media(max-width:750px){.demo-shell{display:block}.directory{position:static}.directory nav{grid-template-columns:repeat(3,1fr)}.tile p{display:block}header nav{flex-wrap:wrap}}</style></head><body data-character="圆"><div class="demo-shell"><aside class="directory"><strong>字里寻踪</strong><nav aria-label="功能目录"><a href="./">首页</a><a href="featured.html">精选寻踪</a><a href="regions.html">四海故事</a><a href="#story-lookup" data-open-story-lookup aria-controls="story-lookup" aria-expanded="false">自由查字</a><a href="#keepsake">我的寻踪卡</a><a href="#sources">资料与来源</a></nav></aside><div class="page"><header><a href="featured.html">返回精选寻踪</a><div class="brand">字里寻踪 <span>圆</span></div><nav aria-label="章节"><a href="#form">字形观察</a><a href="#strait">两岸</a><a href="#yuan-3">港澳</a><a href="#yuan-5">海外</a><a href="#keepsake">寻踪卡</a></nav></header>
+<main><style>
+.story-lookup{scroll-margin-top:130px;background:#fcf7ed;border:1px solid #d9c5ac;border-radius:12px;padding:clamp(10px,3vw,22px);margin:0 0 20px}
+.story-lookup[hidden]{display:none}
+.story-lookup-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.story-lookup-heading h2{margin:0}
+.story-lookup-heading button{border:1px solid #d9c5ac;border-radius:999px;background:#fffaf2;color:#8c291d;min-height:44px;padding:4px 12px;white-space:nowrap}
+.story-lookup-form{display:grid;grid-template-columns:minmax(0,1fr) 62px 54px;max-width:550px;min-height:44px;border:1px solid #d9c5ac;border-radius:999px;background:#fffbf3}
+.story-lookup-form>*{min-width:0;width:100%;font:inherit;border:0;background:transparent;color:#8c291d;white-space:nowrap;padding:4px 6px}
+.story-lookup-form input{color:#30241a;border-radius:999px 0 0 999px;padding-left:12px}
+.story-lookup-form button{border-radius:0 999px 999px 0}
+.story-lookup-form :focus-visible{outline:2px solid #8c291d;outline-offset:-2px}
+.story-lookup .lookup-result{margin-top:12px;max-width:650px}
+</style>
+<section id="story-lookup" class="story-lookup" aria-labelledby="story-lookup-title" hidden>
+<div class="story-lookup-heading"><h2 id="story-lookup-title">自由查字</h2><button type="button" id="close-story-lookup">收起查字</button></div>
+<form class="story-lookup-form" id="story-lookup-form" role="search"><input id="hanzi" aria-label="输入一个汉字" placeholder="查一个感兴趣的字" autocomplete="off" enterkeyhint="search"><select id="featured-word" aria-label="快速选择精选汉字"><option value="">选字</option><option value="年">年</option><option value="门">门</option><option value="茶">茶</option><option value="船">船</option><option value="灯">灯</option><option value="圆">圆</option></select><button type="submit">查询</button></form>
+<section id="lookup-result" class="lookup-result" hidden>
+<h2 id="word"></h2><p id="status" role="status"></p><div id="definitions"></div>
+<p><a id="source" target="_blank" rel="noopener">查看萌典原词条</a></p>
+<button id="retry" type="button" hidden>重新查询</button> <a id="story">查看精选故事</a>
+</section>
+</section><section id="form"><h2>字形观察</h2><div class="observation"><div class="glyph">圆</div><div><p>「圆／圓」的外框都是「囗」。从圆形和「团圆」的用法，走进各地的节庆餐桌。</p><button class="outline" id="open-glyph" type="button" aria-haspopup="dialog" aria-controls="glyph-dialog">查看字形资料</button></div></div></section>
 <section id="strait"><h1>节庆里的团圆</h1><p class="demo-caption">两岸对读 · 下方延伸至香港、澳门与海外</p><div class="journey"><nav class="route" aria-label="地区"><button type="button" data-record="yuan-1">大陆</button><button type="button" data-record="yuan-2">台湾</button><button type="button" data-record="yuan-3">香港</button><button type="button" data-record="yuan-4">澳门</button><button type="button" data-record="yuan-5">海外</button></nav><div><div class="pair"><article class="tile" id="yuan-1" style="--crop:20%"><button type="button" data-record="yuan-1"><h3><strong>浙江宁波海曙</strong>｜老街长桌宴的年节饮食（待补汤圆细节）</h3><p>海曙区政府记录南塘老街年节长桌宴的地方饮食。</p><img src="yuan-1-regional.webp" alt="主题场景示意"></button><p class="demo-caption">待补直接证据</p><a href="https://www.haishu.gov.cn/col/col1229826296/art/2026/art_8dc2da0a59c97414d99a1f926ed83935.html">查看出处</a></article><article class="tile" id="yuan-2" style="--crop:40%"><button type="button" data-record="yuan-2"><h3><strong>台湾（文献馆所载）</strong>｜元宵吃汤圆</h3><p>台湾文献馆将吃汤圆、赏花灯、猜灯谜列为元宵习俗。</p><img src="yuan-2-regional.webp" alt="主题场景示意"></button><a href="https://www.th.gov.tw/Epaper_Content/237/10008/">查看出处</a></article></div><div class="extras"><article class="tile" id="yuan-3" style="--crop:50%"><button type="button" data-record="yuan-3"><h3><strong>香港</strong>｜元宵节的汤圆</h3><p>香港教育局阅读材料以农历正月十五的元宵习俗介绍汤圆。</p><img src="yuan-3-regional.webp" alt="主题场景示意"></button><a href="https://sense.edb.gov.hk/uploads/content/spld/chinese_read_write_summer_2.pdf">查看出处</a></article><article class="tile" id="yuan-4" style="--crop:75%"><button type="button" data-record="yuan-4"><h3><strong>澳门旅游学院</strong>｜动手搓汤丸过元宵</h3><p>澳门旅游学院春节活动记录学生动手制作汤丸。</p><img src="yuan-4-regional.webp" alt="主题场景示意"></button><a href="https://www.gov.mo/zh-hant/news/367523/">查看出处</a></article><article class="tile" id="yuan-5" style="--crop:100%"><button type="button" data-record="yuan-5"><h3><strong>新加坡</strong>｜春节团圆饭</h3><p>国家文物局条目将团圆饭描述为新加坡华人春节家庭活动，案例聚焦团圆的含义。</p><img src="yuan-5-regional.webp" alt="主题场景示意"></button><a href="https://www.roots.gov.sg/ich-landing/ich/chinese-new-year">查看出处</a></article></div></div></div></section>
 <section id="keepsake"><h2>我的寻踪卡</h2><div class="keepsake"><img id="keepsake-image" src="yuan-1-regional.webp" alt="主题场景示意"><div class="note"><label for="place">选择想带走的记录</label><select id="place"><option value="yuan-1">浙江宁波海曙｜老街长桌宴的年节饮食（待补汤圆细节）</option><option value="yuan-2">台湾（文献馆所载）｜元宵吃汤圆</option><option value="yuan-3">香港｜元宵节的汤圆</option><option value="yuan-4">澳门旅游学院｜动手搓汤丸过元宵</option><option value="yuan-5">新加坡｜春节团圆饭</option></select><h3 id="selected-title"></h3><p id="selected-detail" aria-live="polite"></p><button class="solid" id="save">保存寻踪记录</button></div></div></section>
 <details id="sources"><summary>资料核验与素材说明</summary><ul><li>浙江宁波海曙 · <a href="https://www.haishu.gov.cn/col/col1229826296/art/2026/art_8dc2da0a59c97414d99a1f926ed83935.html">长桌宴飘香南塘老街</a> · 活动正文 · 待补直接证据</li><li>台湾（文献馆所载） · <a href="https://www.th.gov.tw/Epaper_Content/237/10008/">元宵夜</a> · 民俗说明</li><li>香港 · <a href="https://sense.edb.gov.hk/uploads/content/spld/chinese_read_write_summer_2.pdf">农历正月十五是中国传统的元宵节</a> · 阅读材料</li><li>澳门旅游学院 · <a href="https://www.gov.mo/zh-hant/news/367523/">承传中华文化 澳旅院一系列新春活动送鼠迎牛</a> · 元宵汤丸活动段落</li><li>新加坡 · <a href="https://www.roots.gov.sg/ich-landing/ich/chinese-new-year">Chinese New Year</a> · 团圆饭段落</li></ul></details><footer>配图为 AI 场景示意。原始资料见各卡片出处。</footer></main></div></div>
@@ -28,4 +49,120 @@
   preview.addEventListener('close', () => trigger.focus({preventScroll: true}));
 })();
 </script>
-</body></html>
+<script>
+(() => {
+
+const input = document.getElementById('hanzi');
+const featuredWord = document.getElementById('featured-word');
+const panel = document.getElementById('lookup-result');
+const heading = document.getElementById('word');
+const status = document.getElementById('status');
+const definitions = document.getElementById('definitions');
+const source = document.getElementById('source');
+const retry = document.getElementById('retry');
+const story = document.getElementById('story');
+const entries = {年:['年','nian.html'],门:['門','men.html'],茶:['茶','cha.html'],船:['船','chuan.html'],灯:['燈','deng.html'],圆:['圓','yuan.html']};
+for (const character of ['门', '灯', '圆']) {
+  entries[entries[character][0]] = entries[character];
+}
+let active;
+async function lookup() {
+  active?.abort();
+  active = null;
+  const word = input.value.trim();
+  panel.hidden = false;
+  definitions.replaceChildren();
+  retry.hidden = true;
+  source.hidden = true;
+  story.hidden = true;
+  heading.textContent = '';
+  if (!/^\p{Script=Han}$/u.test(word)) {
+    status.textContent = '请一次输入一个汉字。';
+    
+    return;
+  }
+  const [form, storyUrl] = entries[word] ?? [word];
+  const controller = new AbortController();
+  active = controller;
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  panel.hidden = false;
+  heading.textContent = word;
+  status.textContent = '正在查询萌典…';
+  definitions.replaceChildren();
+  retry.hidden = true;
+  source.href = 'https://www.moedict.tw/' + encodeURIComponent(form);
+  source.hidden = false;
+  if (storyUrl) {
+    story.href = storyUrl;
+    story.hidden = false;
+  }
+  
+  try {
+    const response = await fetch('https://www.moedict.tw/uni/' + encodeURIComponent(form), {signal:controller.signal});
+    if (active !== controller || input.value.trim() !== word) return;
+    if (response.status === 404) {
+      status.textContent = '萌典未找到这个字，可尝试另一种简繁写法。';
+      return;
+    }
+    if (!response.ok) throw new Error('Dictionary request failed');
+    const entry = await response.json();
+    if (active !== controller || input.value.trim() !== word) return;
+    if (entry.title !== form || !Array.isArray(entry.heteronyms)) throw new Error('Unexpected entry');
+    heading.textContent = word === form ? word : word + ' · 萌典字形「' + form + '」';
+    status.textContent = [entry.radical && '部首 ' + entry.radical, entry.stroke_count && '词典字形笔画 ' + entry.stroke_count].filter(Boolean).join('　');
+    for (const reading of entry.heteronyms) {
+      const paragraph = document.createElement('p');
+      paragraph.textContent = [reading.pinyin || reading.bopomofo, reading.definitions?.find(item => item.def)?.def].filter(Boolean).join('　');
+      definitions.append(paragraph);
+    }
+  } catch {
+    if (active !== controller || input.value.trim() !== word) return;
+    status.textContent = '暂时无法取得词条，可重试或查看萌典原词条。';
+    retry.hidden = false;
+  } finally {clearTimeout(timeout);}
+}
+document.getElementById('story-lookup-form').addEventListener('submit', event => {
+  event.preventDefault();
+  lookup();
+});
+featuredWord.addEventListener('change', () => {
+  if (!featuredWord.value) return;
+  input.value = featuredWord.value;
+  lookup();
+});
+input.addEventListener('input', () => {
+  featuredWord.value = '';
+  active?.abort();
+  active = null;
+  panel.hidden = true;
+});
+retry.addEventListener('click', lookup);
+
+const region = document.getElementById('story-lookup');
+const open = document.querySelector('[data-open-story-lookup]');
+const close = document.getElementById('close-story-lookup');
+let readingPosition;
+open.addEventListener('click', event => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (region.hidden) readingPosition = window.scrollY;
+  region.hidden = false;
+  open.setAttribute('aria-expanded', 'true');
+  window.scrollTo(0, window.scrollY + region.getBoundingClientRect().top - 130);
+  input.focus({preventScroll: true});
+});
+function closeLookup() {
+  active?.abort();
+  active = null;
+  region.hidden = true;
+  panel.hidden = true;
+  open.setAttribute('aria-expanded', 'false');
+  open.focus({preventScroll: true});
+  window.scrollTo(0, readingPosition ?? 0);
+}
+close.addEventListener('click', closeLookup);
+region.addEventListener('keydown', event => {
+  if (event.key === 'Escape') closeLookup();
+});
+})();
+</script></body></html>
