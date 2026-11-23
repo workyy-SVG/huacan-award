@@ -8,15 +8,33 @@ header div,main{width:min(1208px,calc(100% - 36px));margin:auto}header div{paddi
 #status{margin:10px 0 12px;font-size:.9rem}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.tile{min-width:0;background:#fffaef;border:1px solid #d9c5ac;border-radius:12px;padding:12px;display:flex;flex-direction:column}.tile img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px}.place{color:#8c291e;font-size:.9rem;margin:10px 0 2px}.tile h2{font:700 1.35rem/1.35 KaiTi,serif;margin:0 0 5px}.summary{margin:0 0 10px;color:#6e5946}.actions{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px 15px;font-size:.9rem}footer{border-top:1px solid #d9c5ac;margin-top:24px;padding-top:13px;font-size:.9rem}
 @media(max-width:940px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.gallery{grid-template-columns:1fr;gap:12px}.region .filters{display:flex;flex-wrap:wrap}.grid{grid-template-columns:1fr}main{padding-top:20px}}
+
+.habit-search{display:flex;align-items:center;gap:8px;margin:0 0 14px}
+.habit-search input{flex:1;min-width:0;width:100%;min-height:44px;padding:8px 13px;border:1px solid #d9c5ac;border-radius:9px;background:#fffaef;color:inherit;font:inherit}
+.habit-search input:focus-visible{outline:2px solid #8c291e;outline-offset:2px}
+.habit-search button{min-height:44px;padding:6px 13px;border:1px solid #8c291e;border-radius:9px;background:#8c291e;color:#fff;white-space:nowrap}
+.habit-search button[type=reset]{background:#fffaef;color:#8c291e;border-color:#d9c5ac}
+@media(max-width:640px){.gallery>section{display:contents}.habit-search{order:-1;margin:0}.gallery #status{margin:0}}
 </style></head><body>
-<main><h1>四海故事</h1><p class="intro">按字找故事，也可以用地区缩小范围。</p>
+<main><h1>四海故事</h1><p class="intro">按习俗、汉字或地区找故事。</p>
 <div class="gallery"><aside class="region"><h2>按地区浏览</h2><div id="region" class="filters" role="group" aria-label="地区"></div></aside>
-<section aria-label="地区故事"><div id="character" class="filters words" role="group" aria-label="汉字"></div><p id="status" role="status">正在加载故事…</p><div id="records" class="grid"></div></section></div>
+<section aria-label="地区故事">
+<form class="habit-search" id="habit-search" role="search" aria-label="搜索习俗">
+  <input id="habit-keyword" type="search" aria-label="习俗关键词" placeholder="搜索习俗，如春联、围炉、龙舟">
+  <button type="submit">搜索</button>
+  <button type="reset" hidden>清空</button>
+</form>
+<div id="character" class="filters words" role="group" aria-label="汉字"></div><p id="status" role="status">正在加载故事…</p><div id="records" class="grid"></div></section></div>
 <footer>四海故事还有许多。这里选取「年、门、茶、船、灯、圆」六个代表字，用完整案例讲述各地的生活与习俗。<a href="./#lookup">自由查字</a></footer>
 </main>
 <script>
 const statusLine = document.getElementById('status');
 const records = document.getElementById('records');
+const searchForm = document.getElementById('habit-search');
+const keywordInput = document.getElementById('habit-keyword');
+const clearSearch = searchForm.querySelector('[type=reset]');
+const normalize = text => text.normalize('NFKC').toLowerCase();
+const springCustoms = /除夕|年夜饭|团年饭|围炉|春联|挥春|门神|捞鱼生|春节|年节/;
 function element(tag, label, parent) {
   const node = document.createElement(tag);
   node.textContent = label;
@@ -31,15 +49,23 @@ async function loadCatalogue() {
     const response = await fetch('cases.json');
     if (!response.ok) throw new Error('Catalogue unavailable');
     const data = await response.json();
-    let region = '', character = '';
+    let region = '', character = '', keyword = '';
     const all = Object.values(data.regions).flat();
+    const searchText = new Map(all.map(item => {
+      const text = [item.character, item.place, item.title, item.body].join(' ');
+      return [item, normalize(springCustoms.test(text) ? text + ' 春节 新春 过年' : text)];
+    }));
     function render() {
+      const terms = normalize(keyword).split(/\s+/).filter(Boolean);
+      clearSearch.hidden = !keyword && !keywordInput.value;
       const items = (region ? data.regions[region] : all)
-        .filter(item => !character || item.character === character);
+        .filter(item => (!character || item.character === character) &&
+          terms.every(term => searchText.get(item).includes(term)));
       records.replaceChildren();
       statusLine.textContent = items.length
-        ? [region || '全部地区', character || '全部汉字', items.length + ' 条记录'].join(' · ')
-        : '当前筛选下没有记录，请试试其他地区或汉字。';
+        ? [region || '全部地区', character || '全部汉字',
+          keyword && '关键词「' + keyword + '」', items.length + ' 条记录'].filter(Boolean).join(' · ')
+        : '没有找到符合条件的故事，请换个关键词或调整筛选。';
       for (const item of items) {
         const tile = element('article', '', records);
         tile.className = 'tile';
@@ -73,6 +99,24 @@ async function loadCatalogue() {
         });
       }
     }
+    searchForm.addEventListener('submit', event => {
+      event.preventDefault();
+      keyword = keywordInput.value.trim();
+      render();
+    });
+    searchForm.addEventListener('reset', () => {
+      keywordInput.value = '';
+      keyword = '';
+      render();
+      keywordInput.focus();
+    });
+    keywordInput.addEventListener('input', () => {
+      clearSearch.hidden = !keywordInput.value && !keyword;
+      if (!keywordInput.value && keyword) {
+        keyword = '';
+        render();
+      }
+    });
     filters('region', '全部地区', Object.keys(data.regions), value => {region = value;});
     filters('character', '全部', [...new Set(data.cases.map(item => item.character).concat(all.map(item => item.character)))], value => {character = value;});
     render();
