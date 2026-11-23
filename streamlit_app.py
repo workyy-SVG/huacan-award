@@ -8,6 +8,7 @@ import re
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent
+# Region navigation is provided by the fixed Streamlit sidebar.
 PAGES = ("index.html", "featured.html", "regions.html", "nian.html",
          "men.html", "cha.html", "chuan.html", "deng.html", "yuan.html")
 
