@@ -502,7 +502,7 @@ function navigate(page, hash = '', tab = '') {
 <div class="cover" id="cover">
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
-  <a class="cover-start" href="featured.html" id="region-default-entry">看同一个字的不同写法</a>
+  <a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
     <div class="region-field">
