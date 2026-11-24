@@ -87,6 +87,8 @@ def bundle_site(version):
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
     keepsake_style = """<style>
+#keepsake-status:not(:empty), #keepsake-collection-link:not([hidden]) { margin-top: 8px; }
+#keepsake-collection-link:not([hidden]) { display: block; font-weight: 700; }
 #keepsake .keepsake { min-height: clamp(290px, 26vw, 360px); }
 @media (max-width: 540px) {
   #keepsake .keepsake { min-height: 240px; }
@@ -170,6 +172,10 @@ def bundle_site(version):
             page = re.sub(r'(<details(?: id="sources")?)(>\s*<summary>资料核验与素材说明</summary>)',
                           r'\1 open\2', page, count=1)
             page = page.replace("</head>", observation_style + keepsake_style + "</head>", 1)
+            page = page.replace('保存寻踪记录</button>',
+                                '保存寻踪记录</button><p id="keepsake-status" role="status"></p>'
+                                '<a id="keepsake-collection-link" href="keepsakes.html" hidden>'
+                                '查看已保存的寻踪卡 →</a>', 1)
             page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
                                 "<script>" + stroke_ui + "</script></body>")
         pages[name] = page
@@ -243,6 +249,62 @@ const directory = document.getElementById('directory');
 const layout = document.getElementById('layout');
 let current = 'index.html', lastStory = '';
 let lookupScroll = 0;
+const keepsakePage = 'keepsakes.html';
+const keepsakeKey = 'zili-keepsakes-v1';
+let savedKeepsakes = [];
+try {
+  const stored = JSON.parse(localStorage.getItem(keepsakeKey) || '[]');
+  if (Array.isArray(stored)) savedKeepsakes = stored.filter(item =>
+    item && typeof item.id === 'string' && Object.hasOwn(pages, item.page));
+} catch {}
+window.ziliSaveKeepsake = (record, image) => {
+  const item = {
+    id: record.id, page: current, character: frame.contentDocument.body.dataset.character || '年',
+    place: record.place, title: record.title, detail: record.recorded_action || record.body, image
+  };
+  savedKeepsakes = [item, ...savedKeepsakes.filter(entry => entry.id !== item.id)];
+  try {
+    localStorage.setItem(keepsakeKey, JSON.stringify(savedKeepsakes));
+    return true;
+  } catch {
+    return false;
+  }
+};
+pages[keepsakePage] = `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>已保存的寻踪卡</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3ebdd;color:#34271e;font:16px/1.65 system-ui,sans-serif}
+main{margin:auto;padding:26px 0;max-width:1208px}h1{margin:0 0 8px;font:700 clamp(1.8rem,4vw,2.8rem) KaiTi,serif}
+a{color:#79271a;font-weight:700}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:16px}
+article{border:1px solid #d6b995;background:#fff9ee;border-radius:12px;overflow:hidden}
+article div{padding:15px}article h2{margin:4px 0 8px;font-size:1.2rem}
+article img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}small{color:#79271a;font-weight:700}
+</style></head><body><main><h1>已保存的寻踪卡</h1><p id="saved-count"></p><div class="cards" id="saved-cards"></div></main></body></html>`;
+function renderKeepsakes(doc) {
+  const add = (parent, tag, value = '') => {
+    const node = doc.createElement(tag);
+    node.textContent = value;
+    parent.append(node);
+    return node;
+  };
+  const count = doc.getElementById('saved-count');
+  count.textContent = savedKeepsakes.length ? savedKeepsakes.length + ' 条已保存' : '还没有收藏。';
+  if (!savedKeepsakes.length) add(count, 'a', ' 去看看故事 →').href = lastStory || 'featured.html';
+  const cards = doc.getElementById('saved-cards');
+  for (const item of savedKeepsakes) {
+    const card = add(cards, 'article');
+    if (images[item.image]) {
+      const image = add(card, 'img');
+      image.src = images[item.image];
+      image.alt = '';
+    }
+    const body = add(card, 'div');
+    add(body, 'small', item.character + ' · ' + item.place);
+    add(body, 'h2', item.title);
+    add(body, 'p', item.detail);
+    add(body, 'a', '回到故事 →').href = item.page + '#' + item.id;
+  }
+}
 const isStory = page => /^(nian|men|cha|chuan|deng|yuan)\\.html$/.test(page);
 function selectTab(key) {
   for (const button of directory.querySelectorAll('[data-tab]')) {
@@ -283,12 +345,17 @@ function navigate(page, hash = '', tab = '') {
   current = page;
   if (isStory(page)) lastStory = page;
   const cover = page === 'index.html' && tab !== 'lookup';
-  const selected = tab || (page === 'regions.html' ? 'regions' : cover ? 'home' : 'featured');
+  const selected = tab || (page === keepsakePage ? 'keepsake' : page === 'regions.html' ? 'regions' : cover ? 'home' : 'featured');
   directory.hidden = cover;
   layout.classList.toggle('home', cover);
   selectTab(selected);
   frame.onload = () => {
     const doc = frame.contentDocument;
+    if (page === keepsakePage) renderKeepsakes(doc);
+    if (savedKeepsakes.length) {
+      const collectionLink = doc.getElementById('keepsake-collection-link');
+      if (collectionLink) collectionLink.hidden = false;
+    }
     doc.getElementById('cover-character')?.addEventListener('change', event => {
       const destination = event.target.value;
       if (isStory(destination)) navigate(destination);

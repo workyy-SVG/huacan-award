@@ -19,6 +19,8 @@ function updateCard() {
 document.querySelectorAll('[data-record]').forEach(button => {
   button.addEventListener('click', () => {
     activeRecord = cases.find(item => item.id === button.dataset.record);
+    selection.value = activeRecord.id;
+    updateCard();
     document.querySelector('#record-title').textContent = activeRecord.place + '｜' + activeRecord.title;
     document.querySelector('#record-image').src = imageFor(activeRecord);
     document.querySelector('#record-body').textContent = activeRecord.body;
@@ -37,6 +39,13 @@ document.querySelector('#keep').addEventListener('click', () => {
 selection.addEventListener('change', updateCard);
 document.querySelector('#save').addEventListener('click', () => {
   const record = cases.find(item => item.id === selection.value);
+  if (typeof parent.ziliSaveKeepsake === 'function') {
+    const saved = parent.ziliSaveKeepsake(record, config.images?.[record.id] || record.image);
+    document.getElementById('keepsake-status').textContent =
+      (saved ? '已保存 · ' : '已保存到本次浏览 · ') + record.place;
+    document.getElementById('keepsake-collection-link').hidden = false;
+    return;
+  }
   const body = ['字里寻踪 · ' + document.body.dataset.character, record.place + '｜' + record.title, record.recorded_action,
     '出处：' + record.source_title, record.source_url].join('\n');
   const url = URL.createObjectURL(new Blob([body], {type: 'text/plain;charset=utf-8'}));
