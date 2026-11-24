@@ -396,8 +396,7 @@ function bindRegionEntry(doc) {
   doc.querySelectorAll('[data-region]').forEach(button => {
     button.addEventListener('click', () => enter(button.dataset.region));
   });
-  doc.getElementById('region-form').addEventListener('submit', event => {
-    event.preventDefault();
+  const enterTypedRegion = () => {
     const value = input.value.trim();
     if (/海外|華僑|华侨|新加坡|马来西亚|馬來西亞/.test(value)) enter('海外华侨');
     else if (/香港/.test(value)) enter('香港');
@@ -405,6 +404,15 @@ function bindRegionEntry(doc) {
     else if (traditionalPlaces.test(value)) enter('台湾');
     else if (mainlandPlaces.test(value)) enter('大陆');
     else doc.getElementById('region-help').textContent = '暂未识别该地区，可在下拉框选择最符合的一项。';
+  };
+  doc.getElementById('region-form').addEventListener('submit', event => {
+    event.preventDefault();
+    enterTypedRegion();
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    enterTypedRegion();
   });
   doc.getElementById('region-default-entry').addEventListener('click', event => {
     event.preventDefault();
