@@ -506,9 +506,9 @@ function navigate(page, hash = '', tab = '') {
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
     <div class="region-field">
-      <input id="region-input" placeholder="输入地区，或从下拉框选择" autocomplete="off" enterkeyhint="go" aria-describedby="region-help">
+      <input id="region-input" placeholder="手动输入地区" autocomplete="off" enterkeyhint="go" aria-describedby="region-help">
       <details id="region-picker">
-        <summary aria-label="选择地区">⌄</summary>
+        <summary>选择地区 <span class="region-arrow" aria-hidden="true"></span></summary>
         <div class="region-options">
           <button type="button" data-region="大陆">大陆</button>
           <button type="button" data-region="台湾">台湾</button>
@@ -543,10 +543,15 @@ a{color:#83291e}button,input{font:inherit}button,summary{cursor:pointer}
 .cover-start:focus-visible{outline:2px solid #79281d;outline-offset:4px}
 .region-entry{position:relative;margin:clamp(18px,4.5cqw,26px) auto 16px;width:85%}
 .region-entry label{display:block;font-weight:700;color:#79281d;margin-bottom:8px}
-.region-field{position:relative}.region-field input{width:100%;min-height:52px;border:1px solid #d2b99b;border-radius:999px;background:#fcf8ef;color:inherit;padding:10px 56px 10px 16px}
+.region-field{position:relative}.region-field input{width:100%;min-height:52px;border:1px solid #d2b99b;border-radius:999px;background:#fcf8ef;color:inherit;padding:10px 122px 10px 16px}
 .region-field details{position:absolute;inset-block:0;inset-inline-end:0}
-.region-field summary{width:48px;height:100%;display:grid;place-items:center;list-style:none;color:#79281d}
+.region-field summary{display:flex;align-items:center;justify-content:center;gap:8px;min-width:112px;height:100%;padding:0 14px;border:1px solid #d2b99b;border-radius:0 999px 999px 0;background:#f0e1cb;list-style:none;color:#702117;font-weight:700;white-space:nowrap}
 .region-field summary::-webkit-details-marker{display:none}
+.region-field summary:hover,.region-field details[open] summary{background:#e9d4b8}
+.region-field summary:focus-visible{outline:2px solid #79281d;outline-offset:2px}
+.region-arrow{width:9px;height:9px;border:solid currentColor;border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
+.region-field details[open] .region-arrow{transform:translateY(2px) rotate(225deg)}
+@media(max-width:430px){.region-field input{padding-inline-end:110px;font-size:14px}.region-field summary{min-width:102px;padding-inline:10px;font-size:14px}}
 .region-options{position:absolute;inset-inline-end:0;top:calc(100% + 4px);width:min(240px,70vw);background:#fff9ef;border:1px solid #d2b99b;border-radius:10px;padding:6px;z-index:1;box-shadow:0 5px 14px #34271e24}
 .region-options button{display:block;width:100%;text-align:start;border:0;background:transparent;color:#5a2b21;padding:8px 12px;border-radius:6px;min-height:42px}
 .region-options button:hover,.region-options button:focus-visible{background:#f2e2cb}
