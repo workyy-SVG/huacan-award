@@ -170,7 +170,7 @@ def bundle_site(version):
                           "<script>" + lookup_ui + "</script>", page, count=1)
         if 'id="glyph-dialog"' in page:
             page = re.sub(r'(<details(?: id="sources")?)(>\s*<summary>资料核验与素材说明</summary>)',
-                          r'\1 open\2', page, count=1)
+                          r'\1 open data-source-notes\2', page, count=1)
             page = page.replace("</head>", observation_style + keepsake_style + "</head>", 1)
             page = page.replace('保存寻踪记录</button>',
                                 '保存寻踪记录</button><p id="keepsake-status" role="status"></p>'
@@ -340,6 +340,87 @@ function activateLocal(doc, key) {
   }
   goToSection(doc, key);
 }
+const traditionalRegions = new Set(['台湾', '香港', '澳门']);
+const mainlandPlaces = /大陆|大陸|浙江|贵州|貴州|杭州|宁波|寧波|贵阳|貴陽|遵义|遵義|福建|泉州|厦门|廈門|北京|上海|广东|廣東|江苏|江蘇|山东|山東|四川|湖南|湖北|江西|安徽|云南|雲南|陕西|陝西|河南|河北|山西|甘肃|甘肅|青海|广西|廣西|海南|吉林|辽宁|遼寧|黑龙江|黑龍江|内蒙古|內蒙古|重庆|重慶|天津|新疆|宁夏|寧夏|西藏/;
+const traditionalPlaces = /台湾|臺灣|台灣|臺北|台北|台中|臺中|台南|臺南|高雄|新北|桃園|桃园|宜蘭|宜兰|花蓮|花莲|金門|金门|香港|澳[門门]/;
+let traditionalUI = false;
+const standardTraditional = new Map(
+  Object.entries(variants.pairs).filter(([, [simple, traditional]]) => !simple && [...traditional].length === 1)
+    .map(([char, [, traditional]]) => [char, traditional])
+);
+standardTraditional.set('灯', '燈');
+const originalDirectoryText = new WeakMap();
+function traditionalText(text) {
+  return [...text.replaceAll('字里寻踪', '字裡尋蹤').replaceAll('台湾', '臺灣').replaceAll('里面', '裡面')]
+    .map(char => standardTraditional.get(char) || char).join('');
+}
+function applyDirectoryScript() {
+  const walker = document.createTreeWalker(directory, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!originalDirectoryText.has(node)) originalDirectoryText.set(node, node.nodeValue);
+    const original = originalDirectoryText.get(node);
+    node.nodeValue = traditionalUI ? traditionalText(original) : original;
+  }
+}
+function localizeStory(doc) {
+  const skip = 'script,style,code,textarea,blockquote,#sources,#journey-sources,#comparison,[data-source-notes],.story-evidence,#lookup-result,#lookup-status,#glyph-dialog,#record-quote';
+  function convert(node) {
+    if (node.nodeType !== 3 || !node.parentElement || node.parentElement.closest(skip)) return;
+    const mapped = traditionalText(node.nodeValue);
+    if (mapped !== node.nodeValue) node.nodeValue = mapped;
+  }
+  function walk(node) {
+    if (node.nodeType === 3) { convert(node); return; }
+    const walker = doc.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    for (let text = walker.nextNode(); text; text = walker.nextNode()) convert(text);
+  }
+  doc.documentElement.lang = 'zh-TW';
+  doc.title = traditionalText(doc.title);
+  walk(doc.body);
+  const observer = new MutationObserver(changes => {
+    for (const change of changes) {
+      if (change.type === 'characterData') convert(change.target);
+      else for (const node of change.addedNodes) walk(node);
+    }
+  });
+  observer.observe(doc.body, {childList:true, subtree:true, characterData:true});
+  doc.defaultView.addEventListener('pagehide', () => observer.disconnect(), {once:true});
+}
+function bindRegionEntry(doc) {
+  const picker = doc.getElementById('region-picker');
+  const input = doc.getElementById('region-input');
+  const enter = region => {
+    traditionalUI = traditionalRegions.has(region);
+    navigate('featured.html');
+  };
+  doc.querySelectorAll('[data-region]').forEach(button => {
+    button.addEventListener('click', () => enter(button.dataset.region));
+  });
+  doc.getElementById('region-form').addEventListener('submit', event => {
+    event.preventDefault();
+    const value = input.value.trim();
+    if (/海外|華僑|华侨|新加坡|马来西亚|馬來西亞/.test(value)) enter('海外华侨');
+    else if (/香港/.test(value)) enter('香港');
+    else if (/澳[門门]/.test(value)) enter('澳门');
+    else if (traditionalPlaces.test(value)) enter('台湾');
+    else if (mainlandPlaces.test(value)) enter('大陆');
+    else doc.getElementById('region-help').textContent = '暂未识别该地区，可在下拉框选择最符合的一项。';
+  });
+  doc.getElementById('region-default-entry').addEventListener('click', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    enter('大陆');
+  });
+  doc.addEventListener('click', event => {
+    if (!picker.contains(event.target)) picker.open = false;
+  });
+  picker.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && picker.open) {
+      picker.open = false;
+      picker.querySelector('summary').focus();
+    }
+  });
+}
 function navigate(page, hash = '', tab = '') {
   if (!Object.hasOwn(pages, page)) return;
   current = page;
@@ -349,6 +430,7 @@ function navigate(page, hash = '', tab = '') {
   directory.hidden = cover;
   layout.classList.toggle('home', cover);
   selectTab(selected);
+  applyDirectoryScript();
   frame.onload = () => {
     const doc = frame.contentDocument;
     if (page === keepsakePage) renderKeepsakes(doc);
@@ -356,10 +438,19 @@ function navigate(page, hash = '', tab = '') {
       const collectionLink = doc.getElementById('keepsake-collection-link');
       if (collectionLink) collectionLink.hidden = false;
     }
-    doc.getElementById('cover-character')?.addEventListener('change', event => {
-      const destination = event.target.value;
-      if (isStory(destination)) navigate(destination);
-    });
+    if (cover) bindRegionEntry(doc);
+    if (!cover && traditionalUI) localizeStory(doc);
+    if (page === 'featured.html') {
+      const button = doc.createElement('button');
+      button.type = 'button';
+      button.id = 'script-switch';
+      button.textContent = traditionalUI ? '切換為簡體' : '切换为繁體';
+      button.addEventListener('click', () => {
+        traditionalUI = !traditionalUI;
+        navigate(page);
+      });
+      doc.querySelector('main')?.prepend(button);
+    }
     if (hash) activateLocal(doc, hash);
     const close = doc.getElementById('close-story-lookup');
     const restoreStory = () => {
@@ -406,30 +497,65 @@ function navigate(page, hash = '', tab = '') {
     /(<form class="(?:globe-search|story-lookup-form)"[^>]*>[\\s\\S]*?<\\/form>)/,
     '$1' + (cover ? '' : credit)
   );
-  const attributedPage = cover
-    ? (pageHtml.split('</main>', 1)[0] + '</main></body></html>').replace(
-        /<form class="globe-search"[^>]*>[\\s\\S]*?<\\/form>/,
-        '<div class="globe-search cover-picker"><select id="cover-character" aria-describedby="cover-case-note" aria-label="选一个字，进入故事"><option value="">选一个字，进入故事</option><option value="nian.html">年</option><option value="men.html">门</option><option value="cha.html">茶</option><option value="chuan.html">船</option><option value="deng.html">灯</option><option value="yuan.html">圆</option></select></div><p id="cover-case-note" class="cover-case-note">六个代表字，展示各地生活与习俗</p>'
-      )
-    : pageHtml;
+  const attributedPage = cover ? `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>字里寻踪</title></head><body>
+<div class="cover" id="cover">
+  <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
+  <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
+  <a class="cover-start" href="featured.html" id="region-default-entry">看同一个字的不同写法</a>
+  <form class="region-entry" id="region-form">
+    <label for="region-input">你来自哪里？</label>
+    <div class="region-field">
+      <input id="region-input" placeholder="输入地区，或从下拉框选择" autocomplete="off" enterkeyhint="go" aria-describedby="region-help">
+      <details id="region-picker">
+        <summary aria-label="选择地区">⌄</summary>
+        <div class="region-options">
+          <button type="button" data-region="大陆">大陆</button>
+          <button type="button" data-region="台湾">台湾</button>
+          <button type="button" data-region="香港">香港</button>
+          <button type="button" data-region="澳门">澳门</button>
+          <button type="button" data-region="海外华侨">海外华侨</button>
+        </div>
+      </details>
+    </div>
+    <p class="help" id="region-help" role="status">选择后直接进入。手动输入后，按回车进入。</p>
+  </form>
+</div>
+</body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
     .replace(/(src=")([\\w.-]+\\.(?:webp|png|jpg))(")/g, (match, start, name, end) =>
       images[name] ? start + images[name] + end : match)
     .replace(/url\\((["']?)([\\w.-]+\\.(?:webp|png|jpg))\\1\\)/g, (match, quote, name) =>
       images[name] ? 'url("' + images[name] + '")' : match);
-  const pickerStyle = cover ? '<style>.globe-cover:has(.cover-picker){aspect-ratio:1600/2500}.globe-cover .cover-case-note{position:absolute;top:calc(145.54cqw + 5px);left:50%;transform:translateX(-50%);max-width:88%;width:max-content;margin:0;padding:3px 8px;border-radius:6px;background:#fff7e9;color:#79291e;text-align:center;font:600 clamp(11px,2.6cqw,16px)/1.35 system-ui,sans-serif}.globe-cover .cover-picker{display:block}.cover-picker select{width:100%;height:100%;padding:0 14px;border-radius:999px;font:clamp(15px,3.5cqw,20px) system-ui,sans-serif}</style>' : '';
-  const coverPaperStyle = cover ? `<style>
-    body{background:linear-gradient(180deg,#f6f3ed,#f5f2eb 64%,#f7f4ee)}
-    .globe-cover{background:transparent}
-    @media (min-width:601px){
-      .globe-cover .globe-art{
-        -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-        mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-      }
-    }
-  </style>` : '';
-  frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + pickerStyle + coverPaperStyle + '</head>');
+  const regionStyle = cover ? `<style>
+*{box-sizing:border-box}body{margin:0;color:#34271e;background:#f6f2eb;font:16px/1.6 system-ui,sans-serif}
+a{color:#83291e}button,input{font:inherit}button,summary{cursor:pointer}
+.cover{width:min(100%,580px);margin:auto;container-type:inline-size}
+@media(min-width:700px){.cover{width:min(580px, max(330px, calc((100svh - 150px) / 1.1)))}}
+.cover-art{position:relative;overflow:hidden}
+.cover-title{height:27cqw}
+.cover-map{height:65cqw}
+.cover-art img{position:absolute;width:100%;height:auto;display:block;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.cover-title img{top:-20cqw}
+.cover-map img{top:-50cqw}
+.cover-start{display:grid;place-items:center;width:min(85%,max(205px,46.5%));min-height:44px;height:9.97cqw;margin:clamp(15px,4cqw,24px) auto 0;border-radius:999px;background:linear-gradient(110deg,#912819,#aa3828);box-shadow:0 4px 10px #8c291e40;color:#fffaf2;text-decoration:none;text-align:center;font:700 clamp(15px,3.75cqw,22px)/1.2 "Songti SC","SimSun",serif}
+.cover-start:focus-visible{outline:2px solid #79281d;outline-offset:4px}
+.region-entry{position:relative;margin:clamp(18px,4.5cqw,26px) auto 16px;width:85%}
+.region-entry label{display:block;font-weight:700;color:#79281d;margin-bottom:8px}
+.region-field{position:relative}.region-field input{width:100%;min-height:52px;border:1px solid #d2b99b;border-radius:999px;background:#fcf8ef;color:inherit;padding:10px 56px 10px 16px}
+.region-field details{position:absolute;inset-block:0;inset-inline-end:0}
+.region-field summary{width:48px;height:100%;display:grid;place-items:center;list-style:none;color:#79281d}
+.region-field summary::-webkit-details-marker{display:none}
+.region-options{position:absolute;inset-inline-end:0;top:calc(100% + 4px);width:min(240px,70vw);background:#fff9ef;border:1px solid #d2b99b;border-radius:10px;padding:6px;z-index:1;box-shadow:0 5px 14px #34271e24}
+.region-options button{display:block;width:100%;text-align:start;border:0;background:transparent;color:#5a2b21;padding:8px 12px;border-radius:6px;min-height:42px}
+.region-options button:hover,.region-options button:focus-visible{background:#f2e2cb}
+.help{font-size:.9rem;color:#6e5946;margin:7px 0}
+.view-options{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#script-switch{border:1px solid #cfaf89;border-radius:999px;background:#fff9ee;color:#79281d;padding:6px 14px;min-height:40px}
+
+</style>` : '<style>#script-switch{display:block;margin:0 0 12px auto;border:1px solid #cfaf89;border-radius:999px;background:#fff9ee;color:#79281d;padding:6px 14px;min-height:40px;font:inherit;cursor:pointer}</style>';
+  frame.srcdoc = inlineImages.replace('</head>', innerStyles + lookupLanding + lookupSizing + creditStyle + regionStyle + '</head>');
 }
 function openFunction(key) {
   if (key === 'home') return navigate('index.html');
