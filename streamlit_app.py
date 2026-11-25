@@ -120,6 +120,83 @@ def bundle_site(version):
 }
 </style>"""
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
+    history_ui = """<style>
+.character-history{margin-top:12px}.character-history [hidden]{display:none!important}
+.character-history>div{margin-top:10px;padding:14px;background:#fff5e4;border:1px solid #d6bfa0;border-radius:10px}
+.history-stages{display:flex;gap:8px;flex-wrap:wrap}
+.character-history button{min-height:44px;border:1px solid #b58c6c;border-radius:8px;padding:6px 12px;background:#fff8ed;color:#79291e;font:inherit;cursor:pointer}
+.character-history button[aria-pressed=true]{background:#87291d;color:white}
+.history-glyph{margin:10px 0;font:700 clamp(1.3rem,4vw,2.7rem) KaiTi,serif;color:#87291d}
+.history-credit{font-size:.9rem;margin-top:8px}
+</style><script>(() => {
+const stages = [
+  ['甲骨文','人负禾','观察上方的禾与下方的人，字形像人背着禾。','https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/oraclePiece.php?piece=%E7%A6%BE'],
+  ['金文','禾与人','比较金文例字中的上部和下部。西周铭文也有以「禾」字记录「年」的例子。','https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word=%E5%B9%B4'],
+  ['小篆','禾与千','留意下部，小篆的下部写成了「千」形。','https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887'],
+  ['现代写法','年','对比今天的「年」，观察横、竖在字里的位置。','https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887']
+];
+  function attach(container, word, story = false) {
+    if (word !== '年' && story) return;
+    const block = document.createElement('div');
+    block.className = 'character-history';
+    container.append(block);
+    if (word !== '年') {
+      block.textContent = '这个字暂未收录可播放的字形资料。';
+      return;
+    }
+    block.innerHTML = '<button type="button" aria-expanded="false">播放字形演变</button><div hidden><div class="history-stages" role="group" aria-label="字形阶段"></div><p class="history-glyph"></p><p class="history-observation"></p><a target="_blank" rel="noopener">查看对应字形资料 →</a><br><button type="button">播放</button><p class="history-credit">古文字阶段展示构形提示，字形图见来源页面。</p></div>';
+    const [open, panel] = block.children;
+    const play = panel.querySelector('button');
+    const controls = panel.querySelector('.history-stages');
+    let index = 0, timer;
+    function stop() { clearInterval(timer); timer = undefined; play.textContent = '播放'; }
+    block.stopHistory = stop;
+    function render() {
+      const [stage, glyph, note, url] = stages[index];
+      panel.querySelector('.history-glyph').textContent = stage + ' · ' + glyph;
+      panel.querySelector('.history-observation').textContent = note;
+      panel.querySelector('a').href = url;
+      [...controls.children].forEach((button, i) => button.setAttribute('aria-pressed', i === index));
+    }
+    function start() {
+      stop();
+      if (index === stages.length - 1) index = 0;
+      render();
+      play.textContent = '暂停';
+      timer = setInterval(() => {
+        if (!block.isConnected || block.closest('[hidden]')) { stop(); return; }
+        index++; render();
+        if (index === stages.length - 1) stop();
+      }, 3200);
+    }
+    stages.forEach(([stage], i) => {
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = stage;
+      button.onclick = () => { stop(); index = i; render(); };
+      controls.append(button);
+    });
+    open.onclick = () => {
+      panel.hidden = !panel.hidden;
+      open.setAttribute('aria-expanded', String(!panel.hidden));
+      open.textContent = panel.hidden ? '播放字形演变' : '收起字形演变';
+      if (panel.hidden) stop();
+      else { index = 0; start(); }
+    };
+    play.onclick = () => timer ? stop() : start();
+    render();
+  }
+  const glyph = document.getElementById('open-glyph');
+  if (glyph && document.getElementById('nian-quanzhou')) attach(glyph.parentElement, '年', true);
+  let previous;
+  document.addEventListener('zili:lookup', event => {
+    if (previous) { previous.stopHistory?.(); previous.remove(); }
+    const result = document.getElementById('lookup-result');
+    if (!result || !event.detail) return;
+    attach(result, event.detail);
+    previous = result.lastElementChild;
+  });
+})();
+</script>"""
     lookup_ui = (ROOT / "zili-lookup-results.js").read_text(encoding="utf-8")
     lookup_style = """<style>
 .lookup-result:has(.lookup-three){width:100%;max-width:none;box-sizing:border-box;font-size:1.0625rem;line-height:1.65}
@@ -178,6 +255,8 @@ def bundle_site(version):
                                 '查看已保存的寻踪卡 →</a>', 1)
             page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
                                 "<script>" + stroke_ui + "</script></body>")
+        if has_lookup or name == "nian.html":
+            page = page.replace("</body>", history_ui + "</body>", 1)
         pages[name] = page
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
@@ -224,7 +303,7 @@ iframe{display:block;width:100%;height:100%;min-height:0;border:0}
 @media(max-width:660px){#layout{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}#layout.home{grid-template-rows:minmax(0,1fr)}#directory{border-right:0;border-bottom:1px solid #d7c2a4;padding:10px 13px}.brand{font-size:24px}.subtitle,#directory small{display:none}#directory nav{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:7px}#directory button{padding:7px 4px;min-height:40px;text-align:center;font-size:14px}}
 </style>
 <div id="layout" class="home">
-<aside id="directory" hidden><div class="brand">字里寻踪</div><p class="subtitle">两岸四海的生活印记</p><nav aria-label="功能目录">
+<aside id="directory" hidden><div class="brand">字里寻踪</div><p class="subtitle">文字里的故事</p><nav aria-label="功能目录">
 <button type="button" data-tab="home">首页<small>回到封面入口</small></button>
 <button type="button" data-tab="featured">精选寻踪<small>沿一个字读完整故事</small></button>
 <button type="button" data-tab="regions">四海故事<small>按地区浏览生活记录</small></button>
@@ -533,8 +612,9 @@ function navigate(page, hash = '', tab = '') {
     '$1' + (cover ? '' : credit)
   );
   const attributedPage = cover ? `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>字里寻踪</title></head><body>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>字里寻踪：文字里的故事</title></head><body>
 <div class="cover" id="cover">
+  <p class="cover-history-subtitle">文字里的故事</p>
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
 <span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter><filter id="sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -.12 0 -.12 1.48 -.12 0 -.12 0" edgeMode="duplicate" preserveAlpha="true"/></filter>
@@ -687,6 +767,8 @@ a{color:#83291e}button,input{font:inherit}button,summary{cursor:pointer}
 @media(min-width:700px){.cover{width:min(580px, max(330px, calc((100svh - 150px) / 1.1)))}}
 .cover-art{position:relative;overflow:hidden}
 .cover-title{height:27cqw}
+.cover-history-subtitle{position:absolute;z-index:1;top:19.5cqw;left:27%;width:46%;margin:0;text-align:center;background:#f6f2eb;font:500 clamp(14px,3.3cqw,25px)/1.45 "Songti SC","SimSun",serif}
+@media(min-width:900px){.cover-history-subtitle{top:14.3%;left:38%;width:24%;font-size:1.32cqw;background:#f8f2e8}}
 .cover-map{height:65cqw}
 .cover-art img{position:absolute;width:100%;height:auto;display:block;mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
 .cover-title img{top:-20cqw}
@@ -744,3 +826,5 @@ navigate('index.html');
   document.getElementById('layout').replaceWith(notice);
 });
 </script>""", height=860, scrolling=False)
+
+
