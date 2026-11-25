@@ -396,6 +396,7 @@ function bindRegionEntry(doc) {
       doc.getElementById('map-reader-title').textContent = title;
       art.setAttribute('aria-label', title);
       art.toggleAttribute('data-central', mapButton.classList.contains('zoom-3'));
+    art.toggleAttribute('data-strait', mapButton.classList.contains('zoom-0'));
     art.replaceChildren();
     const markers = mapButton.querySelector('.region-markers');
     if (markers) art.append(markers.cloneNode(true));
@@ -536,7 +537,19 @@ function navigate(page, hash = '', tab = '') {
 <div class="cover" id="cover">
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
-<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图，含海峡两岸、香港、澳门与海外华人社群示意标记" title="点击放大查看"><svg class="region-markers" viewBox="0 0 673 484" aria-hidden="true">
+<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter><filter id="sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -.12 0 -.12 1.48 -.12 0 -.12 0" edgeMode="duplicate" preserveAlpha="true"/></filter>
+<filter id="side-paper-tone" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -12 5 7 0 -.08" result="water"/>
+<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.85" result="light"/>
+<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  8 0 -8 0 -.12" result="warm"/>
+<feComposite in="water" in2="light" operator="in" result="waterLight"/>
+<feComposite in="warm" in2="light" operator="in" result="warmLight"/>
+<feFlood flood-color="#659cac" flood-opacity=".56" result="blue"/>
+<feFlood flood-color="#fff8eb" flood-opacity=".48" result="ivory"/>
+<feComposite in="blue" in2="waterLight" operator="in" result="waterTint"/>
+<feComposite in="ivory" in2="warmLight" operator="in" result="landTint"/>
+<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="waterTint"/><feMergeNode in="landTint"/></feMerge>
+</filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图，含海峡两岸、香港、澳门与海外华人社群示意标记" title="点击放大查看"><svg class="region-markers" viewBox="0 0 673 484" aria-hidden="true">
 <g fill="none" stroke="#a8291d" stroke-width="2"><path d="M335 67V146L355 204M335 146L432 246 M277 292L222 346H158 M259 297L292 368H365"/></g>
 <g fill="#a8291d" stroke="#fff8eb" stroke-width="3"><circle cx="355" cy="204" r="9"/><circle cx="432" cy="246" r="9"/><circle cx="277" cy="292" r="9"/><circle cx="259" cy="297" r="9"/><circle cx="520" cy="86" r="11"/></g>
 <g fill="#fff8eb" stroke="#b48463"><rect x="284" y="36" width="102" height="32" rx="6"/><rect x="98" y="330" width="60" height="32" rx="6"/><rect x="365" y="352" width="60" height="32" rx="6"/><rect x="437" y="49" width="166" height="32" rx="6"/></g>
@@ -651,6 +664,13 @@ button.map-zoom.zoom-3{
 .convergence-arrows{display:none}
 @media(min-width:900px){
   .convergence-arrows{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+}
+</style>
+<style>
+button.map-zoom.zoom-0::after,#map-reader-art[data-strait]::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:inherit;background-size:inherit;background-position:inherit;background-repeat:no-repeat;
+  clip-path:inset(22% 5% 5% 5%);filter:url(#sharp) url(#side-paper-tone);
 }
 </style>
 </body></html>` : pageHtml;
