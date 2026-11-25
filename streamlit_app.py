@@ -182,7 +182,7 @@ def bundle_site(version):
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
               if path.suffix.lower() in (".webp", ".png", ".jpg")
-              and (path.name in references or path.name.startswith("nian-"))}
+              and (path.name in references or path.name.startswith("nian-") or path.name == "approved-cover.webp")}
     payload = json_script({"pages": pages, "images": assets, "variants": variants, "strokes": strokes})
     return base64.b64encode(gzip.compress(payload.encode("utf-8"), compresslevel=6)).decode("ascii")
 
@@ -403,7 +403,11 @@ function bindRegionEntry(doc) {
     else if (/澳[門门]/.test(value)) enter('澳门');
     else if (traditionalPlaces.test(value)) enter('台湾');
     else if (mainlandPlaces.test(value)) enter('大陆');
-    else doc.getElementById('region-help').textContent = '暂未识别该地区，可在下拉框选择最符合的一项。';
+    else {
+      const help = doc.getElementById('region-help');
+      help.textContent = '暂未识别该地区，可在下拉框选择最符合的一项。';
+      help.setAttribute('data-error', '');
+    }
   };
   doc.getElementById('region-form').addEventListener('submit', event => {
     event.preventDefault();
@@ -528,7 +532,24 @@ function navigate(page, hash = '', tab = '') {
     </div>
     <p class="help" id="region-help" role="status">选择后直接进入。手动输入后，按回车进入。</p>
   </form>
-</div>
+</div><style>/* Desktop artwork and interactive hit areas share the reference coordinates. */
+@media(min-width:900px){
+  .cover{position:relative;width:100%;max-width:none;aspect-ratio:2308/1088;margin:0 auto;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat}
+  .cover-art{display:none}
+  .cover-start{position:absolute;left:41.55%;top:70.68%;width:16.35%;height:7.35%;min-height:0;margin:0;background:none;box-shadow:none;color:#fffaf2;font-size:1.24cqw}
+  .region-entry{position:absolute;left:34.82%;top:85.94%;width:29.83%;height:7.62%;margin:0}
+  .region-entry label,.region-entry .help{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0}
+  .region-entry .help[data-error]{position:absolute;top:102%;width:auto;height:auto;clip-path:none;margin:2px 0;padding:2px 6px;background:#fbf6ed;color:#79281d}
+  .region-field,.region-field input{height:100%;min-height:0}
+  .region-field input{position:absolute;left:0;width:74%;padding:0 4%;border:0;border-radius:999px 0 0 999px;background:transparent;font-size:1.15cqw}
+  .region-field input::placeholder{color:transparent}
+  .region-field input:focus,.region-field input:not(:placeholder-shown){background:#fbf7ed;outline:2px solid #aa8060;outline-offset:-2px}
+  .region-field details{width:26%}
+  .region-field summary,.region-field summary:hover,.region-field details[open] summary{width:100%;min-width:0;border:0;background:transparent;color:transparent}
+  .region-field summary:hover{box-shadow:inset 0 0 0 2px #a67850}
+  .region-options{top:auto;bottom:calc(100% + 5px)}
+}
+</style>
 </body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
