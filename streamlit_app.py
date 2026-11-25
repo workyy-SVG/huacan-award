@@ -534,7 +534,8 @@ function navigate(page, hash = '', tab = '') {
   </form>
 </div><style>/* Desktop artwork and interactive hit areas share the reference coordinates. */
 @media(min-width:900px){
-  .cover{position:relative;width:100%;max-width:none;aspect-ratio:2308/1088;margin:0 auto;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat}
+  .cover{position:relative;width:100%;max-width:none;aspect-ratio:2308/1088;margin:0 auto;isolation:isolate}
+  .cover::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat;mask-image:linear-gradient(to right,#000 91.8%,transparent 93.7%),linear-gradient(to bottom,#000 92.8%,transparent 94.3%)}
   .cover-art{display:none}
   .cover-start{position:absolute;left:41.55%;top:70.68%;width:16.35%;height:7.35%;min-height:0;margin:0;background:none;box-shadow:none;color:#fffaf2;font-size:1.24cqw}
   .region-entry{position:absolute;left:34.82%;top:85.94%;width:29.83%;height:7.62%;margin:0}
