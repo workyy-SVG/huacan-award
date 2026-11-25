@@ -533,8 +533,8 @@ function navigate(page, hash = '', tab = '') {
 <div class="cover" id="cover">
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
-  <a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
+<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
+  <span class="edge-paper edge-paper-0" aria-hidden="true"></span><span class="edge-paper edge-paper-1" aria-hidden="true"></span><span class="edge-paper edge-paper-2" aria-hidden="true"></span><span class="edge-paper edge-paper-3" aria-hidden="true"></span><a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
     <div class="region-field">
@@ -611,6 +611,20 @@ button.map-zoom.zoom-3{
 <div class="map-reader-head"><strong id="map-reader-title"></strong><form method="dialog"><button type="submit">关闭</button></form></div>
 <div id="map-reader-art" role="img"></div>
 </dialog>
+<style>.line-paper{display:none}@media(min-width:900px){
+.line-paper{display:block;position:absolute;inset:0;pointer-events:none;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat}
+.line-paper-0{clip-path:polygon(26.819757% 25.275735%,34.532062% 34.283088%,34.922010% 36.029412%,33.752166% 36.213235%,26.819757% 26.562500%);background-position:0 -1.65cqw}
+.line-paper-1{clip-path:polygon(72.963605% 25.275735%,65.164645% 34.283088%,64.861352% 36.213235%,66.074523% 36.121324%,72.963605% 26.562500%);background-position:0 -1.65cqw}
+.line-paper-2{clip-path:polygon(26.819757% 69.117647%,33.622184% 59.099265%,34.662045% 58.915441%,34.748700% 60.569853%,26.819757% 70.220588%);background-position:0 1.65cqw}
+.line-paper-3{clip-path:polygon(72.963605% 69.117647%,66.074523% 59.099265%,65.034662% 58.915441%,64.948007% 60.569853%,72.963605% 70.220588%);background-position:0 1.65cqw}
+}</style>
+<style>.edge-paper{display:none}@media(min-width:900px){
+.edge-paper{display:block;position:absolute;inset:0;z-index:2;pointer-events:none;background:url(approved-cover.webp) 0 -1.55cqw / 102.6% 100% no-repeat}
+.edge-paper-0{clip-path:polygon(27.33969% 27.48162%,28.11958% 27.48162%,28.11958% 29.13603%,27.33969% 29.13603%)}
+.edge-paper-1{clip-path:polygon(71.83709% 27.66544%,72.66031% 27.66544%,72.66031% 29.41176%,71.83709% 29.41176%)}
+.edge-paper-2{clip-path:polygon(27.33969% 73.25368%,28.11958% 73.25368%,28.11958% 75.36765%,27.33969% 75.36765%)}
+.edge-paper-3{clip-path:polygon(71.83709% 73.06985%,72.66031% 73.06985%,72.66031% 75.64338%,71.83709% 75.64338%)}
+}</style>
 </body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
