@@ -182,7 +182,7 @@ def bundle_site(version):
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
               if path.suffix.lower() in (".webp", ".png", ".jpg")
-              and (path.name in references or path.name.startswith("nian-") or path.name == "approved-cover.webp")}
+              and (path.name in references or path.name.startswith("nian-") or path.name in {"approved-cover.webp", "central-map-blue.webp", "paper.webp"})}
     payload = json_script({"pages": pages, "images": assets, "variants": variants, "strokes": strokes})
     return base64.b64encode(gzip.compress(payload.encode("utf-8"), compresslevel=6)).decode("ascii")
 
@@ -387,6 +387,25 @@ function localizeStory(doc) {
   doc.defaultView.addEventListener('pagehide', () => observer.disconnect(), {once:true});
 }
 function bindRegionEntry(doc) {
+  const mapReader = doc.getElementById('map-reader');
+  for (const mapButton of doc.querySelectorAll('button.map-zoom')) {
+    mapButton.addEventListener('click', () => {
+      const style = doc.defaultView.getComputedStyle(mapButton);
+      const art = doc.getElementById('map-reader-art');
+      const title = mapButton.getAttribute('aria-label');
+      doc.getElementById('map-reader-title').textContent = title;
+      art.setAttribute('aria-label', title);
+      art.toggleAttribute('data-central', mapButton.classList.contains('zoom-3'));
+      art.style.aspectRatio = mapButton.offsetWidth + ' / ' + mapButton.offsetHeight;
+      art.style.backgroundImage = style.backgroundImage;
+      art.style.backgroundBlendMode = style.backgroundBlendMode;
+      art.style.backgroundColor = style.backgroundColor;
+      art.style.backgroundRepeat = style.backgroundRepeat;
+      art.style.backgroundSize = style.backgroundSize;
+      art.style.backgroundPosition = style.backgroundPosition;
+      mapReader.showModal();
+    });
+  }
   const picker = doc.getElementById('region-picker');
   const input = doc.getElementById('region-input');
   const enter = region => {
@@ -514,6 +533,7 @@ function navigate(page, hash = '', tab = '') {
 <div class="cover" id="cover">
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
   <a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
@@ -558,6 +578,39 @@ function navigate(page, hash = '', tab = '') {
   .region-options{top:auto;bottom:calc(100% + 5px)}
 }
 </style>
+<style>
+.map-zoom{display:none}
+@media(min-width:900px){
+.map-zoom{display:block;position:absolute;margin:0;pointer-events:none;background-image:url(approved-cover.webp);background-repeat:no-repeat}
+.map-zoom{filter:url(#map-sharpen) contrast(1.10)}
+.zoom-hk{left:4.98267%;top:49.35662%;width:22.64948%;height:47.02941%;background-size:557.176471% 261.538462%;background-position:10.705095% 80.952381%}.zoom-0{left:4.98267%;top:1.83824%;width:22.64948%;height:46.35110%;background-size:557.176471% 265.365854%;background-position:10.705095% 8.407080%}.zoom-1{left:72.09705%;top:1.83824%;width:22.91594%;height:46.57721%;background-size:550.697674% 264.077670%;background-position:86.274510% 8.284024%}.zoom-2{left:72.09705%;top:49.35662%;width:22.91594%;height:47.02941%;background-size:550.697674% 261.538462%;background-position:86.274510% 80.952381%}.zoom-3{left:32.87477%;top:25.99922%;width:34.20712%;height:42.30303%;background-size:341.702742% 269.306931%;background-position:48.179104% 45.467836%}}
+</style>
+<style>
+button.map-zoom{padding:0;border:0;border-radius:0;background-color:transparent;pointer-events:auto;cursor:zoom-in}
+button.map-zoom:focus-visible{outline:2px solid #79281d;outline-offset:3px}
+#map-reader{width:min(94vw,1120px);max-height:94dvh;padding:14px;border:1px solid #cfaf89;border-radius:12px;background:#fbf5e9;color:#34271e}
+#map-reader::backdrop{background:#281b16b3}
+.map-reader-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.map-reader-head button{min-height:40px}
+#map-reader-art{width:100%;background-repeat:no-repeat;filter:url(#map-sharpen) contrast(1.13)}
+</style>
+<style>
+@media(min-width:900px){
+button.map-zoom.zoom-3{
+  background-image:url(central-map-blue.webp),url(paper.webp);
+  background-size:contain,auto;background-position:center;background-repeat:no-repeat,repeat;
+  background-color:#f5ecdf;background-blend-mode:multiply,normal;filter:none;
+  mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 4%,#000 96%,transparent);
+  mask-composite:intersect;
+}
+}
+.cover-map img{content:url(central-map-blue.webp);top:0;width:100%;height:100%;object-fit:contain}
+#map-reader-art[data-central]{aspect-ratio:673 / 484!important;background-size:contain,auto!important;background-position:center!important;filter:none}
+</style>
+<dialog id="map-reader" aria-labelledby="map-reader-title">
+<div class="map-reader-head"><strong id="map-reader-title"></strong><form method="dialog"><button type="submit">关闭</button></form></div>
+<div id="map-reader-art" role="img"></div>
+</dialog>
 </body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
