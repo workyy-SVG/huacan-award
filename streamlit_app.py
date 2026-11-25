@@ -86,6 +86,15 @@ def bundle_site(version):
     strokes = json.loads((ROOT / "featured-strokes.json").read_text(encoding="utf-8"))
     stroke_library = (ROOT / "hanzi-writer.min.js").read_text(encoding="utf-8")
     stroke_ui = (ROOT / "zili-strokes.js").read_text(encoding="utf-8")
+    story_switch_style = """<style>
+.story-title-row{display:flex;flex-wrap:wrap;align-items:center;column-gap:clamp(12px,2.4vw,34px);row-gap:6px;margin-bottom:6px}
+.story-title-row .brand{margin:0}
+header .story-word-switch{display:flex;flex:0 1 auto;justify-content:flex-start;flex-wrap:wrap;gap:7px;width:auto;margin:0;padding:0}
+header .story-word-switch a{display:grid;place-items:center;min-width:40px;min-height:44px;padding:2px 8px;border:1px solid #d6b995;border-radius:7px;background:#fcf4e6;color:#79271a;font:700 1.35rem/1 KaiTi,serif;text-decoration:none}
+header .story-word-switch a[aria-current="page"],header .story-word-switch a:hover{background:#8c291e;border-color:#8c291e;color:#fff8eb}
+header .story-word-switch a:focus-visible{outline:2px solid #8c291e;outline-offset:2px}
+</style>"""
+    story_words = dict(zip(PAGES[3:], "年门茶船灯圆"))
     keepsake_style = """<style>
 #keepsake-status:not(:empty), #keepsake-collection-link:not([hidden]) { margin-top: 8px; }
 #keepsake-collection-link:not([hidden]) { display: block; font-weight: 700; }
@@ -263,6 +272,19 @@ const stages = [
                                 "<script>" + stroke_ui + "</script></body>")
         if has_lookup or name == "nian.html":
             page = page.replace("</body>", history_ui + "</body>", 1)
+        if name in story_words:
+            links = "".join(
+                f'<a href="{path}"' + (' aria-current="page"' if path == name else '') + f'>{word}</a>'
+                for path, word in story_words.items()
+            )
+            page, count = re.subn(
+                r'(<(div|a) class="brand"[^>]*>[^<]*)<span>[^<]*</span>(</\2>)',
+                lambda m: '<div class="story-title-row">' + m[1].rstrip() + m[3] +
+                          '<nav class="story-word-switch" aria-label="切换精选汉字">' + links + '</nav></div>',
+                page, count=1,
+            )
+            if count:
+                page = page.replace("</head>", story_switch_style + "</head>", 1)
         pages[name] = page
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
