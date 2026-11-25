@@ -122,7 +122,10 @@ def bundle_site(version):
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
     history_ui = """<style>
 .character-history{margin-top:12px}.character-history [hidden]{display:none!important}
-.character-history>div{margin-top:10px;padding:14px;background:#fff5e4;border:1px solid #d6bfa0;border-radius:10px}
+.character-history .history-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(92vw,82dvh,520px);aspect-ratio:1;max-height:86dvh;overflow:auto;padding:clamp(12px,3vw,24px);background:#fff5e4;color:#39281d;border:1px solid #d6bfa0;border-radius:12px}
+.history-dialog::backdrop{background:#291b1470}
+.history-dialog .history-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px}
+.history-dialog .history-close{min-width:44px;padding:0;font-size:1.4rem}
 .history-stages{display:flex;gap:8px;flex-wrap:wrap}
 .character-history button{min-height:44px;border:1px solid #b58c6c;border-radius:8px;padding:6px 12px;background:#fff8ed;color:#79291e;font:inherit;cursor:pointer}
 .character-history button[aria-pressed=true]{background:#87291d;color:white}
@@ -144,13 +147,13 @@ const stages = [
       block.textContent = '这个字暂未收录可播放的字形资料。';
       return;
     }
-    block.innerHTML = '<button type="button" aria-expanded="false">播放字形演变</button><div hidden><div class="history-stages" role="group" aria-label="字形阶段"></div><p class="history-glyph"></p><p class="history-observation"></p><a target="_blank" rel="noopener">查看对应字形资料 →</a><br><button type="button">播放</button><p class="history-credit">古文字阶段展示构形提示，字形图见来源页面。</p></div>';
+    block.innerHTML = '<button type="button" aria-haspopup="dialog">播放字形演变</button><dialog class="history-dialog" aria-label="年字的字形演变"><div class="history-head"><strong>「年」是怎么来的？</strong><button class="history-close" type="button" aria-label="关闭字形演变">×</button></div><div class="history-stages" role="group" aria-label="字形阶段"></div><p class="history-glyph"></p><p class="history-observation"></p><a target="_blank" rel="noopener">查看对应字形资料 →</a><br><button class="history-play" type="button">播放</button><p class="history-credit">古文字阶段展示构形提示，字形图见来源页面。</p></dialog>';
     const [open, panel] = block.children;
-    const play = panel.querySelector('button');
+    const play = panel.querySelector('.history-play');
     const controls = panel.querySelector('.history-stages');
     let index = 0, timer;
     function stop() { clearInterval(timer); timer = undefined; play.textContent = '播放'; }
-    block.stopHistory = stop;
+    block.stopHistory = () => { stop(); if (panel.open) panel.close(); };
     function render() {
       const [stage, glyph, note, url] = stages[index];
       panel.querySelector('.history-glyph').textContent = stage + ' · ' + glyph;
@@ -164,7 +167,7 @@ const stages = [
       render();
       play.textContent = '暂停';
       timer = setInterval(() => {
-        if (!block.isConnected || block.closest('[hidden]')) { stop(); return; }
+        if (!panel.open || !block.isConnected || block.closest('[hidden]')) { stop(); return; }
         index++; render();
         if (index === stages.length - 1) stop();
       }, 3200);
@@ -175,12 +178,15 @@ const stages = [
       button.onclick = () => { stop(); index = i; render(); };
       controls.append(button);
     });
+    function close() { stop(); panel.close(); }
+    panel.querySelector('.history-close').onclick = close;
+    panel.addEventListener('cancel', stop);
+    panel.addEventListener('close', stop);
     open.onclick = () => {
-      panel.hidden = !panel.hidden;
-      open.setAttribute('aria-expanded', String(!panel.hidden));
-      open.textContent = panel.hidden ? '播放字形演变' : '收起字形演变';
-      if (panel.hidden) stop();
-      else { index = 0; start(); }
+      if (panel.open) return;
+      panel.showModal();
+      index = 0;
+      start();
     };
     play.onclick = () => timer ? stop() : start();
     render();
