@@ -182,7 +182,7 @@ def bundle_site(version):
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
               if path.suffix.lower() in (".webp", ".png", ".jpg")
-              and (path.name in references or path.name.startswith("nian-") or path.name in {"approved-cover.webp", "central-map-blue.webp", "paper.webp"})}
+              and (path.name in references or path.name.startswith("nian-") or path.name in {"approved-cover.webp", "central-map-clean.webp", "paper.webp"})}
     payload = json_script({"pages": pages, "images": assets, "variants": variants, "strokes": strokes})
     return base64.b64encode(gzip.compress(payload.encode("utf-8"), compresslevel=6)).decode("ascii")
 
@@ -396,6 +396,9 @@ function bindRegionEntry(doc) {
       doc.getElementById('map-reader-title').textContent = title;
       art.setAttribute('aria-label', title);
       art.toggleAttribute('data-central', mapButton.classList.contains('zoom-3'));
+    art.replaceChildren();
+    const markers = mapButton.querySelector('.region-markers');
+    if (markers) art.append(markers.cloneNode(true));
       art.style.aspectRatio = mapButton.offsetWidth + ' / ' + mapButton.offsetHeight;
       art.style.backgroundImage = style.backgroundImage;
       art.style.backgroundBlendMode = style.backgroundBlendMode;
@@ -533,8 +536,24 @@ function navigate(page, hash = '', tab = '') {
 <div class="cover" id="cover">
   <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
   <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
-<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
-  <span class="edge-paper edge-paper-0" aria-hidden="true"></span><span class="edge-paper edge-paper-1" aria-hidden="true"></span><span class="edge-paper edge-paper-2" aria-hidden="true"></span><span class="edge-paper edge-paper-3" aria-hidden="true"></span><a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
+<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图，含海峡两岸、香港、澳门与海外华人社群示意标记" title="点击放大查看"><svg class="region-markers" viewBox="0 0 673 484" aria-hidden="true">
+<g fill="none" stroke="#a8291d" stroke-width="2"><path d="M335 67V146L355 204M335 146L432 246 M277 292L222 346H158 M259 297L292 368H365"/></g>
+<g fill="#a8291d" stroke="#fff8eb" stroke-width="3"><circle cx="355" cy="204" r="9"/><circle cx="432" cy="246" r="9"/><circle cx="277" cy="292" r="9"/><circle cx="259" cy="297" r="9"/><circle cx="520" cy="86" r="11"/></g>
+<g fill="#fff8eb" stroke="#b48463"><rect x="284" y="36" width="102" height="32" rx="6"/><rect x="98" y="330" width="60" height="32" rx="6"/><rect x="365" y="352" width="60" height="32" rx="6"/><rect x="437" y="49" width="166" height="32" rx="6"/></g>
+<g fill="#79271a" font-family="system-ui,sans-serif" font-size="18" font-weight="700" text-anchor="middle"><text x="335" y="58">海峡两岸</text><text x="128" y="352">香港</text><text x="395" y="374">澳门</text><text x="520" y="71">海外华人社群</text></g>
+</svg></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
+  <span class="edge-paper edge-paper-0" aria-hidden="true"></span><span class="edge-paper edge-paper-1" aria-hidden="true"></span><span class="edge-paper edge-paper-2" aria-hidden="true"></span><span class="edge-paper edge-paper-3" aria-hidden="true"></span><svg class="convergence-arrows" viewBox="0 0 1897 892" preserveAspectRatio="none" aria-hidden="true">
+  <defs><marker id="convergence-tip" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto">
+    <path d="M2 2 10 6 2 10" fill="none" stroke="#94352a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker></defs>
+  <g fill="none" stroke="#94352a" stroke-width="2.1" stroke-linecap="round" opacity=".88" marker-end="url(#convergence-tip)">
+    <path d="M531 205 H948 V257"/>
+    <path d="M1380 220 H1092 V267"/>
+    <path d="M531 626 H850 V502"/>
+    <path d="M1380 600 H943 V519"/>
+  </g>
+</svg>
+<a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
     <div class="region-field">
@@ -597,15 +616,15 @@ button.map-zoom:focus-visible{outline:2px solid #79281d;outline-offset:3px}
 <style>
 @media(min-width:900px){
 button.map-zoom.zoom-3{
-  background-image:url(central-map-blue.webp),url(paper.webp);
+  background-image:url(central-map-clean.webp),url(paper.webp);
   background-size:contain,auto;background-position:center;background-repeat:no-repeat,repeat;
   background-color:#f5ecdf;background-blend-mode:multiply,normal;filter:none;
   mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 4%,#000 96%,transparent);
   mask-composite:intersect;
 }
 }
-.cover-map img{content:url(central-map-blue.webp);top:0;width:100%;height:100%;object-fit:contain}
-#map-reader-art[data-central]{aspect-ratio:673 / 484!important;background-size:contain,auto!important;background-position:center!important;filter:none}
+.cover-map img{content:url(central-map-clean.webp);top:0;width:100%;height:100%;object-fit:contain}
+#map-reader-art[data-central]{aspect-ratio:1479 / 1063!important;background-size:contain,auto!important;background-position:center!important;filter:none}
 </style>
 <dialog id="map-reader" aria-labelledby="map-reader-title">
 <div class="map-reader-head"><strong id="map-reader-title"></strong><form method="dialog"><button type="submit">关闭</button></form></div>
@@ -625,6 +644,15 @@ button.map-zoom.zoom-3{
 .edge-paper-2{clip-path:polygon(27.33969% 73.25368%,28.11958% 73.25368%,28.11958% 75.36765%,27.33969% 75.36765%)}
 .edge-paper-3{clip-path:polygon(71.83709% 73.06985%,72.66031% 73.06985%,72.66031% 75.64338%,71.83709% 75.64338%)}
 }</style>
+<style>
+.region-markers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#map-reader-art{position:relative}
+</style><style>
+.convergence-arrows{display:none}
+@media(min-width:900px){
+  .convergence-arrows{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+}
+</style>
 </body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
