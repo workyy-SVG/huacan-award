@@ -665,6 +665,35 @@ html body:is(.lookup-only,:has(.globe-cover.lookup-credit-flow)) {
   background-size:100% var(--lookup-map-height),100% 15.38vh !important;
 }
 """
+    lookup_style += """
+html body:has(.globe-cover.lookup-credit-flow) {
+  --lookup-side-gap:clamp(14px,2.4vw,32px);
+  --lookup-width:calc(100% - 2 * var(--lookup-side-gap));
+}
+html body:has(.globe-cover.lookup-credit-flow) :is(.globe-cover.lookup-credit-flow,#lookup-result,.qwen-lookup-demo) {
+  box-sizing:border-box;
+  width:var(--lookup-width) !important;
+  max-width:none !important;
+  margin-inline:var(--lookup-side-gap) !important;
+}
+html body:has(.globe-cover.lookup-credit-flow) #lookup-result {
+  padding-inline:0;
+}
+html body:has(.globe-cover.lookup-credit-flow) .qwen-lookup-demo {
+  margin-block:8px !important;
+}
+html body.lookup-only .page>main>#story-lookup {
+  padding-inline:0;
+}
+html body.lookup-only #story-lookup :is(.story-lookup-heading,.story-lookup-form,.lookup-credit) {
+  margin-inline:12px;
+}
+html body.lookup-only #story-lookup :is(#lookup-result,.qwen-lookup-demo) {
+  box-sizing:border-box;
+  width:100%;
+  margin-inline:0 !important;
+}
+"""
     source_style = "html body .page details:is([data-source-notes],#sources,#journey-sources){color:#172c3a;font-size:17px;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources)>summary{color:#172c3a;font-weight:700}html body .page details:is([data-source-notes],#sources,#journey-sources) :is(li,p){color:#172c3a;font-size:inherit;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources) a{color:#70271e;font-weight:700;text-underline-offset:.15em}"
     reading_style = (ROOT / "reading-edition.css").read_text(encoding="utf-8")
     reading_style += """
