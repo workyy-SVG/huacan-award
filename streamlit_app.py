@@ -459,7 +459,7 @@ document.addEventListener('zili:lookup', event => {
     references = "\n".join([*pages.values(), json_script(catalogue)])
     assets = {path.name: image_url(path.name) for path in ROOT.iterdir()
               if path.suffix.lower() in (".webp", ".png", ".jpg")
-              and (path.name in references or path.name.startswith("nian-") or path.name in {"approved-cover.webp", "central-map-clean.webp", "paper.webp"})}
+              and (path.name in references or path.name.startswith("nian-") or path.name in {'home-terrain-reference.webp', 'home-terrain-corner-repair.webp', 'home-macao.webp', 'home-hongkong.webp', 'home-taiwan.webp', "paper.webp"})}
     payload = json_script({"pages": pages, "images": assets, "variants": variants, "strokes": strokes})
     return base64.b64encode(gzip.compress(payload.encode("utf-8"), compresslevel=6)).decode("ascii")
 
@@ -811,40 +811,19 @@ function navigate(page, hash = '', tab = '') {
   );
   const attributedPage = cover ? `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>字里寻踪：文字里的故事</title></head><body>
-<div class="cover" id="cover">
-  <p class="cover-history-subtitle">文字里的故事</p>
-  <div class="cover-art cover-title"><img src="globe-cover-reference.png" alt="字里寻踪，同一个字，连接不同地方的生活记录。"></div>
-  <div class="cover-art cover-map"><img src="globe-cover-reference.png" alt="折页地图和各地区标注"></div>
-<span class="line-paper line-paper-0" aria-hidden="true"></span><span class="line-paper line-paper-1" aria-hidden="true"></span><span class="line-paper line-paper-2" aria-hidden="true"></span><span class="line-paper line-paper-3" aria-hidden="true"></span><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="map-sharpen" x="0" y="0" width="100%" height="100%"><feConvolveMatrix order="3" kernelMatrix="0 -.27 0 -.27 2.08 -.27 0 -.27 0" edgeMode="duplicate" preserveAlpha="true"/></filter><filter id="sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -.12 0 -.12 1.48 -.12 0 -.12 0" edgeMode="duplicate" preserveAlpha="true"/></filter>
-<filter id="side-paper-tone" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -12 5 7 0 -.08" result="water"/>
-<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 4 0 0 -1.85" result="light"/>
-<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  8 0 -8 0 -.12" result="warm"/>
-<feComposite in="water" in2="light" operator="in" result="waterLight"/>
-<feComposite in="warm" in2="light" operator="in" result="warmLight"/>
-<feFlood flood-color="#659cac" flood-opacity=".56" result="blue"/>
-<feFlood flood-color="#fff8eb" flood-opacity=".48" result="ivory"/>
-<feComposite in="blue" in2="waterLight" operator="in" result="waterTint"/>
-<feComposite in="ivory" in2="warmLight" operator="in" result="landTint"/>
-<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="waterTint"/><feMergeNode in="landTint"/></feMerge>
-</filter></defs></svg><button type="button" class="map-zoom zoom-0" aria-label="放大查看两岸地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-1" aria-label="放大查看海外地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-2" aria-label="放大查看澳门地图" title="点击放大查看"></button><button type="button" class="map-zoom zoom-3" aria-label="放大查看中央地图，含海峡两岸、香港、澳门与海外华人社群示意标记" title="点击放大查看"><svg class="region-markers" viewBox="0 0 673 484" aria-hidden="true">
-<g fill="none" stroke="#a8291d" stroke-width="2"><path d="M335 67V146L355 204M335 146L432 246 M277 292L222 346H158 M259 297L292 368H365"/></g>
-<g fill="#a8291d" stroke="#fff8eb" stroke-width="3"><circle cx="355" cy="204" r="9"/><circle cx="432" cy="246" r="9"/><circle cx="277" cy="292" r="9"/><circle cx="259" cy="297" r="9"/><circle cx="520" cy="86" r="11"/></g>
-<g fill="#fff8eb" stroke="#b48463"><rect x="284" y="36" width="102" height="32" rx="6"/><rect x="98" y="330" width="60" height="32" rx="6"/><rect x="365" y="352" width="60" height="32" rx="6"/><rect x="437" y="49" width="166" height="32" rx="6"/></g>
-<g fill="#79271a" font-family="system-ui,sans-serif" font-size="18" font-weight="700" text-anchor="middle"><text x="335" y="58">海峡两岸</text><text x="128" y="352">香港</text><text x="395" y="374">澳门</text><text x="520" y="71">海外华人社群</text></g>
-</svg></button><button type="button" class="map-zoom zoom-hk" aria-label="放大查看香港地图" title="点击放大查看"></button>
-  <span class="edge-paper edge-paper-0" aria-hidden="true"></span><span class="edge-paper edge-paper-1" aria-hidden="true"></span><span class="edge-paper edge-paper-2" aria-hidden="true"></span><span class="edge-paper edge-paper-3" aria-hidden="true"></span><svg class="convergence-arrows" viewBox="0 0 1897 892" preserveAspectRatio="none" aria-hidden="true">
-  <defs><marker id="convergence-tip" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="13" markerHeight="13" markerUnits="userSpaceOnUse" orient="auto">
-    <path d="M2 2 10 6 2 10" fill="none" stroke="#94352a" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-  </marker></defs>
-  <g fill="none" stroke="#94352a" stroke-width="2.1" stroke-linecap="round" opacity=".88" marker-end="url(#convergence-tip)">
-    <path d="M531 205 H948 V257"/>
-    <path d="M1380 220 H1092 V267"/>
-    <path d="M531 626 H850 V502"/>
-    <path d="M1380 600 H943 V519"/>
-  </g>
-</svg>
-<a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
+<div id="cover" class="terrain-cover">
+ <div class="terrain-scene" role="group" aria-label="台湾、香港和澳门地标投影示意">
+ <div class="terrain-photo" aria-hidden="true"></div><div class="terrain-repair repair-upper" aria-hidden="true"></div><div class="terrain-repair repair-lower" aria-hidden="true"></div><div class="terrain-repair repair-inset" aria-hidden="true"></div>
+ <svg class="terrain-beams" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#8ff8ff" stroke-width="2" vector-effect="non-scaling-stroke"><path d="M656 764L520 580"/><path d="M678 759L680 490"/><path d="M810 651L870 440"/></g></svg>
+ <div class="projection macao" style="--x:65.6%;--y:76.4%;--cx:52%;--cy:58%">
+ <i class="beacon" aria-hidden="true"></i><span class="terrain-place">澳门</span>
+ <div class="landmark"><img src="home-macao.webp" alt=""><strong>观音像</strong></div></div><div class="projection hongkong" style="--x:67.8%;--y:75.9%;--cx:68%;--cy:49%">
+ <i class="beacon" aria-hidden="true"></i><span class="terrain-place">香港</span>
+ <div class="landmark"><img src="home-hongkong.webp" alt=""><strong>金紫荆雕塑</strong></div></div><div class="projection taiwan" style="--x:81%;--y:65.1%;--cx:87%;--cy:44%">
+ <i class="beacon" aria-hidden="true"></i><span class="terrain-place">台湾</span>
+ <div class="landmark"><img src="home-taiwan.webp" alt=""><strong>台北 101</strong></div></div></div>
+ <header class="terrain-heading"><h1>字里寻踪</h1><p>文字里的故事</p></header>
+ <div class="terrain-entry"><a class="cover-start" href="featured.html" id="region-default-entry">同一个字，也有不同写法</a>
   <form class="region-entry" id="region-form">
     <label for="region-input">你来自哪里？</label>
     <div class="region-field">
@@ -861,97 +840,40 @@ function navigate(page, hash = '', tab = '') {
       </details>
     </div>
     <p class="help" id="region-help" role="status">选择后直接进入。手动输入后，按回车进入。</p>
-  </form>
-</div><style>/* Desktop artwork and interactive hit areas share the reference coordinates. */
-@media(min-width:900px){
-  .cover{position:relative;width:100%;max-width:none;aspect-ratio:2308/1088;margin:0 auto;isolation:isolate;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat}
-  .cover::before{
-    content:"";position:absolute;right:0;bottom:0;width:8.6%;height:5.8%;
-    pointer-events:none;z-index:-1;
-    background:url(approved-cover.webp) no-repeat;
-    background-size:1193.02% 1724.14%;
-    background-position:97.15% 93.84%;
-    transform:scaleY(-1);
-  }
-  .cover-art{display:none}
-  .cover-start{position:absolute;left:41.55%;top:70.68%;width:16.35%;height:7.35%;min-height:0;margin:0;background:none;box-shadow:none;color:#fffaf2;font-size:1.24cqw}
-  .region-entry{position:absolute;left:34.82%;top:85.94%;width:29.83%;height:7.62%;margin:0}
-  .region-entry label,.region-entry .help{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0}
-  .region-entry .help[data-error]{position:absolute;top:102%;width:auto;height:auto;clip-path:none;margin:2px 0;padding:2px 6px;background:#fbf6ed;color:#79281d}
-  .region-field,.region-field input{height:100%;min-height:0}
-  .region-field input{position:absolute;left:0;width:74%;padding:0 4%;border:0;border-radius:999px 0 0 999px;background:transparent;font-size:1.15cqw}
-  .region-field input::placeholder{color:transparent}
-  .region-field input:focus,.region-field input:not(:placeholder-shown){background:#fbf7ed;outline:2px solid #aa8060;outline-offset:-2px}
-  .region-field details{width:26%}
-  .region-field summary,.region-field summary:hover,.region-field details[open] summary{width:100%;min-width:0;border:0;background:transparent;color:transparent}
-  .region-field summary:hover{box-shadow:inset 0 0 0 2px #a67850}
-  .region-options{top:auto;bottom:calc(100% + 5px)}
-}
-</style>
-<style>
-.map-zoom{display:none}
-@media(min-width:900px){
-.map-zoom{display:block;position:absolute;margin:0;pointer-events:none;background-image:url(approved-cover.webp);background-repeat:no-repeat}
-.map-zoom{filter:url(#map-sharpen) contrast(1.10)}
-.zoom-hk{left:4.98267%;top:49.35662%;width:22.64948%;height:47.02941%;background-size:557.176471% 261.538462%;background-position:10.705095% 80.952381%}.zoom-0{left:4.98267%;top:1.83824%;width:22.64948%;height:46.35110%;background-size:557.176471% 265.365854%;background-position:10.705095% 8.407080%}.zoom-1{left:72.09705%;top:1.83824%;width:22.91594%;height:46.57721%;background-size:550.697674% 264.077670%;background-position:86.274510% 8.284024%}.zoom-2{left:72.09705%;top:49.35662%;width:22.91594%;height:47.02941%;background-size:550.697674% 261.538462%;background-position:86.274510% 80.952381%}.zoom-3{left:32.87477%;top:25.99922%;width:34.20712%;height:42.30303%;background-size:341.702742% 269.306931%;background-position:48.179104% 45.467836%}}
-</style>
-<style>
-button.map-zoom{padding:0;border:0;border-radius:0;background-color:transparent;pointer-events:auto;cursor:zoom-in}
-button.map-zoom:focus-visible{outline:2px solid #79281d;outline-offset:3px}
-#map-reader{width:min(94vw,1120px);max-height:94dvh;padding:14px;border:1px solid #cfaf89;border-radius:12px;background:#fbf5e9;color:#34271e}
-#map-reader::backdrop{background:#281b16b3}
-.map-reader-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
-.map-reader-head button{min-height:40px}
-#map-reader-art{width:100%;background-repeat:no-repeat;filter:url(#map-sharpen) contrast(1.13)}
-</style>
-<style>
-@media(min-width:900px){
-button.map-zoom.zoom-3{
-  background-image:url(central-map-clean.webp),url(paper.webp);
-  background-size:contain,auto;background-position:center;background-repeat:no-repeat,repeat;
-  background-color:#f5ecdf;background-blend-mode:multiply,normal;filter:none;
-  mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent),linear-gradient(to bottom,transparent,#000 4%,#000 96%,transparent);
-  mask-composite:intersect;
-}
-}
-.cover-map img{content:url(central-map-clean.webp);top:0;width:100%;height:100%;object-fit:contain}
-#map-reader-art[data-central]{aspect-ratio:1479 / 1063!important;background-size:contain,auto!important;background-position:center!important;filter:none}
-</style>
-<dialog id="map-reader" aria-labelledby="map-reader-title">
-<div class="map-reader-head"><strong id="map-reader-title"></strong><form method="dialog"><button type="submit">关闭</button></form></div>
-<div id="map-reader-art" role="img"></div>
-</dialog>
-<style>.line-paper{display:none}@media(min-width:900px){
-.line-paper{display:block;position:absolute;inset:0;pointer-events:none;background:url(approved-cover.webp) left top / 102.6% 100% no-repeat}
-.line-paper-0{clip-path:polygon(26.819757% 25.275735%,34.532062% 34.283088%,34.922010% 36.029412%,33.752166% 36.213235%,26.819757% 26.562500%);background-position:0 -1.65cqw}
-.line-paper-1{clip-path:polygon(72.963605% 25.275735%,65.164645% 34.283088%,64.861352% 36.213235%,66.074523% 36.121324%,72.963605% 26.562500%);background-position:0 -1.65cqw}
-.line-paper-2{clip-path:polygon(26.819757% 69.117647%,33.622184% 59.099265%,34.662045% 58.915441%,34.748700% 60.569853%,26.819757% 70.220588%);background-position:0 1.65cqw}
-.line-paper-3{clip-path:polygon(72.963605% 69.117647%,66.074523% 59.099265%,65.034662% 58.915441%,64.948007% 60.569853%,72.963605% 70.220588%);background-position:0 1.65cqw}
-}</style>
-<style>.edge-paper{display:none}@media(min-width:900px){
-.edge-paper{display:block;position:absolute;inset:0;z-index:2;pointer-events:none;background:url(approved-cover.webp) 0 -1.55cqw / 102.6% 100% no-repeat}
-.edge-paper-0{clip-path:polygon(27.33969% 27.48162%,28.11958% 27.48162%,28.11958% 29.13603%,27.33969% 29.13603%)}
-.edge-paper-1{clip-path:polygon(71.83709% 27.66544%,72.66031% 27.66544%,72.66031% 29.41176%,71.83709% 29.41176%)}
-.edge-paper-2{clip-path:polygon(27.33969% 73.25368%,28.11958% 73.25368%,28.11958% 75.36765%,27.33969% 75.36765%)}
-.edge-paper-3{clip-path:polygon(71.83709% 73.06985%,72.66031% 73.06985%,72.66031% 75.64338%,71.83709% 75.64338%)}
-}</style>
-<style>
-.region-markers{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#map-reader-art{position:relative}
+  </form></div></div><style>.terrain-cover[hidden]{display:none}
+.terrain-cover{min-height:100svh;position:relative;isolation:isolate;background:#0b2436;color:#fffaf0;display:grid;grid-template-rows:1fr auto}
+.terrain-scene{position:absolute;inset:0;overflow:hidden;container-type:size}
+.terrain-photo{position:absolute;inset:0;background:linear-gradient(180deg,#07192287,transparent 30%,transparent 63%,#081a29e6),url(home-terrain-reference.webp) center/100% 100% no-repeat}
+.terrain-beams{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 5px #67efff)}
+.terrain-heading{position:relative;text-align:center;align-self:start;justify-self:center;margin:2.5vh 0 0;text-shadow:0 2px 12px #001520}
+.terrain-heading h1{margin:0;font:700 clamp(42px,6vw,96px)/1.15 KaiTi,serif;letter-spacing:.12em}
+.terrain-heading p{margin:8px 0;font-size:clamp(16px,2vw,24px);letter-spacing:.18em}
+.beacon,.terrain-place,.landmark{position:absolute}
+.beacon{left:var(--x);top:var(--y);width:25px;height:14px;border:2px solid #b5fbff;border-radius:50%;transform:translate(-50%,-50%);background:#8deefa77;box-shadow:0 0 0 5px #68e9f93b,0 0 19px #7df8ff}
+.terrain-place{left:var(--x);top:var(--y);transform:translate(-50%,10px);padding:2px 7px;border-radius:5px;background:#052035df;color:#e5ffff;font-size:.83rem;white-space:nowrap}
+.macao .terrain-place{transform:translate(-95%,10px)}.hongkong .terrain-place{transform:translate(8%,10px)}
+.landmark{left:var(--cx);top:var(--cy);transform:translate(-50%,-100%);width:clamp(82px,11vw,158px);text-align:center;border:1px solid #87f2ff8c;border-radius:8px;background:linear-gradient(#0c4064a0,#074167dc);color:#edfeff;padding:8px;box-shadow:0 0 20px #53d9ff63;backdrop-filter:blur(2px)}
+.landmark strong{font-size:clamp(11px,1.15vw,17px)}
+.architecture{height:clamp(50px,10vh,110px);width:70%;margin:auto;background:repeating-linear-gradient(0deg,#b8fbffb0 0 1px,transparent 1px 7px),linear-gradient(90deg,#5fe3f599,#d7ffff);}
+.taiwan .architecture{clip-path:polygon(48% 0,52% 0,52% 12%,64% 12%,64% 22%,68% 22%,68% 32%,72% 32%,72% 42%,76% 42%,76% 52%,79% 52%,79% 69%,84% 69%,84% 91%,92% 91%,92% 100%,8% 100%,8% 91%,16% 91%,16% 69%,21% 69%,21% 52%,24% 52%,24% 42%,28% 42%,28% 32%,32% 32%,32% 22%,36% 22%,36% 12%,48% 12%)}
+.hongkong .architecture{background:repeating-linear-gradient(36deg,transparent 0 12px,#d9ffffb5 12px 14px),repeating-linear-gradient(-36deg,#2d97c570 0 12px,#d9ffffa0 12px 14px);clip-path:polygon(24% 100%,24% 48%,47% 22%,47% 0,50% 0,50% 21%,67% 35%,67% 8%,70% 8%,70% 38%,83% 54%,83% 100%)}
+.macao .architecture{height:clamp(44px,7vh,82px);background:radial-gradient(ellipse at 50% 83%,#13465f 0 10%,transparent 11%),radial-gradient(ellipse at 22% 83%,#13465f 0 8%,transparent 9%),radial-gradient(ellipse at 78% 83%,#13465f 0 8%,transparent 9%),repeating-linear-gradient(0deg,#dcffff 0 1px,#73c5d8 1px 9px);clip-path:polygon(0 100%,0 55%,18% 55%,18% 35%,32% 35%,32% 18%,44% 18%,44% 9%,48% 9%,48% 0,52% 0,52% 9%,56% 9%,56% 18%,68% 18%,68% 35%,82% 35%,82% 55%,100% 55%,100% 100%)}
+.terrain-entry{position:relative;justify-self:center;width:min(92%,535px);padding:0 0 2vh}
+.terrain-entry .cover-start{position:static;min-height:44px;height:auto;width:fit-content;padding:9px 20px;margin:0 auto 9px;color:#fffaf2;background:#88291d;border-radius:999px;font:700 1rem system-ui,sans-serif;text-decoration:none}
+.terrain-entry .region-entry{position:relative;inset:auto;width:100%;height:auto;margin:0}
+.terrain-entry label,.terrain-entry .help{position:static;clip-path:none;width:auto;height:auto;color:#fff4df}
+.terrain-entry .region-field input{position:static;width:100%;min-height:46px;background:#fff9ec;color:#34271e;font-size:16px}
+.terrain-entry .region-field input::placeholder{color:#756455}
+.terrain-entry .region-field details{width:auto}
+.terrain-entry .region-field summary,.terrain-entry .region-field details[open] summary{min-width:100px;color:#702117;background:#f0e1cb;border-radius:0 999px 999px 0}
+.terrain-entry .region-options{top:auto;bottom:calc(100% + 5px)}
+@media(max-width:680px){.terrain-cover{min-height:680px}.terrain-photo{background-size:100% 100%}.terrain-heading{margin-top:7vh}.landmark{width:72px;padding:4px}.architecture{height:55px}.macao .landmark{transform:translate(-77%,-100%)}.taiwan .landmark{transform:translate(-42%,-100%)}.terrain-place{font-size:11px}.terrain-entry .region-field input{font-size:14px}}
 </style><style>
-.convergence-arrows{display:none}
-@media(min-width:900px){
-  .convergence-arrows{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
-}
-</style>
-<style>
-button.map-zoom.zoom-0::after,#map-reader-art[data-strait]::after{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background-image:inherit;background-size:inherit;background-position:inherit;background-repeat:no-repeat;
-  clip-path:inset(22% 5% 5% 5%);filter:url(#sharp) url(#side-paper-tone);
-}
-</style>
-</body></html>` : pageHtml;
+.terrain-repair{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#07192287,transparent 30%,transparent 63%,#081a29e6),url(home-terrain-corner-repair.webp) center/100% 100% no-repeat}
+.repair-upper{mask-image:linear-gradient(to right,#000 18%,transparent 22%),linear-gradient(to bottom,#000 33%,transparent 37%);mask-composite:intersect}
+.repair-lower{mask-image:linear-gradient(to right,#000 26%,transparent 31%),linear-gradient(to top,#000 19%,transparent 22%);mask-composite:intersect}
+.repair-inset{mask-image:linear-gradient(to left,#000 12%,transparent 16%),linear-gradient(to top,#000 10%,transparent 14%);mask-composite:intersect}
+</style><style>.landmark img{display:block;width:100%;height:clamp(75px,16vh,165px);object-fit:cover;border-radius:5px;margin-bottom:4px}.hongkong img{object-position:50% 65%}.macao img,.taiwan img{object-fit:contain}.landmark{width:clamp(80px,8vw,136px)}@media(max-width:680px){.landmark{width:64px}.landmark img{height:76px}}</style></body></html>` : pageHtml;
   const lookupHtml = lookupLanding ? attributedPage.replace('class="globe-cover"', 'class="globe-cover lookup-credit-flow"') : attributedPage;
   const inlineImages = lookupHtml
     .replace(/(src=")([\\w.-]+\\.(?:webp|png|jpg))(")/g, (match, start, name, end) =>
