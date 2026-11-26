@@ -590,6 +590,9 @@ html body .page #form .observation .character-history {
 
     notes_script = (ROOT / "reading-notes.js").read_text(encoding="utf-8")
     hook = "    if (page === keepsakePage) renderKeepsakes(doc);"
+    html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
+    qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
+    html = html.replace(hook, qwen_demos + "\n" + hook, 1)
     html = html.replace(hook, "    if (isStory(page)) {\n" + notes_script + "\n}\n" + hook, 1)
     if story in {Path(name).stem for name in PAGES[3:]}:
         html = html.replace("\nnavigate('index.html');", "\nnavigate(" + json.dumps(story + ".html") + ");", 1)
@@ -603,7 +606,7 @@ html body .page #form .observation .character-history {
 
 
 release_html = ROOT / "published-theme.html"
-render_html(published_story_theme(release_html, st.query_params.get("story", ""), tuple(path.stat().st_mtime_ns for path in (release_html, ROOT / "reading-edition.css", ROOT / "reading-notes.js", ROOT / "cover-lettering.css"))) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
+render_html(published_story_theme(release_html, st.query_params.get("story", ""), tuple(path.stat().st_mtime_ns for path in (release_html, ROOT / "reading-edition.css", ROOT / "reading-notes.js", ROOT / "cover-lettering.css", ROOT / "qwen-demos.js"))) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
