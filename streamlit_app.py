@@ -504,6 +504,7 @@ def published_story_theme(path):
             + gradient
         )
         html = html.replace(original, extended)
+    html = html.replace("frame.srcdoc = inlineImages.replace", "frame.srcdoc = (storyArt[page] ? inlineImages.replace(/<footer>\\s*(?:配图为\\s*AI\\s*场景示意。\\s*)?(?:原始资料|民俗资料)见各卡片出处。\\s*<\\/footer>/, '') : inlineImages).replace", 1)
     source_style = "html body .page details:is([data-source-notes],#sources,#journey-sources){color:#172c3a;font-size:17px;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources)>summary{color:#172c3a;font-weight:700}html body .page details:is([data-source-notes],#sources,#journey-sources) :is(li,p){color:#172c3a;font-size:inherit;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources) a{color:#70271e;font-weight:700;text-underline-offset:.15em}"
     return html.replace(
         "themeCSS+(storyArt[page]||'')",
