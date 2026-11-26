@@ -143,16 +143,149 @@ header .story-word-switch a:focus-visible{outline:2px solid #8c291e;outline-offs
 .character-history .note{font-size:.9rem;color:#744834;margin-top:8px}
 .character-history a{color:#80271b}
 </style><script>(() => {
+function initializeOtherWord(block, word) {
+const raw = {"圆":[[[192,757],[222,724],[236,647],[232,320],[212,91],[216,8]],[[257,737],[281,722],[549,762],[739,781],[769,771],[792,748],[801,732],[799,414],[810,138],[806,86],[795,46],[800,-17]],[[361,672],[392,642],[420,528]],[[412,670],[426,660],[587,693],[612,668],[597,624],[578,613]],[[434,566],[444,559],[576,585],[624,580]],[[369,496],[387,477],[395,452],[397,366],[386,283],[389,251]],[[412,486],[423,478],[452,481],[578,512],[613,499],[624,482],[621,427],[628,320],[622,260]],[[466,433],[483,426],[507,400],[496,281],[477,219],[443,166],[414,142],[357,116],[333,113]],[[554,231],[635,173],[653,137]],[[244,28],[267,43],[693,74],[738,69],[751,75]]],"圓":[[[175,765],[198,740],[210,716],[218,654],[209,263],[186,57],[192,-2]],[[242,743],[264,729],[447,763],[731,796],[765,784],[786,763],[796,748],[791,657],[796,413],[812,130],[810,78],[797,31],[804,-37]],[[334,687],[364,660],[396,548]],[[387,682],[408,678],[557,713],[577,710],[599,686],[578,635],[557,625]],[[410,581],[419,574],[544,597],[603,592]],[[331,518],[354,493],[358,478],[357,316],[352,291],[357,232]],[[379,502],[389,494],[569,534],[590,528],[613,507],[618,499],[613,415],[617,333],[610,242]],[[384,409],[389,419],[480,438],[533,437]],[[383,333],[391,344],[476,360],[518,366],[537,361]],[[378,246],[391,258],[403,255],[443,266],[547,278],[567,282],[579,292]],[[452,185],[425,183],[357,123],[292,90]],[[534,207],[616,156],[636,120]],[[222,15],[245,31],[655,63],[743,61]]],"灯":[[[169,579],[170,496],[156,409]],[[439,672],[453,637],[355,560],[345,558],[342,542]],[[259,787],[288,769],[311,744],[310,530],[292,333],[260,228],[224,166],[170,114],[107,79]],[[323,343],[405,277],[430,234]],[[482,565],[531,559],[648,585],[852,616],[934,600]],[[676,561],[707,542],[722,514],[729,139],[722,95],[703,62],[655,74],[572,114]]],"燈":[[[139,539],[147,466],[139,377]],[[336,615],[350,590],[317,547],[289,525],[277,501]],[[207,763],[255,723],[254,534],[231,286],[202,187],[175,135],[122,76],[51,30]],[[259,287],[322,240],[348,201]],[[430,709],[469,716],[527,740],[547,740],[563,724],[535,634],[493,550],[446,481],[400,428],[333,377]],[[426,633],[462,599],[471,567]],[[752,798],[721,797],[673,730],[647,704],[650,696]],[[799,758],[812,722],[770,683],[705,637]],[[597,698],[606,702],[619,693],[738,567],[851,476],[900,465],[983,460]],[[492,445],[570,445],[658,468],[700,467]],[[448,351],[472,334],[482,316],[512,206]],[[500,351],[508,342],[526,341],[670,372],[692,369],[722,339],[703,291],[677,274]],[[528,223],[543,233],[675,249],[730,243]],[[479,166],[535,118],[546,87]],[[686,226],[703,208],[711,187],[659,90],[633,73]],[[342,32],[396,22],[543,43],[816,65],[852,62],[903,44]]],"船":[[[377,800],[391,793],[411,770],[362,682],[322,622],[308,611]],[[232,613],[252,599],[268,577],[272,421],[263,302],[220,140],[183,58],[142,-6]],[[297,599],[310,594],[417,627],[436,623],[457,598],[453,542],[458,141],[452,48],[435,16],[408,23],[338,58]],[[334,513],[366,469],[372,450]],[[64,322],[119,301],[413,379],[428,392]],[[315,284],[358,229],[361,203]],[[564,655],[596,631],[603,614],[606,549],[600,481],[590,440],[570,398],[538,360],[513,343]],[[623,649],[643,639],[746,669],[765,664],[778,649],[755,571],[750,516],[751,468],[771,429],[797,418],[838,414],[918,430],[960,424]],[[528,264],[552,244],[562,224],[596,4]],[[585,260],[593,252],[608,251],[782,284],[802,283],[816,275],[843,245],[803,123],[775,103]],[[617,47],[628,59],[774,77],[820,77],[843,68]]],"茶":[[[213,662],[259,656],[323,660],[441,681],[727,715],[788,711],[823,697]],[[336,778],[359,768],[379,748],[408,597]],[[616,833],[632,823],[650,791],[580,603]],[[514,577],[484,571],[398,460],[306,374],[214,304],[115,249]],[[527,555],[531,542],[547,526],[620,463],[710,395],[779,355],[839,341],[971,331]],[[315,283],[355,275],[414,278],[624,320],[675,318]],[[470,435],[515,389],[512,61],[493,23],[443,42],[390,73]],[[338,173],[307,112],[249,33]],[[623,195],[737,105],[758,75],[769,39]]],"門":[[[207,736],[243,696],[252,611],[251,453],[239,243],[215,101],[215,46]],[[279,712],[291,704],[342,721],[418,731],[448,702],[426,507],[416,478],[400,477]],[[278,570],[284,582],[304,591],[329,595],[361,590]],[[271,466],[284,481],[345,495],[388,497]],[[579,786],[610,752],[616,729],[618,559],[629,490]],[[641,765],[654,754],[787,786],[807,780],[835,752],[835,69],[815,35],[785,43],[706,84]],[[645,627],[658,637],[714,647],[755,643]],[[648,512],[660,523],[760,539],[792,535],[800,524]]],"门":[[[304,770],[373,704],[393,669]],[[187,695],[219,664],[230,646],[231,631],[219,280],[190,93],[191,44]],[[514,741],[543,732],[570,732],[685,757],[739,761],[769,753],[793,731],[796,721],[801,86],[780,33],[725,47],[658,79]]]};
+const glyph = char => raw[char].map(stroke=>stroke.map(([x,y])=>[18+x*.145,153-y*.145]));
+const men=glyph('門'), cha=glyph('茶'), chuan=glyph('船'), deng=glyph('燈'), yuan=glyph('圓');
+const teaExtra=[[70,121],[111,121]];
+const doorOutline=[[[42,156],[42,50],[80,50],[80,113]],[[139,156],[139,50],[101,50],[101,113]]];
+const ancientBoat=[[[76,37],[59,60],[56,121],[70,157],[92,169],[109,152],[118,112],[116,66],[99,39]],[[57,89],[118,90]],[[58,118],[117,119]]];
+const cuhk=char=>'https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word='+encodeURIComponent(char);
+const catalogue={
+ '门':{source:'https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=25079', stages:[
+  [0,'早期构形示意','看左右相对的两扇门，古文字的构形可以从这里观察。',doorOutline],
+  [10,'传统写法「門」','比较左右两个部分，看看双扇门的结构怎样保留下来。',men],
+  [21,'简体写法「门」','看现代简体的左竖、横折钩和上方点。',glyph('门')]]},
+ '茶':{source:'https://dict.variants.moe.edu.tw/dictView.jsp?ID=-37834', stages:[
+  [0,'早期用字「荼」示意','古文献中，「荼」有用来记录茶的例子。留意草字头下方的笔画。',[...cha,teaExtra]],
+  [15,'写作「茶」','比较「荼」和「茶」中间的横画。这个过渡用减笔示意说明两种写法的关系。',cha]]},
+ '船':{source:cuhk('船'), stages:[
+  [0,'部件来源「舟」','先看「舟」的舟船轮廓。同一幕是部件构形示意。',ancientBoat],
+  [10,'船字的舟字旁','把视线移到左侧，现代「船」仍保留舟字旁。',chuan.slice(0,6)],
+  [21,'现代写法「船」','看右半边与舟字旁合在一起，构成今天的「船」。',chuan]]},
+ '灯':{source:cuhk('燈'), stages:[
+  [0,'构形观察「火」','先观察左边的火字旁，它提示了这个字的意义。',deng.slice(0,4)],
+  [10,'传统写法「燈」','火表示意义，右边的「登」提示读音。',deng],
+  [21,'简体写法「灯」','火字旁仍保留，右边改写为「丁」。',glyph('灯')]]},
+ '圆':{source:cuhk('圓'), stages:[
+  [0,'构形观察「員」','先观察传统字形内部的「員」。',yuan.slice(2,-1)],
+  [10,'传统写法「圓」','留意外框「囗」与里面的「員」。',yuan],
+  [21,'简体写法「圆」','外框保留，里面的「員」写成简体「员」。',glyph('圆')]]}
+};
+let stages=[];
+const strokeCount=16, pointsPerStroke=22;
+let samples=[];
+function sample(strokes) {
+ return Array.from({length:strokeCount},(_,i)=>{
+  const present=i<strokes.length;
+  const path=strokes[Math.min(i,strokes.length-1)];
+  const cumulative=[0];
+  for(let k=1;k<path.length;k++) cumulative.push(cumulative[k-1]+Math.hypot(path[k][0]-path[k-1][0],path[k][1]-path[k-1][1]));
+  const length=cumulative.at(-1);
+  const points=Array.from({length:pointsPerStroke},(_,k)=>{
+   const target=present?k*length/(pointsPerStroke-1):length;
+   const right=cumulative.findIndex(x=>x>=target);
+   if(right<=0) return {x:path[0][0],y:path[0][1]};
+   const left=right-1;
+   const ratio=(target-cumulative[left])/(cumulative[right]-cumulative[left]||1);
+   return {x:path[left][0]+(path[right][0]-path[left][0])*ratio,y:path[left][1]+(path[right][1]-path[left][1])*ratio};
+  });
+  return {points,present};
+ });
+}
+const get=id=>block.querySelector('#history-'+id);
+const svgNS = 'http://www.w3.org/2000/svg';
+const player=get('player');
+player.setAttribute('aria-label',word+'字的字形演变');
+const drawn = Array.from({length:strokeCount},()=>{
+ const stroke=document.createElementNS(svgNS,'polyline');
+ stroke.setAttribute('fill','none');
+ stroke.setAttribute('stroke-linecap','round');
+ stroke.setAttribute('stroke-linejoin','round');
+ get('glyph').append(stroke);
+ return stroke;
+});
+function drawMorph(index, elapsed){
+ const target=Math.min(index+1,stages.length-1);
+ const transitionSeconds=index===0?8:6;
+ const progress=target===index?0:Math.max(0,Math.min(1,(elapsed-stages[target].time+transitionSeconds)/transitionSeconds));
+ const isModern=index===stages.length-1;
+ drawn.forEach((stroke,i)=>{
+  // Begin with the upper strokes. All strokes settle before the next stage.
+  const delay=i/(strokeCount-1)*.23;
+  const local=Math.max(0,Math.min(1,(progress-delay)/.77));
+  const mix=local*local*(3-2*local);
+  const a=samples[index][i],b=samples[target][i];
+  stroke.setAttribute('points',a.points.map((v,j)=>{
+   const next=b.points[j];
+   return (v.x+(next.x-v.x)*mix).toFixed(2)+','+(v.y+(next.y-v.y)*mix).toFixed(2);
+  }).join(' '));
+  stroke.setAttribute('opacity',(Number(a.present)*(1-mix)+Number(b.present)*mix).toFixed(3));
+  stroke.setAttribute('stroke-width',isModern?8:target===stages.length-1?5+3*mix:5);
+  stroke.setAttribute('stroke',isModern?'#86291d':target===stages.length-1?
+    'rgb('+Math.round(52+82*mix)+','+Math.round(39+2*mix)+','+Math.round(32-3*mix)+')':'#342720');
+ });
+}
+
+let elapsed=0, started=null, frame, active=-1;
+function render(){
+ const index=stages.findLastIndex(stage=>stage.time<=elapsed);
+ if(active!==index){
+  active=index;const stage=stages[index];
+  get('stage').textContent=stage.name;get('description').textContent=stage.note;
+  get('glyph').setAttribute('aria-label',stage.name+'字形构形');
+
+  [...get('steps').children].forEach((b,i)=>b.setAttribute('aria-current',i===index));
+ }
+ drawMorph(index,elapsed);
+ get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 30 秒';
+}
+function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=30?'重播':'继续';}
+function tick(){
+ if(started===null)return;
+ elapsed=Math.max(elapsed,Math.min(30,(performance.now()-started)/1000));
+ render();
+ if(elapsed<30)frame=requestAnimationFrame(tick);else pause();
+}
+function start(){if(elapsed>=30)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
+function loadWord(word){
+ const entry=catalogue[word];
+ stages=entry.stages.map(([time,name,note])=>({time,name,note}));
+ samples=entry.stages.map(stage=>sample(stage[3]));
+ player.querySelector('h2').textContent='「'+word+'」是怎么写到今天的？';
+ player.querySelector('a').href=entry.source;
+ get('steps').replaceChildren();
+ stages.forEach(stage=>{
+  const button=document.createElement('button');
+  button.textContent=stage.name;
+  button.onclick=()=>{const playing=started!==null;pause();elapsed=stage.time;render();if(playing)start();};
+  get('steps').append(button);
+ });
+ active=-1;
+}
+get('open').onclick=()=>{loadWord(word);elapsed=0;player.showModal();start();};
+get('play').onclick=()=>started===null?start():pause();
+get('close').onclick=()=>{pause();player.close();};
+player.addEventListener('cancel',pause);
+player.addEventListener('close',pause);
+
+  block.stopHistory = () => { pause(); if (player.open) player.close(); };
+
+}
+const featuredHistory = new Set(['年','门','茶','船','灯','圆']);
+const historyAliases = {'門':'门','燈':'灯','圓':'圆'};
 function attach(container, word) {
+  word = historyAliases[word] || word;
   const block = document.createElement('div');
   block.className = 'character-history';
   container.append(block);
-  if (word !== '年') {
+  if (!featuredHistory.has(word)) {
     block.textContent = '这个字暂未收录可播放的字形资料。';
     return block;
   }
   block.innerHTML = "<button type=\"button\" id=\"history-open\" aria-haspopup=\"dialog\">播放字形演变</button><dialog id=\"history-player\" aria-label=\"年字的字形演变\">\n<header><h2 >「年」是怎么来的？</h2><button class=\"close\" id=\"history-close\" aria-label=\"关闭并停止播放\">×</button></header>\n<div class=\"screen\"><div class=\"stage\" id=\"history-stage\"></div><svg id=\"history-glyph\" viewBox=\"0 0 180 196\" role=\"img\"></svg><p id=\"history-description\"></p></div>\n<div class=\"steps\" id=\"history-steps\" aria-label=\"切换字形阶段\"></div>\n<progress id=\"history-progress\" max=\"30\" value=\"0\" aria-label=\"播放进度\"></progress>\n<div class=\"controls\"><button id=\"history-play\">暂停</button><span class=\"clock\" id=\"history-clock\">0 秒 / 30 秒</span><a href=\"https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887\" target=\"_blank\" rel=\"noopener\">查看原始字形 →</a></div>\n<p class=\"note\">字形连变为演变示意。各阶段的原始字形可在中央研究院字库查看。</p>\n</dialog>";
 
+if (word !== '年') { initializeOtherWord(block, word); return block; }
 const stages=[
  {time:0,name:'甲骨文',note:'先看上面的禾，再看下面的人。这个构形像人背着禾，让人想到收成。',art:'<path d="M53 52L123 43M86 27L90 94M89 55L60 87M90 55l30 26M98 102L83 126L67 153M83 126L112 166"/>'},
  {time:8,name:'金文',note:'比较上下两部分：上部仍可看出禾的形态，下部保留了人形。',art:'<path d="M48 53Q79 50 128 45M88 24Q86 59 95 99M89 55Q78 75 54 89M90 55Q107 73 129 82M104 96Q102 122 65 166M91 126Q104 154 120 170"/>'},
@@ -240,7 +373,8 @@ player.addEventListener('close',pause);
   return block;
 }
 const glyph = document.getElementById('open-glyph');
-if (glyph && document.getElementById('nian-quanzhou')) attach(glyph.parentElement, '年');
+const storyWord = document.querySelector('#form .glyph')?.textContent.trim();
+if (glyph && storyWord) attach(glyph.parentElement, storyWord);
 let previous;
 document.addEventListener('zili:lookup', event => {
   if (previous) { previous.stopHistory?.(); previous.remove(); }
@@ -306,7 +440,7 @@ document.addEventListener('zili:lookup', event => {
                                 '查看已保存的寻踪卡 →</a>', 1)
             page = page.replace("</body>", stroke_style + ("" if has_lookup else writer_script) +
                                 "<script>" + stroke_ui + "</script></body>")
-        if has_lookup or name == "nian.html":
+        if has_lookup or name in story_words:
             page = page.replace("</body>", history_ui + "</body>", 1)
         if name in story_words:
             links = "".join(
