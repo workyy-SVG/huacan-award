@@ -156,7 +156,13 @@
     function syncLookup() {
       const wasHidden = help.hidden;
       help.hidden = lookup.hidden || !lookup.textContent.trim();
-      if (wasHidden && !help.hidden) help.open = true;
+      if (wasHidden && !help.hidden) {
+        help.open = true;
+        if (doc.body.matches('.lookup-only, :has(.lookup-credit-flow)')) {
+          const view = doc.defaultView;
+          view.requestAnimationFrame(() => view.scrollTo(0, 0));
+        }
+      }
     }
     new MutationObserver(syncLookup).observe(lookup, {attributes:true,attributeFilter:['hidden'],childList:true,subtree:true});
     syncLookup();
