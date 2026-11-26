@@ -107,3 +107,42 @@ html body .page #form .stroke-samples svg {
   background:#ecf4f6;
   border-color:#a3bbc5;
 }
+
+/* Tighten the observation panel without changing its reading width. */
+html body .page #form {
+  padding-block:clamp(14px,2vw,26px);
+}
+html body .page #form .observation {
+  margin-block:12px 0;
+  align-items:start;
+}
+html body .page #form .observation .glyph {
+  align-self:start;
+}
+html body .page #form .observation>div:last-child {
+  padding-block:8px;
+}
+html body .page #form .observation>div:last-child>p {
+  margin-block:0 8px;
+}
+html body .page #form .observation .character-history {
+  display:inline-block;
+  margin:0 0 0 .5rem;
+  vertical-align:middle;
+}
+html body .page #form .observation :is(#open-glyph,#history-open) {
+  display:inline-flex;
+  align-items:center;
+  width:auto;
+  margin-block:4px;
+  vertical-align:middle;
+}
+html body .page #form .stroke-samples {
+  margin-block:12px 0;
+  padding-top:8px;
+}
+@media(max-width:540px) {
+  html body .page #form .observation .character-history {
+    margin-inline-start:0;
+  }
+}
