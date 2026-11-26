@@ -61,17 +61,27 @@ def answer(request, catalogue, secrets):
             "dictionary": str(request.get("dictionary", ""))[:2400],
         }
 
-    key = config(secrets, "DASHSCOPE_API_KEY")
-    base = str(config(secrets, "QWEN_BASE_URL")).strip().rstrip("/")
-    model = config(secrets, "QWEN_MODEL", "qwen-plus")
-    endpoint = urlsplit(base)
-    host = endpoint.hostname or ""
-    if not key or endpoint.scheme != "https" or not (
+    key = str(config(secrets, "DASHSCOPE_API_KEY")).strip()
+    if not key:
+        return {"error": "Streamlit Secrets 缺少 DASHSCOPE_API_KEY，请管理员保存完整的百炼密钥。"}
+
+    default_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    base = str(config(secrets, "QWEN_BASE_URL")).strip().rstrip("/") or default_url
+    model = str(config(secrets, "QWEN_MODEL")).strip() or "qwen-plus"
+    try:
+        endpoint = urlsplit(base)
+        host = endpoint.hostname or ""
+    except ValueError:
+        host = ""
+    if not host or endpoint.scheme != "https" or not (
         host.endswith(".maas.aliyuncs.com")
         or host == "dashscope.aliyuncs.com"
+        or host.endswith(".dashscope.aliyuncs.com")
         or (host.startswith("dashscope-") and host.endswith(".aliyuncs.com"))
+    ) or endpoint.username or endpoint.query or endpoint.fragment or endpoint.path not in (
+        "/compatible-mode/v1", "/compatible-mode/v1/chat/completions"
     ):
-        return {"error": "千问服务尚未配置，请联系站点管理员检查 Streamlit Secrets。"}
+        return {"error": "请检查 QWEN_BASE_URL，填写百炼的 OpenAI 兼容调用地址。"}
 
     payload = {
         "model": model, "max_tokens": 650,
