@@ -86,7 +86,7 @@ def answer(request, catalogue, secrets):
         return {"error": "请检查 QWEN_BASE_URL，填写百炼的 OpenAI 兼容调用地址。"}
 
     payload = {
-        "model": model, "max_tokens": 650,
+        "model": model, "max_tokens": 96 if mode == "search" else 360,
         "messages": [
             {"role": "system", "content": instruction},
             {"role": "user", "content": json.dumps(
@@ -94,6 +94,8 @@ def answer(request, catalogue, secrets):
             )},
         ],
     }
+    if model in ("qwen-plus", "qwen-plus-latest", "qwen-flash"):
+        payload["enable_thinking"] = False
     call = Request(
         base.removesuffix("/chat/completions") + "/chat/completions",
         data=json.dumps(payload).encode("utf-8"),

@@ -628,10 +628,20 @@ if release_html.is_file():
     )
     if isinstance(request, dict) and isinstance(request.get("id"), str):
         if not previous or request["id"] != previous["id"]:
-            catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
-            st.session_state.qwen_response = {
-                "id": request["id"], **qwen_answer(request, catalogue, st.secrets)
-            }
+            # Reuse successful answers to the same question in this browser session.
+            signature = tuple(str(request.get(field, "")).strip() for field in (
+                "mode", "story", "question", "character", "dictionary"
+            ))
+            answers = st.session_state.setdefault("qwen_recent_answers", {})
+            response = answers.get(signature)
+            if response is None:
+                catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
+                response = qwen_answer(request, catalogue, st.secrets)
+                if "error" not in response:
+                    if len(answers) >= 24:
+                        answers.pop(next(iter(answers)))
+                    answers[signature] = response
+            st.session_state.qwen_response = {"id": request["id"], **response}
             st.rerun()
     st.stop()
 
