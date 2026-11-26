@@ -650,6 +650,21 @@ html body.lookup-only:has(#lookup-result:not([hidden])) .page>main>#story-lookup
   }
 }
 """
+    lookup_style += """
+@media(min-width:681px) {
+  html body.lookup-only:not(:has(#lookup-result:not([hidden]))) .page>main>#story-lookup,
+  html body:not(:has(#lookup-result:not([hidden]))) .globe-cover.lookup-credit-flow {
+    position:fixed !important;
+    top:var(--lookup-map-height) !important;
+    margin-block-start:0 !important;
+    z-index:4;
+  }
+}
+html body:is(.lookup-only,:has(.globe-cover.lookup-credit-flow)) {
+  background-position-y:top,bottom !important;
+  background-size:100% var(--lookup-map-height),100% 15.38vh !important;
+}
+"""
     source_style = "html body .page details:is([data-source-notes],#sources,#journey-sources){color:#172c3a;font-size:17px;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources)>summary{color:#172c3a;font-weight:700}html body .page details:is([data-source-notes],#sources,#journey-sources) :is(li,p){color:#172c3a;font-size:inherit;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources) a{color:#70271e;font-weight:700;text-underline-offset:.15em}"
     reading_style = (ROOT / "reading-edition.css").read_text(encoding="utf-8")
     reading_style += """
