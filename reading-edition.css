@@ -5,7 +5,7 @@ html body .page #form::before,html body .page #form::after {display:none}
 html body .page #form .observation {width:100%;max-width:780px;margin:24px auto 0;grid-template-columns:minmax(96px,28%) minmax(0,1fr);gap:clamp(18px,4vw,56px)}
 html body .page #form .observation .glyph {left:0}
 html body .page #form .observation>div:last-child>p,html body .page #form .observation :is(#open-glyph,.character-history button[aria-haspopup="dialog"]) {transform:none}
-html body .page #form + section {margin-top:clamp(34px,6vw,78px)}
+html body .page #form + section {margin-top:clamp(12px,1.6vw,22px)}
 html body .page #form + section::before {content:"";display:block;position:static;inset:auto;opacity:1;width:100%;height:clamp(140px,21vw,270px);margin:0 0 25px;background-size:cover;background-position:center 42%;border-radius:8px;mask-image:none;animation:none}
 html body .page main :is(#form>h2,#form+section>h1,#keepsake>h2),html body .page main > details:is([data-source-notes],#sources,#journey-sources)>summary {font:700 clamp(23px,2.6vw,34px)/1.35 "Songti SC",SimSun,serif;color:#243e43;border:0;padding-left:0;letter-spacing:.025em}
 html body .page .journey {margin-top:20px}
