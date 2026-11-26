@@ -486,6 +486,13 @@ site_payload = bundle_site(site_version())
 def published_story_theme(path):
     """Extend the story gutter colors through the full reading area."""
     html = path.read_text(encoding="utf-8")
+    # Nested srcdoc frames can render the cover without resolving static HTTP paths.
+    cover_images = {}
+    for asset in sorted((ROOT / "static" / "atlas").glob("home-*.jpg")):
+        encoded = base64.b64encode(asset.read_bytes()).decode("ascii")
+        cover_images[asset.stem + ".webp"] = "data:image/jpeg;base64," + encoded
+    hook = "window.ziliImage = name => images[name] || name;"
+    html = html.replace(hook, "Object.assign(images," + json.dumps(cover_images) + ");\n" + hook, 1)
     cover_style = (ROOT / "cover-lettering.css").read_text(encoding="utf-8")
     wordmark = (
         '<h1 class="atlas-wordmark" aria-label="字里寻踪">'
