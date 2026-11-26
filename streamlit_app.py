@@ -581,6 +581,55 @@ html body .globe-cover.lookup-credit-flow {
         lookup_open + "\n      frame.contentWindow.requestAnimationFrame(() => frame.contentWindow.scrollTo(0, 0));",
         1,
     )
+    lookup_style += """
+html body:is(.lookup-only,:has(.lookup-credit-flow)) :is(#story-lookup,.lookup-credit-flow) {
+  padding-block:12px;
+  margin-bottom:8px;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result {
+  margin-block:8px;
+  padding:10px 14px;
+  line-height:1.45;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result #word {
+  font-size:clamp(1.35rem,2.4vw,1.75rem);
+  margin:0 0 6px;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result .lookup-tile {
+  padding:8px 12px;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result .lookup-tile :is(h3,p) {
+  margin-block:0 6px;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result .lookup-stroke-board {
+  width:min(100%,clamp(96px,13vh,142px));
+  margin:4px auto;
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result .lookup-glyph {
+  font-size:clamp(48px,7vh,70px);
+  line-height:1;
+}
+@media(min-width:681px) {
+  html body:is(.lookup-only,:has(.lookup-credit-flow)) #lookup-result .lookup-three {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+  }
+  html body .globe-cover.lookup-credit-flow,
+  html body.lookup-only #story-lookup .story-lookup-form {
+    position:sticky;top:0;z-index:4;
+  }
+}
+html body:is(.lookup-only,:has(.lookup-credit-flow)) .qwen-lookup-demo {
+  margin:8px 14px !important;
+  padding:8px 12px !important;
+}
+"""
+    html = html.replace(
+        "const inlineImages = lookupHtml",
+        'const inlineImages = (lookupLanding ? lookupHtml.replaceAll('
+        + json.dumps("panel.scrollIntoView({block:'nearest'});") + ", '') : lookupHtml)",
+        1,
+    )
     source_style = "html body .page details:is([data-source-notes],#sources,#journey-sources){color:#172c3a;font-size:17px;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources)>summary{color:#172c3a;font-weight:700}html body .page details:is([data-source-notes],#sources,#journey-sources) :is(li,p){color:#172c3a;font-size:inherit;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources) a{color:#70271e;font-weight:700;text-underline-offset:.15em}"
     reading_style = (ROOT / "reading-edition.css").read_text(encoding="utf-8")
     reading_style += """
