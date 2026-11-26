@@ -483,9 +483,10 @@ iframe[data-testid="stIFrame"] {
 }
 </style>""")
 site_payload = bundle_site(site_version())
-def published_story_theme(path):
+@st.cache_data(show_spinner=False)
+def published_story_theme(_path, story, version):
     """Extend the story gutter colors through the full reading area."""
-    html = path.read_text(encoding="utf-8")
+    html = _path.read_text(encoding="utf-8")
     # Resolve packaged artwork before it enters the nested document.
     from functools import lru_cache
 
@@ -493,9 +494,10 @@ def published_story_theme(path):
     def atlas_data(name):
         asset = ROOT / "static" / "atlas" / name
         with Image.open(asset) as picture:
-            picture.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+            limit = 1920 if name.startswith(("home-", "plate-")) else 1100
+            picture.thumbnail((limit, limit), Image.Resampling.LANCZOS)
             output = BytesIO()
-            picture.save(output, "WEBP", quality=88)
+            picture.save(output, "WEBP", quality=82)
         return "data:image/webp;base64," + base64.b64encode(output.getvalue()).decode("ascii")
 
     def embed_atlas(match):
@@ -507,7 +509,7 @@ def published_story_theme(path):
     def embed_packed(match):
         site = gzip.decompress(base64.b64decode(match.group(2))).decode("utf-8")
         site = atlas_path.sub(embed_atlas, site)
-        encoded = base64.b64encode(gzip.compress(site.encode("utf-8"), mtime=0)).decode("ascii")
+        encoded = base64.b64encode(gzip.compress(site.encode("utf-8"), compresslevel=1, mtime=0)).decode("ascii")
         return match.group(1) + encoded + match.group(3)
 
     html = packed.sub(embed_packed, atlas_path.sub(embed_atlas, html), count=1)
@@ -540,7 +542,6 @@ def published_story_theme(path):
     notes_script = (ROOT / "reading-notes.js").read_text(encoding="utf-8")
     hook = "    if (page === keepsakePage) renderKeepsakes(doc);"
     html = html.replace(hook, "    if (isStory(page)) {\n" + notes_script + "\n}\n" + hook, 1)
-    story = st.query_params.get("story", "")
     if story in {Path(name).stem for name in PAGES[3:]}:
         html = html.replace("\nnavigate('index.html');", "\nnavigate(" + json.dumps(story + ".html") + ");", 1)
     return html.replace(
@@ -553,7 +554,7 @@ def published_story_theme(path):
 
 
 release_html = ROOT / "published-theme.html"
-render_html(published_story_theme(release_html) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
+render_html(published_story_theme(release_html, st.query_params.get("story", ""), release_html.stat().st_mtime_ns) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
