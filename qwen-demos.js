@@ -24,8 +24,8 @@
     for (const question of examples) presets.add(new Option(question, question));
     presets.onchange = () => {
       input.value = presets.value;
-      result.replaceChildren();
-      input.focus();
+      presets.selectedIndex = 0;
+      form.requestSubmit();
     };
     form.append(presets);
     form.onsubmit = event => {event.preventDefault(); show(input.value.trim());};
