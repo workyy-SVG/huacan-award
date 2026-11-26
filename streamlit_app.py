@@ -486,23 +486,31 @@ site_payload = bundle_site(site_version())
 def published_story_theme(path):
     """Extend the story gutter colors through the full reading area."""
     html = path.read_text(encoding="utf-8")
-    # Nested srcdoc frames can render the cover without resolving static HTTP paths.
-    cover_images = {}
-    for asset in sorted((ROOT / "static" / "atlas").glob("home-*.jpg")):
-        encoded = base64.b64encode(asset.read_bytes()).decode("ascii")
-        cover_images[asset.stem + ".webp"] = "data:image/jpeg;base64," + encoded
-    hook = "window.ziliImage = name => images[name] || name;"
-    html = html.replace(hook, "Object.assign(images," + json.dumps(cover_images) + ");\n" + hook, 1)
-    cover_style = (ROOT / "cover-lettering.css").read_text(encoding="utf-8")
-    wordmark = (
-        '<h1 class="atlas-wordmark" aria-label="字里寻踪">'
-        '<span>字</span><span>里</span><span>寻</span><span class="seal-word">踪</span></h1>'
-        '<svg class="atlas-rule" aria-hidden="true" viewBox="0 0 240 18">'
-        '<path d="M0 12h86l12-6 6 3 13-8 15 11 10-6 14 6h84M94 15h54" '
-        'fill="none" stroke="currentColor" stroke-width="1.3"/></svg>'
-    )
-    html = html.replace('<header class="terrain-heading"><h1>字里寻踪</h1>',
-                        '<style>' + cover_style + '</style><header class="terrain-heading">' + wordmark, 1)
+    # Resolve packaged artwork before it enters the nested document.
+    from functools import lru_cache
+
+    @lru_cache(maxsize=None)
+    def atlas_data(name):
+        asset = ROOT / "static" / "atlas" / name
+        with Image.open(asset) as picture:
+            picture.thumbnail((1920, 1920), Image.Resampling.LANCZOS)
+            output = BytesIO()
+            picture.save(output, "WEBP", quality=88)
+        return "data:image/webp;base64," + base64.b64encode(output.getvalue()).decode("ascii")
+
+    def embed_atlas(match):
+        return atlas_data(match.group(1))
+
+    atlas_path = re.compile(r"app/static/atlas/([\w.-]+\.(?:jpg|png|webp))")
+    packed = re.compile(r"(const packed = ')([^']+)(';)")
+
+    def embed_packed(match):
+        site = gzip.decompress(base64.b64decode(match.group(2))).decode("utf-8")
+        site = atlas_path.sub(embed_atlas, site)
+        encoded = base64.b64encode(gzip.compress(site.encode("utf-8"), mtime=0)).decode("ascii")
+        return match.group(1) + encoded + match.group(3)
+
+    html = packed.sub(embed_packed, atlas_path.sub(embed_atlas, html), count=1)
     accents = {
         "#f5dcc0": "#ad623a", "#efdfcb": "#984737",
         "#e6e8d6": "#527259", "#dce9e7": "#34647a",
