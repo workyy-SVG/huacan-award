@@ -28,7 +28,7 @@ def render(story, selected="nian-jinmen"):
         template = template.replace(f'src="{case_id}.webp"', f'src="{uri}"')
     for name in ("coast.webp", "lantern.webp"):
         styles = styles.replace(f"url({name})", f'url("{image_uri(name)}")')
-    config = json.dumps({"images": images, "selected": selected})
+    config = json.dumps({"selected": selected})
     return (template.replace('<link rel="stylesheet" href="style.css">', f"<style>{styles}</style>")
             .replace('<script defer src="app.js"></script>', "")
             .replace("</body>", f"<script>const embedded = {config};\n{script}</script></body>"))

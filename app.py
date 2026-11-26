@@ -12,7 +12,7 @@ FULL_TITLE = f"《{TITLE}——汉字与民俗故事交互设计》"
 DATA_PATH = Path(__file__).parent / "data" / "nian-quanzhou-jinmen.json"
 story = json.loads(DATA_PATH.read_text(encoding="utf-8"))
 
-st.set_page_config(page_title=TITLE, page_icon="年")
+st.set_page_config(page_title=TITLE, page_icon="年", layout="wide")
 st.markdown("""
 <style>
 .stApp {
@@ -44,42 +44,39 @@ lookup = st.query_params.get("hanzi", "").strip()
 if lookup == story["character"] and not selected:
     selected = "nian"
 if selected not in case_ids | {"nian"}:
-    assets = DATA_PATH.parent
-    cover = base64.b64encode((assets / "globe-cover-reference.png").read_bytes()).decode("ascii")
+    cover = base64.b64encode((DATA_PATH.parent.parent / "assets" / "cover-map.webp").read_bytes()).decode("ascii")
     st.html(f"""
 <style>
-.block-container {{ padding:0 !important; }}
 [data-testid="stHeader"] {{ display:none; }}
+.block-container {{ max-width:1180px; padding:clamp(18px,4vw,64px); }}
 .globe-cover {{
-  width:min(100%, 900px, calc((100dvh - 12px) * 1600 / 2416));
-  aspect-ratio:1600/2416; margin:auto;
-  position:relative; container-type:inline-size; overflow:hidden;
-  background:#f8f6f1;
+  display:grid; grid-template-columns:1fr 1.2fr; align-items:center;
+  min-height:78svh; gap:clamp(20px,4vw,64px); margin:auto;
+  padding:clamp(22px,4vw,58px); background:#f9f5ed;
+  border-block:1px solid #c7b9a0; color:#342f28;
 }}
-.globe-art {{
-  position:absolute; top:-20cqw; left:0; display:block;
-  width:100%; height:auto; pointer-events:none;
-}}
-.globe-start,.globe-search {{ position:absolute; border-radius:999px; }}
-.globe-start {{ left:27%; top:116.53cqw; width:46.5%; height:9.97cqw; }}
-.globe-search {{ left:7.7%; top:135.75cqw; width:84.8%; height:9.79cqw; }}
-.globe-search input {{
-  width:100%; height:100%; border:0; border-radius:inherit; box-sizing:border-box;
-  background:transparent; color:transparent; padding:0 5%;
-  font:clamp(16px,3.5cqw,20px) "Songti SC","SimSun",serif;
-}}
-.globe-search input:focus,.globe-search input:valid {{background:#f7f4ef;color:#302b28;}}
-.globe-start:focus-visible,.globe-search input:focus-visible {{outline:2px solid #8d291a;}}
-@media (min-width: 900px) {{
-  .block-container {{ max-width:1080px; }}
+.globe-art {{width:100%; display:block; mix-blend-mode:multiply;}}
+.globe-copy h1 {{font-size:clamp(44px,6vw,84px); color:#872e22; font-weight:700;
+  letter-spacing:.04em; margin:0; padding:0; line-height:1.15;}}
+.globe-copy p {{margin:16px 0 32px; font-size:clamp(16px,2vw,21px);}}
+.globe-start {{display:inline-block; background:#872e22; color:white!important;
+  text-decoration:none; padding:12px 23px; border-radius:5px;}}
+.globe-search {{margin-top:16px; display:flex; max-width:340px; border-bottom:1px solid #998976;}}
+.globe-search input,.globe-search button {{font:inherit; background:transparent; border:0; padding:12px 4px; color:#43372b;}}
+.globe-search input {{min-width:0; flex:1;}}
+.globe-search button {{cursor:pointer; padding-inline:12px;}}
+@media(max-width:700px) {{
+  .globe-cover {{grid-template-columns:1fr; min-height:auto; gap:20px;}}
+  .globe-art {{max-width:480px; margin:auto;}}
 }}
 </style>
-<main class="globe-cover" aria-label="字里寻踪。 同一个字，连接不同地方的生活记录">
-  <img class="globe-art" src="data:image/png;base64,{cover}" width="1600" height="2848" alt="折页地图，标有两岸、香港、澳门与海外华人社群">
-  <a class="globe-start" href="?story=nian" target="_self" aria-label="选一个字，开始寻踪"></a>
-  <form class="globe-search" method="get">
-    <input name="hanzi" aria-label="查一个我感兴趣的字" autocomplete="off" enterkeyhint="search" required>
-  </form>
+<main class="globe-cover">
+  <div class="globe-copy"><h1>字里寻踪</h1><p>同一个字，连接不同地方的生活记录</p>
+    <a class="globe-start" href="?story=nian" target="_self">选一个字，开始寻踪</a>
+    <form class="globe-search" id="lookup" method="get"><input name="hanzi" placeholder="查一个我感兴趣的字" aria-label="查一个我感兴趣的字" required>
+    <button type="submit">查询</button></form>
+  </div>
+  <img class="globe-art" src="data:image/webp;base64,{cover}" alt="折页地图，标有两岸、香港、澳门与海外华人社群">
 </main>
 """)
     if lookup:

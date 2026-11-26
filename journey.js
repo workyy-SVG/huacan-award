@@ -6,7 +6,7 @@ const config = typeof embedded === 'undefined' ? {} : embedded;
 if (cases.some(record => record.id === config.selected)) selection.value = config.selected;
 
 function imageFor(record) {
-  return config.images?.[record.id] || record.id + '.webp';
+  return document.getElementById(record.id)?.querySelector('img')?.src || record.id + '.webp';
 }
 
 function updateCard() {
