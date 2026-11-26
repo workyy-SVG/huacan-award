@@ -10,7 +10,9 @@ from io import BytesIO
 
 from PIL import Image
 import streamlit as st
-from streamlit.components.v1 import html as render_html
+from streamlit.components.v1 import declare_component, html as render_html
+
+from qwen_live import answer as qwen_answer
 
 ROOT = Path(__file__).resolve().parent
 # Region navigation is provided by the fixed Streamlit sidebar.
@@ -475,7 +477,7 @@ st.html("""<style>
 [data-testid="stMainBlockContainer"] { max-width: none; padding: 0; }
 [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] { gap: 0; }
 [data-testid="stHeader"] { display: none; }
-iframe[data-testid="stIFrame"] {
+iframe[data-testid="stIFrame"], iframe[data-testid="stCustomComponentV1"] {
     display: block;
     width: 100%;
     height: 100dvh !important;
@@ -606,7 +608,29 @@ html body .page #form .observation .character-history {
 
 
 release_html = ROOT / "published-theme.html"
-render_html(published_story_theme(release_html, st.query_params.get("story", ""), tuple(path.stat().st_mtime_ns for path in (release_html, ROOT / "reading-edition.css", ROOT / "reading-notes.js", ROOT / "cover-lettering.css", ROOT / "qwen-demos.js"))) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
+if release_html.is_file():
+    assets = [release_html, *(ROOT / name for name in (
+        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js"
+    ))]
+    version = tuple(path.stat().st_mtime_ns for path in assets)
+    story = st.query_params.get("story", "")
+    site = declare_component("zili_site", path=str(ROOT / "qwen-component"))
+    previous = st.session_state.get("qwen_response")
+    request = site(
+        html=published_story_theme(release_html, story, version),
+        site_key=json.dumps([story, version]),
+        response=previous, key="zili_site",
+    )
+    if isinstance(request, dict) and isinstance(request.get("id"), str):
+        if not previous or request["id"] != previous["id"]:
+            catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
+            st.session_state.qwen_response = {
+                "id": request["id"], **qwen_answer(request, catalogue, st.secrets)
+            }
+            st.rerun()
+    st.stop()
+
+render_html("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}

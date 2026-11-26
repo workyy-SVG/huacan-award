@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>字里寻踪</title>
+<style>html,body,iframe{margin:0;width:100%;height:100%;border:0;display:block}</style>
+<iframe id="site" title="字里寻踪"></iframe>
+<script>
+const site = document.getElementById('site');
+let currentSiteKey;
+let activeRequest;
+
+function streamlit(type, payload = {}) {
+  parent.postMessage({isStreamlitMessage:true, type, ...payload}, '*');
+}
+
+addEventListener('message', ({source, data}) => {
+  if (source === parent && data?.type === 'streamlit:render') {
+    const {html, site_key: key, response} = data.args;
+    if (currentSiteKey !== key) {
+      currentSiteKey = key;
+      activeRequest = undefined;
+      site.srcdoc = html;
+    }
+    if (activeRequest && response?.id === activeRequest) {
+      activeRequest = undefined;
+      site.contentWindow.postMessage({type:'qwen-response', ...response}, '*');
+    }
+    return;
+  }
+  if (source === site.contentWindow && data?.type === 'qwen-request' && !activeRequest) {
+    activeRequest = data.request.id;
+    streamlit('streamlit:setComponentValue', {value:data.request, dataType:'json'});
+  }
+});
+
+function resize() {
+  streamlit('streamlit:setFrameHeight', {height:parent.innerHeight});
+}
+streamlit('streamlit:componentReady', {apiVersion:1});
+resize();
+addEventListener('resize', resize);
+</script>
+</html>
