@@ -483,8 +483,32 @@ iframe[data-testid="stIFrame"] {
 }
 </style>""")
 site_payload = bundle_site(site_version())
+def published_story_theme(path):
+    """Extend the story gutter colors through the full reading area."""
+    html = path.read_text(encoding="utf-8")
+    accents = {
+        "#f5dcc0": "#ad623a", "#efdfcb": "#984737",
+        "#e6e8d6": "#527259", "#dce9e7": "#34647a",
+        "#f1e2d4": "#935857", "#efe5e1": "#a65045",
+    }
+    for paper, accent in accents.items():
+        gradient = (
+            "linear-gradient(155deg,#7294aa 0%,#dce8ef 12%,#f5f7f8 31%,"
+            f"#f8f9fa 57%,{paper} 100%)"
+        )
+        original = "fixed no-repeat,\\n              " + gradient
+        extended = (
+            "fixed no-repeat,\\n              "
+            "radial-gradient(ellipse 24% 84% at 0% 92%,#a9c4d8 0%,#c1d6e566 60%,transparent 100%),"
+            f"radial-gradient(ellipse 24% 84% at 100% 92%,{accent}42 0%,{accent}22 60%,transparent 100%),"
+            + gradient
+        )
+        html = html.replace(original, extended)
+    return html
+
+
 release_html = ROOT / "published-theme.html"
-render_html(release_html.read_text(encoding="utf-8") if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
+render_html(published_story_theme(release_html) if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
