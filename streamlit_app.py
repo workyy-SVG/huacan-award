@@ -129,89 +129,125 @@ header .story-word-switch a:focus-visible{outline:2px solid #8c291e;outline-offs
 }
 </style>"""
     stroke_style = '<style>.stroke-preview{border-top:1px solid #decdb4;margin-top:14px;padding:12px 0}.stroke-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.stroke-controls select{font:inherit;padding:4px}.stroke-board{width:184px;height:184px;margin:10px auto;background:#fffaf2;border:1px solid #d8c1a5;border-radius:8px}.stroke-status{margin:5px 0!important}.stroke-preview small{color:#695849}</style>'
-    history_ui = """<style>
-.character-history{margin-top:12px}.character-history [hidden]{display:none!important}
-.character-history .history-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(92vw,82dvh,520px);aspect-ratio:1;max-height:86dvh;overflow:auto;padding:clamp(12px,3vw,24px);background:#fff5e4;color:#39281d;border:1px solid #d6bfa0;border-radius:12px}
-.history-dialog::backdrop{background:#291b1470}
-.history-dialog .history-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:12px}
-.history-dialog .history-close{min-width:44px;padding:0;font-size:1.4rem}
-.history-stages{display:flex;gap:8px;flex-wrap:wrap}
-.character-history button{min-height:44px;border:1px solid #b58c6c;border-radius:8px;padding:6px 12px;background:#fff8ed;color:#79291e;font:inherit;cursor:pointer}
-.character-history button[aria-pressed=true]{background:#87291d;color:white}
-.history-glyph{margin:10px 0;font:700 clamp(1.3rem,4vw,2.7rem) KaiTi,serif;color:#87291d}
-.history-credit{font-size:.9rem;margin-top:8px}
+    history_ui = r"""<style>
+.character-history{margin-top:12px}.character-history button{min-height:44px;padding:5px 12px;border:1px solid #b4896a;background:#fff7e9;color:#80271b;border-radius:8px;font:inherit;cursor:pointer}
+.character-history dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(94vw,590px);max-height:92dvh;overflow:auto;border:1px solid #c4a17e;border-radius:16px;padding:clamp(12px,3vw,20px);background:#f9f0df;color:#39281d}
+.character-history dialog::backdrop{background:#291b146b}
+.character-history dialog header,.character-history .controls{position:static;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:none;padding:0;border:0}
+.character-history dialog h2{margin:0;font:700 1.5rem KaiTi,serif;color:#84291c}
+.character-history .screen{background:#f5e9d6;border:1px solid #d6bea1;border-radius:10px;text-align:center;padding:12px}
+.character-history .screen svg{width:100%;height:clamp(140px,32vh,245px);display:block}
+.character-history .stage{color:#86291d;font-weight:700}.character-history .steps{margin:10px 0;display:flex;gap:6px;flex-wrap:wrap}
+.character-history button[aria-current=true],.character-history #history-play{background:#86291d;color:#fff}
+.character-history progress{width:100%;accent-color:#86291d}
+.character-history .note{font-size:.9rem;color:#744834;margin-top:8px}
+.character-history a{color:#80271b}
 </style><script>(() => {
-const stages = [
-  ['甲骨文','人负禾','观察上方的禾与下方的人，字形像人背着禾。','https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/oraclePiece.php?piece=%E7%A6%BE'],
-  ['金文','禾与人','比较金文例字中的上部和下部。西周铭文也有以「禾」字记录「年」的例子。','https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word=%E5%B9%B4'],
-  ['小篆','禾与千','留意下部，小篆的下部写成了「千」形。','https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887'],
-  ['现代写法','年','对比今天的「年」，观察横、竖在字里的位置。','https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887']
-];
-  function attach(container, word, story = false) {
-    if (word !== '年' && story) return;
-    const block = document.createElement('div');
-    block.className = 'character-history';
-    container.append(block);
-    if (word !== '年') {
-      block.textContent = '这个字暂未收录可播放的字形资料。';
-      return;
-    }
-    block.innerHTML = '<button type="button" aria-haspopup="dialog">播放字形演变</button><dialog class="history-dialog" aria-label="年字的字形演变"><div class="history-head"><strong>「年」是怎么来的？</strong><button class="history-close" type="button" aria-label="关闭字形演变">×</button></div><div class="history-stages" role="group" aria-label="字形阶段"></div><p class="history-glyph"></p><p class="history-observation"></p><a target="_blank" rel="noopener">查看对应字形资料 →</a><br><button class="history-play" type="button">播放</button><p class="history-credit">古文字阶段展示构形提示，字形图见来源页面。</p></dialog>';
-    const [open, panel] = block.children;
-    const play = panel.querySelector('.history-play');
-    const controls = panel.querySelector('.history-stages');
-    let index = 0, timer;
-    function stop() { clearInterval(timer); timer = undefined; play.textContent = '播放'; }
-    block.stopHistory = () => { stop(); if (panel.open) panel.close(); };
-    function render() {
-      const [stage, glyph, note, url] = stages[index];
-      panel.querySelector('.history-glyph').textContent = stage + ' · ' + glyph;
-      panel.querySelector('.history-observation').textContent = note;
-      panel.querySelector('a').href = url;
-      [...controls.children].forEach((button, i) => button.setAttribute('aria-pressed', i === index));
-    }
-    function start() {
-      stop();
-      if (index === stages.length - 1) index = 0;
-      render();
-      play.textContent = '暂停';
-      timer = setInterval(() => {
-        if (!panel.open || !block.isConnected || block.closest('[hidden]')) { stop(); return; }
-        index++; render();
-        if (index === stages.length - 1) stop();
-      }, 3200);
-    }
-    stages.forEach(([stage], i) => {
-      const button = document.createElement('button');
-      button.type = 'button'; button.textContent = stage;
-      button.onclick = () => { stop(); index = i; render(); };
-      controls.append(button);
-    });
-    function close() { stop(); panel.close(); }
-    panel.querySelector('.history-close').onclick = close;
-    panel.addEventListener('cancel', stop);
-    panel.addEventListener('close', stop);
-    open.onclick = () => {
-      if (panel.open) return;
-      panel.showModal();
-      index = 0;
-      start();
-    };
-    play.onclick = () => timer ? stop() : start();
-    render();
+function attach(container, word) {
+  const block = document.createElement('div');
+  block.className = 'character-history';
+  container.append(block);
+  if (word !== '年') {
+    block.textContent = '这个字暂未收录可播放的字形资料。';
+    return block;
   }
-  const glyph = document.getElementById('open-glyph');
-  if (glyph && document.getElementById('nian-quanzhou')) attach(glyph.parentElement, '年', true);
-  let previous;
-  document.addEventListener('zili:lookup', event => {
-    if (previous) { previous.stopHistory?.(); previous.remove(); }
-    const result = document.getElementById('lookup-result');
-    if (!result || !event.detail) return;
-    attach(result, event.detail);
-    previous = result.lastElementChild;
-  });
-})();
-</script>"""
+  block.innerHTML = "<button type=\"button\" id=\"history-open\" aria-haspopup=\"dialog\">播放字形演变</button><dialog id=\"history-player\" aria-label=\"年字的字形演变\">\n<header><h2 >「年」是怎么来的？</h2><button class=\"close\" id=\"history-close\" aria-label=\"关闭并停止播放\">×</button></header>\n<div class=\"screen\"><div class=\"stage\" id=\"history-stage\"></div><svg id=\"history-glyph\" viewBox=\"0 0 180 196\" role=\"img\"></svg><p id=\"history-description\"></p></div>\n<div class=\"steps\" id=\"history-steps\" aria-label=\"切换字形阶段\"></div>\n<progress id=\"history-progress\" max=\"30\" value=\"0\" aria-label=\"播放进度\"></progress>\n<div class=\"controls\"><button id=\"history-play\">暂停</button><span class=\"clock\" id=\"history-clock\">0 秒 / 30 秒</span><a href=\"https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887\" target=\"_blank\" rel=\"noopener\">查看原始字形 →</a></div>\n<p class=\"note\">字形连变为演变示意。各阶段的原始字形可在中央研究院字库查看。</p>\n</dialog>";
+
+const stages=[
+ {time:0,name:'甲骨文',note:'先看上面的禾，再看下面的人。这个构形像人背着禾，让人想到收成。',art:'<path d="M53 52L123 43M86 27L90 94M89 55L60 87M90 55l30 26M98 102L83 126L67 153M83 126L112 166"/>'},
+ {time:8,name:'金文',note:'比较上下两部分：上部仍可看出禾的形态，下部保留了人形。',art:'<path d="M48 53Q79 50 128 45M88 24Q86 59 95 99M89 55Q78 75 54 89M90 55Q107 73 129 82M104 96Q102 122 65 166M91 126Q104 154 120 170"/>'},
+ {time:16,name:'小篆',note:'留意下部：小篆这一写法中，下部呈「千」形。',art:'<path d="M57 51Q84 52 122 42M90 29Q88 65 91 91M88 57Q73 76 52 83M91 57Q105 75 127 83M72 111Q93 105 108 103M60 133Q83 134 123 127M93 109Q100 143 92 169"/>'},
+ {time:23,name:'现代写法',note:'今天写作「年」。再回看最初的构形，就能比较古今写法的差别。',art:'<text x="90" y="153" text-anchor="middle" stroke="none" fill="#86291d" font-size="150" font-family="KaiTi,STKaiti,serif">年</text>'}
+];
+// Sample each visible stroke so adjacent frames can share the same geometry.
+const modernStrokes = 'M65 36Q62 57 45 75 M62 58Q91 55 127 46 M62 89Q89 86 121 81 M65 90L62 122 M37 126Q88 118 144 118 M96 59Q97 108 91 167';
+const strokeCount = 7;
+const pointsPerStroke = 22;
+const svgNS = 'http://www.w3.org/2000/svg';
+const samples = stages.map((stage, i) => {
+ const line = i === stages.length - 1 ? modernStrokes : stage.art.match(/d="([^"]+)"/)[1];
+ const strokes = line.match(/M[^M]+/g);
+ return Array.from({length:strokeCount}, (_, j)=>{
+  const path=document.createElementNS(svgNS,'path');
+  const present=j<strokes.length;
+  path.setAttribute('d',strokes[Math.min(j,strokes.length-1)]);
+  const length=path.getTotalLength();
+  const points=Array.from({length:pointsPerStroke},(_, k)=>path.getPointAtLength(length*(present?k/(pointsPerStroke-1):1)));
+  return {points,present};
+ });
+});
+const get=id=>block.querySelector('#history-'+id);
+const player=get('player');
+const drawn = Array.from({length:strokeCount},()=>{
+ const stroke=document.createElementNS(svgNS,'polyline');
+ stroke.setAttribute('fill','none');
+ stroke.setAttribute('stroke-linecap','round');
+ stroke.setAttribute('stroke-linejoin','round');
+ get('glyph').append(stroke);
+ return stroke;
+});
+function drawMorph(index, elapsed){
+ const target=Math.min(index+1,stages.length-1);
+ const transitionSeconds=index===0?8:6;
+ const progress=target===index?0:Math.max(0,Math.min(1,(elapsed-stages[target].time+transitionSeconds)/transitionSeconds));
+ const isModern=index===stages.length-1;
+ drawn.forEach((stroke,i)=>{
+  // Begin with the upper strokes. All strokes settle before the next stage.
+  const delay=i/(strokeCount-1)*.23;
+  const local=Math.max(0,Math.min(1,(progress-delay)/.77));
+  const mix=local*local*(3-2*local);
+  const a=samples[index][i],b=samples[target][i];
+  stroke.setAttribute('points',a.points.map((v,j)=>{
+   const next=b.points[j];
+   return (v.x+(next.x-v.x)*mix).toFixed(2)+','+(v.y+(next.y-v.y)*mix).toFixed(2);
+  }).join(' '));
+  stroke.setAttribute('opacity',(Number(a.present)*(1-mix)+Number(b.present)*mix).toFixed(3));
+  stroke.setAttribute('stroke-width',isModern?8:target===stages.length-1?5+3*mix:5);
+  stroke.setAttribute('stroke',isModern?'#86291d':target===stages.length-1?
+    'rgb('+Math.round(52+82*mix)+','+Math.round(39+2*mix)+','+Math.round(32-3*mix)+')':'#342720');
+ });
+}
+
+let elapsed=0, started=null, frame, active=-1;
+function render(){
+ const index=stages.findLastIndex(stage=>stage.time<=elapsed);
+ if(active!==index){
+  active=index;const stage=stages[index];
+  get('stage').textContent=stage.name;get('description').textContent=stage.note;
+  get('glyph').setAttribute('aria-label',stage.name+'字形构形');
+
+  [...get('steps').children].forEach((b,i)=>b.setAttribute('aria-current',i===index));
+ }
+ drawMorph(index,elapsed);
+ get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 30 秒';
+}
+function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=30?'重播':'继续';}
+function tick(){
+ if(started===null)return;
+ elapsed=Math.max(elapsed,Math.min(30,(performance.now()-started)/1000));
+ render();
+ if(elapsed<30)frame=requestAnimationFrame(tick);else pause();
+}
+function start(){if(elapsed>=30)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
+stages.forEach(stage=>{const button=document.createElement('button');button.textContent=stage.name;button.onclick=()=>{const playing=started!==null;pause();elapsed=stage.time;render();if(playing)start();};get('steps').append(button);});
+get('open').onclick=()=>{elapsed=0;player.showModal();start();};
+get('play').onclick=()=>started===null?start():pause();
+get('close').onclick=()=>{pause();player.close();};
+player.addEventListener('cancel',pause);
+player.addEventListener('close',pause);
+
+  block.stopHistory = () => { pause(); if (player.open) player.close(); };
+  return block;
+}
+const glyph = document.getElementById('open-glyph');
+if (glyph && document.getElementById('nian-quanzhou')) attach(glyph.parentElement, '年');
+let previous;
+document.addEventListener('zili:lookup', event => {
+  if (previous) { previous.stopHistory?.(); previous.remove(); }
+  const result = document.getElementById('lookup-result');
+  if (result && event.detail) previous = attach(result, event.detail);
+});
+})();</script>"""
     lookup_ui = (ROOT / "zili-lookup-results.js").read_text(encoding="utf-8")
     lookup_style = """<style>
 .lookup-result:has(.lookup-three){width:100%;max-width:none;box-sizing:border-box;font-size:1.0625rem;line-height:1.65}
