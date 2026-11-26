@@ -72,3 +72,18 @@ html body .page main>details.field-notes:is([data-source-notes],#sources,#journe
 @media(max-width:850px){html body .page main>details.field-notes:is([data-source-notes],#sources,#journey-sources)>ul>li{flex-basis:calc((100% - 18px)/2)}}
 @media(max-width:540px){html body .page main>details.field-notes:is([data-source-notes],#sources,#journey-sources)>ul>li{flex-basis:100%}}
 
+
+html body .page #form .stroke-samples {
+  max-width:780px;margin:24px auto 0;padding-top:14px;display:flex;
+  align-items:center;justify-content:space-around;gap:10px;border-top:3px double #b69b72;
+}
+html body .page #form .stroke-samples[hidden] {display:none}
+.stroke-samples figcaption {font:700 1.05rem/1.5 "Songti SC",serif;color:#654331}
+.stroke-samples>div {display:flex;align-items:center;gap:.6em;color:#36534b;font-size:.9rem}
+.stroke-samples svg {width:clamp(38px,5vw,62px);height:auto;background:#faf4e5;border:1px solid #cbb994;border-radius:3px}
+html body .page #form+section::before {height:clamp(170px,26vw,380px);background-position:50% 40%}
+@media(max-width:540px){
+  html body .page #form .stroke-samples {flex-wrap:wrap}
+  .stroke-samples figcaption {flex:1 0 100%}
+  .stroke-samples>div {flex-direction:column;gap:4px}
+}
