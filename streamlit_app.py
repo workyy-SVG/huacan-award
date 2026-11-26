@@ -477,6 +477,11 @@ st.html("""<style>
 [data-testid="stMainBlockContainer"] { max-width: none; padding: 0; }
 [data-testid="stMainBlockContainer"] [data-testid="stVerticalBlock"] { gap: 0; }
 [data-testid="stHeader"] { display: none; }
+/* Keep the website readable while the Streamlit component waits for Qwen. */
+[data-testid="stElementContainer"][data-stale="true"]:has(iframe[data-testid="stCustomComponentV1"]) {
+    opacity: 1 !important;
+    transition: none !important;
+}
 iframe[data-testid="stIFrame"], iframe[data-testid="stCustomComponentV1"] {
     display: block;
     width: 100%;
