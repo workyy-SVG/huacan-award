@@ -154,23 +154,23 @@ const cuhk=char=>'https://humanum.arts.cuhk.edu.hk/Lexis/lexi-mf/search.php?word
 const catalogue={
  '门':{source:'https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=25079', stages:[
   [0,'早期构形示意','看左右相对的两扇门，古文字的构形可以从这里观察。',doorOutline],
-  [10,'传统写法「門」','比较左右两个部分，看看双扇门的结构怎样保留下来。',men],
-  [21,'简体写法「门」','看现代简体的左竖、横折钩和上方点。',glyph('门')]]},
+  [20/3,'传统写法「門」','比较左右两个部分，看看双扇门的结构怎样保留下来。',men],
+  [42/3,'简体写法「门」','看现代简体的左竖、横折钩和上方点。',glyph('门')]]},
  '茶':{source:'https://dict.variants.moe.edu.tw/dictView.jsp?ID=-37834', stages:[
   [0,'早期用字「荼」示意','古文献中，「荼」有用来记录茶的例子。留意草字头下方的笔画。',[...cha,teaExtra]],
-  [15,'写作「茶」','比较「荼」和「茶」中间的横画。这个过渡用减笔示意说明两种写法的关系。',cha]]},
+  [30/3,'写作「茶」','比较「荼」和「茶」中间的横画。这个过渡用减笔示意说明两种写法的关系。',cha]]},
  '船':{source:cuhk('船'), stages:[
   [0,'部件来源「舟」','先看「舟」的舟船轮廓。同一幕是部件构形示意。',ancientBoat],
-  [10,'船字的舟字旁','把视线移到左侧，现代「船」仍保留舟字旁。',chuan.slice(0,6)],
-  [21,'现代写法「船」','看右半边与舟字旁合在一起，构成今天的「船」。',chuan]]},
+  [20/3,'船字的舟字旁','把视线移到左侧，现代「船」仍保留舟字旁。',chuan.slice(0,6)],
+  [42/3,'现代写法「船」','看右半边与舟字旁合在一起，构成今天的「船」。',chuan]]},
  '灯':{source:cuhk('燈'), stages:[
   [0,'构形观察「火」','先观察左边的火字旁，它提示了这个字的意义。',deng.slice(0,4)],
-  [10,'传统写法「燈」','火表示意义，右边的「登」提示读音。',deng],
-  [21,'简体写法「灯」','火字旁仍保留，右边改写为「丁」。',glyph('灯')]]},
+  [20/3,'传统写法「燈」','火表示意义，右边的「登」提示读音。',deng],
+  [42/3,'简体写法「灯」','火字旁仍保留，右边改写为「丁」。',glyph('灯')]]},
  '圆':{source:cuhk('圓'), stages:[
   [0,'构形观察「員」','先观察传统字形内部的「員」。',yuan.slice(2,-1)],
-  [10,'传统写法「圓」','留意外框「囗」与里面的「員」。',yuan],
-  [21,'简体写法「圆」','外框保留，里面的「員」写成简体「员」。',glyph('圆')]]}
+  [20/3,'传统写法「圓」','留意外框「囗」与里面的「員」。',yuan],
+  [42/3,'简体写法「圆」','外框保留，里面的「員」写成简体「员」。',glyph('圆')]]}
 };
 let stages=[];
 const strokeCount=16, pointsPerStroke=22;
@@ -207,7 +207,7 @@ const drawn = Array.from({length:strokeCount},()=>{
 });
 function drawMorph(index, elapsed){
  const target=Math.min(index+1,stages.length-1);
- const transitionSeconds=index===0?8:6;
+ const transitionSeconds=index===0?stages[1].time:4;
  const progress=target===index?0:Math.max(0,Math.min(1,(elapsed-stages[target].time+transitionSeconds)/transitionSeconds));
  const isModern=index===stages.length-1;
  drawn.forEach((stroke,i)=>{
@@ -238,16 +238,16 @@ function render(){
   [...get('steps').children].forEach((b,i)=>b.setAttribute('aria-current',i===index));
  }
  drawMorph(index,elapsed);
- get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 30 秒';
+ get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 20 秒';
 }
-function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=30?'重播':'继续';}
+function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=20?'重播':'继续';}
 function tick(){
  if(started===null)return;
- elapsed=Math.max(elapsed,Math.min(30,(performance.now()-started)/1000));
+ elapsed=Math.max(elapsed,Math.min(20,(performance.now()-started)/1000));
  render();
- if(elapsed<30)frame=requestAnimationFrame(tick);else pause();
+ if(elapsed<20)frame=requestAnimationFrame(tick);else pause();
 }
-function start(){if(elapsed>=30)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
+function start(){if(elapsed>=20)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
 function loadWord(word){
  const entry=catalogue[word];
  stages=entry.stages.map(([time,name,note])=>({time,name,note}));
@@ -283,14 +283,14 @@ function attach(container, word) {
     block.textContent = '这个字暂未收录可播放的字形资料。';
     return block;
   }
-  block.innerHTML = "<button type=\"button\" id=\"history-open\" aria-haspopup=\"dialog\">播放字形演变</button><dialog id=\"history-player\" aria-label=\"年字的字形演变\">\n<header><h2 >「年」是怎么来的？</h2><button class=\"close\" id=\"history-close\" aria-label=\"关闭并停止播放\">×</button></header>\n<div class=\"screen\"><div class=\"stage\" id=\"history-stage\"></div><svg id=\"history-glyph\" viewBox=\"0 0 180 196\" role=\"img\"></svg><p id=\"history-description\"></p></div>\n<div class=\"steps\" id=\"history-steps\" aria-label=\"切换字形阶段\"></div>\n<progress id=\"history-progress\" max=\"30\" value=\"0\" aria-label=\"播放进度\"></progress>\n<div class=\"controls\"><button id=\"history-play\">暂停</button><span class=\"clock\" id=\"history-clock\">0 秒 / 30 秒</span><a href=\"https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887\" target=\"_blank\" rel=\"noopener\">查看原始字形 →</a></div>\n<p class=\"note\">字形连变为演变示意。各阶段的原始字形可在中央研究院字库查看。</p>\n</dialog>";
+  block.innerHTML = "<button type=\"button\" id=\"history-open\" aria-haspopup=\"dialog\">播放字形演变</button><dialog id=\"history-player\" aria-label=\"年字的字形演变\">\n<header><h2 >「年」是怎么来的？</h2><button class=\"close\" id=\"history-close\" aria-label=\"关闭并停止播放\">×</button></header>\n<div class=\"screen\"><div class=\"stage\" id=\"history-stage\"></div><svg id=\"history-glyph\" viewBox=\"0 0 180 196\" role=\"img\"></svg><p id=\"history-description\"></p></div>\n<div class=\"steps\" id=\"history-steps\" aria-label=\"切换字形阶段\"></div>\n<progress id=\"history-progress\" max=\"20\" value=\"0\" aria-label=\"播放进度\"></progress>\n<div class=\"controls\"><button id=\"history-play\">暂停</button><span class=\"clock\" id=\"history-clock\">0 秒 / 20 秒</span><a href=\"https://chardb.iis.sinica.edu.tw/evolution.jsp?cid=10887\" target=\"_blank\" rel=\"noopener\">查看原始字形 →</a></div>\n<p class=\"note\">字形连变为演变示意。各阶段的原始字形可在中央研究院字库查看。</p>\n</dialog>";
 
 if (word !== '年') { initializeOtherWord(block, word); return block; }
 const stages=[
  {time:0,name:'甲骨文',note:'先看上面的禾，再看下面的人。这个构形像人背着禾，让人想到收成。',art:'<path d="M53 52L123 43M86 27L90 94M89 55L60 87M90 55l30 26M98 102L83 126L67 153M83 126L112 166"/>'},
- {time:8,name:'金文',note:'比较上下两部分：上部仍可看出禾的形态，下部保留了人形。',art:'<path d="M48 53Q79 50 128 45M88 24Q86 59 95 99M89 55Q78 75 54 89M90 55Q107 73 129 82M104 96Q102 122 65 166M91 126Q104 154 120 170"/>'},
- {time:16,name:'小篆',note:'留意下部：小篆这一写法中，下部呈「千」形。',art:'<path d="M57 51Q84 52 122 42M90 29Q88 65 91 91M88 57Q73 76 52 83M91 57Q105 75 127 83M72 111Q93 105 108 103M60 133Q83 134 123 127M93 109Q100 143 92 169"/>'},
- {time:23,name:'现代写法',note:'今天写作「年」。再回看最初的构形，就能比较古今写法的差别。',art:'<text x="90" y="153" text-anchor="middle" stroke="none" fill="#86291d" font-size="150" font-family="KaiTi,STKaiti,serif">年</text>'}
+ {time:16/3,name:'金文',note:'比较上下两部分：上部仍可看出禾的形态，下部保留了人形。',art:'<path d="M48 53Q79 50 128 45M88 24Q86 59 95 99M89 55Q78 75 54 89M90 55Q107 73 129 82M104 96Q102 122 65 166M91 126Q104 154 120 170"/>'},
+ {time:32/3,name:'小篆',note:'留意下部：小篆这一写法中，下部呈「千」形。',art:'<path d="M57 51Q84 52 122 42M90 29Q88 65 91 91M88 57Q73 76 52 83M91 57Q105 75 127 83M72 111Q93 105 108 103M60 133Q83 134 123 127M93 109Q100 143 92 169"/>'},
+ {time:46/3,name:'现代写法',note:'今天写作「年」。再回看最初的构形，就能比较古今写法的差别。',art:'<text x="90" y="153" text-anchor="middle" stroke="none" fill="#86291d" font-size="150" font-family="KaiTi,STKaiti,serif">年</text>'}
 ];
 // Sample each visible stroke so adjacent frames can share the same geometry.
 const modernStrokes = 'M65 36Q62 57 45 75 M62 58Q91 55 127 46 M62 89Q89 86 121 81 M65 90L62 122 M37 126Q88 118 144 118 M96 59Q97 108 91 167';
@@ -321,7 +321,7 @@ const drawn = Array.from({length:strokeCount},()=>{
 });
 function drawMorph(index, elapsed){
  const target=Math.min(index+1,stages.length-1);
- const transitionSeconds=index===0?8:6;
+ const transitionSeconds=index===0?stages[1].time:4;
  const progress=target===index?0:Math.max(0,Math.min(1,(elapsed-stages[target].time+transitionSeconds)/transitionSeconds));
  const isModern=index===stages.length-1;
  drawn.forEach((stroke,i)=>{
@@ -352,16 +352,16 @@ function render(){
   [...get('steps').children].forEach((b,i)=>b.setAttribute('aria-current',i===index));
  }
  drawMorph(index,elapsed);
- get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 30 秒';
+ get('progress').value=elapsed;get('clock').textContent=Math.floor(elapsed)+' 秒 / 20 秒';
 }
-function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=30?'重播':'继续';}
+function pause(){cancelAnimationFrame(frame);started=null;get('play').textContent=elapsed>=20?'重播':'继续';}
 function tick(){
  if(started===null)return;
- elapsed=Math.max(elapsed,Math.min(30,(performance.now()-started)/1000));
+ elapsed=Math.max(elapsed,Math.min(20,(performance.now()-started)/1000));
  render();
- if(elapsed<30)frame=requestAnimationFrame(tick);else pause();
+ if(elapsed<20)frame=requestAnimationFrame(tick);else pause();
 }
-function start(){if(elapsed>=30)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
+function start(){if(elapsed>=20)elapsed=0;started=performance.now()-elapsed*1000;render();get('play').textContent='暂停';frame=requestAnimationFrame(tick);}
 stages.forEach(stage=>{const button=document.createElement('button');button.textContent=stage.name;button.onclick=()=>{const playing=started!==null;pause();elapsed=stage.time;render();if(playing)start();};get('steps').append(button);});
 get('open').onclick=()=>{elapsed=0;player.showModal();start();};
 get('play').onclick=()=>started===null?start():pause();
