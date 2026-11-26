@@ -483,7 +483,8 @@ iframe[data-testid="stIFrame"] {
 }
 </style>""")
 site_payload = bundle_site(site_version())
-render_html("""<!doctype html><meta charset="utf-8"><style>
+release_html = ROOT / "published-theme.html"
+render_html(release_html.read_text(encoding="utf-8") if release_html.is_file() else """<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
 #layout{display:grid;grid-template-columns:clamp(244px,24vw,320px) minmax(0,1fr);height:100dvh}
