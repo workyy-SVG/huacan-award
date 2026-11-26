@@ -504,7 +504,12 @@ def published_story_theme(path):
             + gradient
         )
         html = html.replace(original, extended)
-    return html
+    source_style = "html body .page details:is([data-source-notes],#sources,#journey-sources){color:#172c3a;font-size:17px;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources)>summary{color:#172c3a;font-weight:700}html body .page details:is([data-source-notes],#sources,#journey-sources) :is(li,p){color:#172c3a;font-size:inherit;font-weight:500}html body .page details:is([data-source-notes],#sources,#journey-sources) a{color:#70271e;font-weight:700;text-underline-offset:.15em}"
+    return html.replace(
+        "themeCSS+(storyArt[page]||'')",
+        "themeCSS+(storyArt[page]||'')" + " + (storyArt[page] ? " + json.dumps(source_style) + " : '')",
+        1,
+    )
 
 
 release_html = ROOT / "published-theme.html"
