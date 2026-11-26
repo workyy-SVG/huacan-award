@@ -26,9 +26,11 @@ def render(story, selected="nian-jinmen"):
     template = template[:records.start(2)] + data.replace("<", r"\u003c") + template[records.end(2):]
     for case_id, uri in images.items():
         template = template.replace(f'src="{case_id}.webp"', f'src="{uri}"')
-    for name in ("coast.webp", "lantern.webp"):
+    for name in ("coast.webp", "lantern.webp", "nian-quanzhou.webp"):
         styles = styles.replace(f"url({name})", f'url("{image_uri(name)}")')
     config = json.dumps({"selected": selected})
     return (template.replace('<link rel="stylesheet" href="style.css">', f"<style>{styles}</style>")
             .replace('<script defer src="app.js"></script>', "")
             .replace("</body>", f"<script>const embedded = {config};\n{script}</script></body>"))
+
+
