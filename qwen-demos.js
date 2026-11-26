@@ -146,7 +146,9 @@
     panel(doc.getElementById('keepsake'), 'story', '问问这个字', storyPresets[story], true);
   }
   if (page === 'regions.html') {
-    panel(doc.getElementById('habit-search'), 'search', '用一句话找故事', ['帮我找和端午划船有关的故事', '帮我找春节贴春联的故事', '哪里有龙舟竞渡的故事？', '想读香港大澳的龙舟故事', '想了解澳门的端午划船习俗', '泉州除夕怎么贴春联？', '台湾的门贴有什么故事？', '有哪些门贴和迎新年的故事？']);
+    const keywordSearch = doc.getElementById('habit-search');
+    panel(keywordSearch, 'search', '用一句话找故事', ['帮我找和端午划船有关的故事', '帮我找春节贴春联的故事', '哪里有龙舟竞渡的故事？', '想读香港大澳的龙舟故事', '想了解澳门的端午划船习俗', '泉州除夕怎么贴春联？', '台湾的门贴有什么故事？', '有哪些门贴和迎新年的故事？']);
+    keywordSearch?.remove();
   }
   if (lookup) {
     const help = panel(lookup, 'lookup', '千问讲解', ['用大白话讲讲这个字', '给我两个日常例句', '这个字是什么意思？', '怎么给小学生讲这个字？', '用一句话解释这个字', '这个字可以怎么用？给个例句', '用这个字造两个句子', '给我适合朗读的例句']);
