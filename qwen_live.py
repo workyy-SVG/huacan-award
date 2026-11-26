@@ -2,6 +2,8 @@
 import json
 import logging
 import os
+import re
+from time import sleep
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
@@ -98,25 +100,42 @@ def answer(request, catalogue, secrets):
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
         method="POST",
     )
-    try:
-        with urlopen(call, timeout=22) as response:
-            text = json.load(response)["choices"][0]["message"]["content"].strip()
-        if mode == "search":
-            ids = json.loads(text.removeprefix("```json").removesuffix("```").strip())["ids"]
-            by_id = {item["id"]: item for item in records}
-            matched = [by_id[i] for i in ids[:5] if type(i) is int and i in by_id]
-            return {"records": matched}
-        if mode == "story":
-            import re
-            cited = {int(i) for i in re.findall(r"\[(\d+)\]", text)}
-            return {"text": text, "sources": [item for item in records if item["id"] in cited]}
-        return {"text": text}
-    except HTTPError as error:
-        logging.warning("Qwen HTTP status: %s", error.code)
-        if error.code in (401, 403):
-            return {"error": "千问鉴权失败，请检查密钥、模型权限和调用地址。"}
-        if error.code == 429:
-            return {"error": "千问请求较多或已达到额度，请稍后再试。"}
-    except (URLError, TimeoutError, ValueError, KeyError, IndexError, TypeError, AttributeError):
-        logging.warning("Qwen request failed or returned unexpected data.")
-    return {"error": "暂时未能取得千问回答，请稍后重试。"}
+    for attempt in range(2):
+        try:
+            with urlopen(call, timeout=15) as response:
+                text = json.load(response)["choices"][0]["message"]["content"].strip()
+            if not text:
+                raise ValueError("Empty answer")
+            if mode == "search":
+                ids = json.loads(text.removeprefix("```json").removesuffix("```").strip())["ids"]
+                by_id = {item["id"]: item for item in records}
+                matched = [by_id[i] for i in ids[:5] if type(i) is int and i in by_id]
+                return {"records": matched}
+            if mode == "story":
+                cited = {int(i) for i in re.findall(r"\[(\d+)\]", text)}
+                return {"text": text, "sources": [item for item in records if item["id"] in cited]}
+            return {"text": text}
+        except HTTPError as error:
+            try:
+                detail = json.loads(error.read(8192)).get("error", {})
+                code = detail.get("code", "") if isinstance(detail, dict) else ""
+            except (ValueError, AttributeError):
+                code = ""
+            code = code if isinstance(code, str) and re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", code) else ""
+            logging.warning("Qwen HTTP status: %s, error code: %s", error.code, code)
+            if code in ("Arrearage", "AllocationQuota.FreeTierOnly", "insufficient_quota"):
+                return {"error": "百炼账户余额或模型额度不足，请管理员检查百炼账单和用量。"}
+            if error.code in (401, 403):
+                return {"error": "百炼拒绝了调用，请管理员核对密钥、业务空间和模型权限。"}
+            if error.code in (400, 404):
+                suffix = f"（百炼错误码：{code}）" if code else f"（HTTP {error.code}）"
+                return {"error": "百炼拒绝了请求，请管理员核对 QWEN_MODEL 和调用地址。" + suffix}
+            if error.code not in (408, 429, 500, 502, 503, 504):
+                return {"error": f"百炼调用失败（HTTP {error.code}），请管理员查看应用日志。"}
+            if attempt and error.code == 429:
+                return {"error": "百炼暂时限流，请稍后再试。若持续出现，请管理员检查调用额度。"}
+        except (URLError, TimeoutError, ValueError, KeyError, IndexError, TypeError, AttributeError) as error:
+            logging.warning("Qwen request failed: %s", type(error).__name__)
+        if not attempt:
+            sleep(0.4)
+    return {"error": "已自动重试一次，仍未收到千问回答。请稍后重试，若持续出现请管理员检查百炼服务日志。"}
