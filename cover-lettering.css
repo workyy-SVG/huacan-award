@@ -1,16 +1,15 @@
-/* A four-character cartouche over the relief map. */
-.terrain-heading .atlas-wordmark {
-  display:inline-flex;align-items:center;gap:.07em;padding:.08em .15em .12em;
-  font:700 clamp(40px,6.4vw,100px)/1.1 "STKaiti","KaiTi","Songti SC",serif;
-  letter-spacing:0;color:#fff0cf;text-shadow:0 2px 2px #3b281b,0 5px 14px #152927;
+/* Keep the calligraphy legible against the terrain. */
+.terrain-heading h1 {
+  display:inline-block;
+  color:#fff2d5;
+  text-shadow:0 2px #654f38,0 5px 18px #071c28,0 0 36px #071c2866;
 }
-.atlas-wordmark span:first-child {transform:rotate(-6deg) translateY(-.035em)}
-.atlas-wordmark span:nth-child(2) {font-size:.82em;align-self:end}
-.atlas-wordmark span:nth-child(3) {transform:rotate(-3deg)}
-.atlas-wordmark .seal-word {
-  font-size:.74em;padding:.12em .09em .09em;margin-inline-start:.07em;
-  color:#fff0d7;background:#913d2d;border:3px double #efd9b2;border-radius:9% 15% 12% 5%;
-  transform:rotate(5deg);box-shadow:0 2px 10px #1a1b1b66;text-shadow:none;
+.terrain-heading h1::after {
+  content:"";
+  display:block;
+  width:68%;
+  height:5px;
+  margin:.12em auto 0;
+  border-block:1px solid #e9c990;
+  mask-image:linear-gradient(90deg,transparent,#000 24% 76%,transparent);
 }
-.terrain-heading .atlas-rule {display:block;width:75%;height:18px;margin:0 auto;color:#ead09d;filter:drop-shadow(0 1px 2px #342e23)}
-.terrain-heading .atlas-rule+p {margin-top:0;letter-spacing:.28em;color:#fff4df}

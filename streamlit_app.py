@@ -495,6 +495,8 @@ def published_story_theme(_path, story, version):
         asset = ROOT / "static" / "atlas" / name
         with Image.open(asset) as picture:
             limit = 1920 if name.startswith(("home-", "plate-")) else 1100
+            if name.endswith("-theme.jpg"):
+                limit = 3840
             picture.thumbnail((limit, limit), Image.Resampling.LANCZOS)
             output = BytesIO()
             picture.save(output, "WEBP", quality=82)
@@ -512,7 +514,20 @@ def published_story_theme(_path, story, version):
         encoded = base64.b64encode(gzip.compress(site.encode("utf-8"), compresslevel=1, mtime=0)).decode("ascii")
         return match.group(1) + encoded + match.group(3)
 
+    label = "const storyArt = "
+    start = html.index(label) + len(label)
+    story_art, length = json.JSONDecoder().raw_decode(html[start:])
+    year_css = story_art["nian.html"]
+    story_art["nian.html"] = re.sub(
+        r'data:[^"]+(?="\) center 48%/cover no-repeat;)',
+        "app/static/atlas/nian-theme.jpg",
+        year_css,
+    )
+    html = html[:start] + json.dumps(story_art) + html[start + length:]
     html = packed.sub(embed_packed, atlas_path.sub(embed_atlas, html), count=1)
+    cover_style = (ROOT / "cover-lettering.css").read_text(encoding="utf-8-sig")
+    heading = '<header class="terrain-heading">'
+    html = html.replace(heading, "<style>" + cover_style + "</style>" + heading, 1)
     accents = {
         "#f5dcc0": "#ad623a", "#efdfcb": "#984737",
         "#e6e8d6": "#527259", "#dce9e7": "#34647a",
