@@ -45,6 +45,22 @@ html body .folio-grid .actions {margin-top:auto;padding-top:12px}
 #photo-view button {float:right;min-height:40px;padding:4px 16px}
 @media(max-width:800px){html body main .gallery #records .folio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){html body main .gallery #records .folio-grid{grid-template-columns:1fr}}
+</style><style>
+html body main .gallery #records .folio {--thread:#99734a;--wash:#f8f2df;background:radial-gradient(ellipse at 50% 15%,#fffcf3 0,transparent 62%),var(--wash);padding:clamp(16px,3vw,40px);border-block:3px double #ac9a77}
+html body main .gallery #records .folio:nth-child(even){--thread:#53746e;--wash:#e8f0e9}
+html body main .gallery #records .folio-grid{gap:24px 0;position:relative;padding-top:12px}
+html body main .gallery #records .folio-grid article{background:transparent;border:0;padding:0 6px;align-items:center;text-align:center;box-shadow:none}
+html body main .gallery #records .folio-grid article::before{content:"";position:absolute;inset:clamp(48px,7vw,82px) 0 auto;height:2px;border-top:2px dashed var(--thread);pointer-events:none}
+html body main .gallery #records .folio-grid .image-open{width:clamp(86px,13vw,162px);aspect-ratio:1;overflow:hidden;border-radius:50%;border:4px solid #fff9ed;outline:1px solid var(--thread);background:#eee6d1}
+html body main .gallery #records .image-open img{height:100%;width:100%;object-fit:cover}
+html body main .gallery #records .image-open::after{right:18%;bottom:5%;border-radius:50%;font-size:12px}
+html body main .gallery #records .station{border:0;background:transparent;color:#304b49;cursor:pointer;padding:6px 3px;font:600 clamp(15px,1.6vw,21px)/1.5 KaiTi,serif}
+.station .token{display:inline-grid;place-items:center;margin-inline-end:5px;width:1.6em;height:1.6em;border:1px solid #9b7458;border-radius:50%;color:#754332}
+.station[aria-pressed=true] .token{color:white;background:#8a402e}
+html body main .gallery #records .folio-reader{margin:26px 0 0;padding:22px clamp(12px,3vw,40px);border-block:1px solid var(--thread);background:linear-gradient(90deg,#fffaf0aa,transparent)}
+.folio-reader .place{color:#864330;font-weight:700}.folio-reader .summary{max-width:56em;line-height:1.9}.folio-reader .actions{display:flex;gap:18px;flex-wrap:wrap}
+@media(max-width:800px){html body main .gallery #records .folio-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:540px){html body main .gallery #records .folio-grid .image-open{width:min(19vw,90px)}html body main .gallery #records .folio-grid article::before{top:9vw}.station .token{display:grid;margin:0 auto 3px}}
 </style></head><body>
 <main><h1>四海故事</h1><p class="intro">按习俗、汉字或地区找故事。</p>
 <div class="gallery"><aside class="region"><h2>按地区浏览</h2><div id="region" class="filters" role="group" aria-label="地区"></div></aside>
@@ -140,6 +156,11 @@ async function loadCatalogue() {
         element('h2',name,section);
         const grid = element('div','',section);
         grid.className = 'folio-grid';
+        const reader = element('div','',section);
+        reader.className = 'folio-reader';
+        reader.setAttribute('aria-live','polite');
+        const hint = element('p','点选字章读故事，点照片看大图。',section);
+        section.insertBefore(hint,grid);
         for (const item of matches) {
         const tile = element('article', '', grid);
         tile.className = 'tile';
@@ -158,14 +179,26 @@ async function loadCatalogue() {
             viewer.showModal();
           };
         }
-        element('p', item.place + ' · ' + item.character, tile).className = 'place';
-        element('h2', item.title, tile);
-        element('p', item.body + (notes[item.title+item.place] || ''), tile).className = 'summary';
-        const actions = element('div', '', tile);
-        actions.className = 'actions';
-        const chosen = data.cases.find(entry => entry.character === item.character);
-        if (chosen) link(chosen.url, '查看精选故事 →', actions);
-        link(item.source, '查看出处', actions);
+        const station = element('button','',tile);
+        station.className = 'station';
+        station.type = 'button';
+        element('span',item.character,station).className = 'token';
+        station.append(document.createTextNode(item.title));
+        station.setAttribute('aria-pressed','false');
+        function showStory() {
+          for (const button of grid.querySelectorAll('.station')) button.setAttribute('aria-pressed',String(button===station));
+          reader.replaceChildren();
+          element('p',item.place+' · '+item.character,reader).className='place';
+          element('h3',item.title,reader);
+          element('p',item.body+(notes[item.title+item.place]||''),reader).className='summary';
+          const actions=element('div','',reader);
+          actions.className='actions';
+          const chosen=data.cases.find(entry=>entry.character===item.character);
+          if(chosen) link(chosen.url,'查看精选故事 →',actions);
+          link(item.source,'查看出处',actions);
+        }
+        station.onclick=showStory;
+        if(item===matches[0]) showStory();
         }
       }
     }

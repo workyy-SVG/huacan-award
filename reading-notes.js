@@ -70,3 +70,6 @@ if (glyphCell) {
   drawSamples();
   new MutationObserver(drawSamples).observe(glyphCell,{subtree:true,characterData:true,childList:true});
 }
+
+const keepsakeTitle = doc.querySelector('#keepsake > h2');
+if (keepsakeTitle) keepsakeTitle.insertAdjacentHTML('afterend', "<style>.track-guide{margin:12px 0 22px;padding:16px 20px;background:#f5edde;border-inline-start:4px solid #96503c;color:#344943}.track-guide p{margin:0 0 14px;line-height:1.7}.track-guide ol{display:flex;flex-wrap:wrap;gap:10px 18px;list-style:none;padding:0;margin:0 0 12px}.track-guide li{font-weight:600}.track-guide li+li:before{content:'→';margin-right:12px;color:#946444}.track-guide span{color:#894331}.track-guide small{color:#605644}@media(max-width:600px){.track-guide ol{display:grid}.track-guide li+li:before{content:none}}</style><div class=\"track-guide\"><p><b>寻踪卡是你的民俗收藏笔记。</b>把一个字在某地的生活故事留下，之后可以从收藏中回到原文。</p><ol aria-label=\"使用寻踪卡的三个步骤\"><li><span>①</span> 选一则地方记录</li><li><span>②</span> 保存寻踪记录</li><li><span>③</span> 打开已保存的寻踪卡回看</li></ol><small>收藏保存在当前浏览器中。</small></div>");
