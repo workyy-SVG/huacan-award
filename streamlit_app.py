@@ -859,7 +859,10 @@ if release_html.is_file():
     version = tuple((str(path.relative_to(ROOT)), path.stat().st_mtime_ns, path.stat().st_size) for path in sorted(set(assets)))
     story = st.query_params.get("story", "")
     site = declare_component("zili_site", path=str(ROOT / "qwen-component"))
-    @st.fragment(run_every=0.25 if st.session_state.get('speech_stream_job') else None)
+    # Keep the component in one fragment for its entire lifetime. Switching the
+    # polling schedule via an app-wide rerun can unmount its nested website and
+    # AudioContext while a cancelled request and its replacement are in flight.
+    @st.fragment(run_every=0.25)
     def render_connected_site():
         previous = st.session_state.get("qwen_response")
         job = st.session_state.get('speech_stream_job')
@@ -886,22 +889,23 @@ if release_html.is_file():
                         from speech_stream import SpeechStream
                         st.session_state.speech_stream_job=SpeechStream(request,st.secrets)
                     else:st.session_state.speech_stream_job=None
-                    st.rerun()
+                    # The next fragment tick will drain the new worker. Do not
+                    # restart the app (and its live website) for a speech command.
+                    return
                 if job and job.done and job.queue.empty() and previous and previous.get('done'):
                     st.session_state.speech_stream_job=None
-                    st.rerun()
+                    return
                 return
             if request.get('mode') == 'bootstrap':
                 if st.session_state.get('site_bootstrap_id') != request['id']:
                     st.session_state.site_bootstrap_id = request['id']
                     st.session_state.site_html_key = None
-                    st.rerun()
-                st.stop()
+                return
             if not previous or request["id"] != previous["id"]:
                 if request.get('mode') == 'tts':
                     from cloud_tts import synthesize
                     st.session_state.qwen_response = {'id': request['id'], **synthesize(request, st.secrets)}
-                    st.rerun()
+                    return
                 # Reuse successful answers to the same question in this browser session.
                 catalogue_bytes = (ROOT / "cases.json").read_bytes()
                 catalogue = json.loads(catalogue_bytes)
@@ -929,10 +933,10 @@ if release_html.is_file():
                             answers.pop(next(iter(answers)))
                         answers[signature] = (time(), response)
                 st.session_state.qwen_response = {"id": request["id"], **response}
-                st.rerun()
+                return
         if job and job.done and job.queue.empty() and previous and previous.get('stream') and previous.get('done'):
             st.session_state.speech_stream_job=None
-            st.rerun()
+            return
     render_connected_site()
     st.stop()
 
