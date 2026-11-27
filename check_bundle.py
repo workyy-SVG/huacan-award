@@ -16,6 +16,7 @@ function.decorator_list=[]
 exec(compile(ast.Module(body=[function],type_ignores=[]),'renderer','exec'))
 html=published_story_theme(ROOT/'published-theme.html','',())
 assert 'data-tab="guide"' in html
+assert "button.id = 'script-switch'" not in html
 release_payload = json.loads(gzip.decompress(base64.b64decode(re.search(r"const packed = '([^']+)'",html)[1])))
 assert '用户交互流程图' in release_payload['pages']['guide.html']
 assert 'OpenCC.Converter' in html
