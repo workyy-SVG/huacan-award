@@ -53,7 +53,13 @@ function bindZiliVoiceGuide(doc){
   const launch=get('.zv-launch'),panel=get('#zv-panel'),status=get('.zv-status'),segments=get('.zv-segments'),play=get('.zv-play');
   let entries=[],currentState='idle',highlighted=null,voices=[],selectedVoice='';
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
-  function visible(node){return node.isConnected&&!node.closest('#zili-voice-assistant,[hidden],[aria-hidden="true"],nav,aside,form,dialog,script,style')&&node.getClientRects().length>0&&view.getComputedStyle(node).visibility!=='hidden';}
+  function visible(node){
+    if(!node.isConnected||node.closest('#zili-voice-assistant,[hidden],[aria-hidden="true"],nav,aside,form,dialog,script,style'))return false;
+    for(let ancestor=node.parentElement;ancestor;ancestor=ancestor.parentElement){
+      if(ancestor.tagName==='DETAILS'&&!ancestor.open&&!ancestor.querySelector('summary')?.contains(node))return false;
+    }
+    return node.getClientRects().length>0&&view.getComputedStyle(node).visibility!=='hidden';
+  }
   function collect(){
     const scope=doc.body.classList.contains('lookup-only')?doc.querySelector('#story-lookup'):doc.querySelector('main')||doc.querySelector('.page')||doc.body;
     if(!scope)return [];
