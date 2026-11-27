@@ -61,6 +61,14 @@ html body main .gallery #records .folio-reader{margin:26px 0 0;padding:22px clam
 .folio-reader .place{color:#864330;font-weight:700}.folio-reader .summary{max-width:56em;line-height:1.9}.folio-reader .actions{display:flex;gap:18px;flex-wrap:wrap}
 @media(max-width:800px){html body main .gallery #records .folio-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:540px){html body main .gallery #records .folio-grid .image-open{width:min(19vw,90px)}html body main .gallery #records .folio-grid article::before{top:9vw}.station .token{display:grid;margin:0 auto 3px}}
+</style><style>
+html body main .gallery #records .folio-grid {--disc:clamp(125px,18vw,252px);row-gap:32px}
+html body main .gallery #records .folio-grid .image-open {width:min(94%,var(--disc))}
+html body main .gallery #records .folio-grid article::before {top:calc(var(--disc)/2)}
+html body main .gallery #records .folio-grid .station {font-size:clamp(19px,2vw,28px);line-height:1.45;padding:12px 3px 0;text-wrap:balance}
+html body main .gallery #records .folio-reader h3 {font-size:clamp(23px,2.2vw,32px);line-height:1.4}
+html body main .gallery #records .folio-reader :is(.summary,.place,.actions),html body main .gallery #records .folio>p {font-size:clamp(17px,1.45vw,21px);line-height:1.8}
+@media(max-width:600px){html body main .gallery #records .folio-grid {grid-template-columns:repeat(2,minmax(0,1fr));--disc:clamp(90px,30vw,165px);row-gap:21px}}
 </style></head><body>
 <main><h1>四海故事</h1><p class="intro">按习俗、汉字或地区找故事。</p>
 <div class="gallery"><aside class="region"><h2>按地区浏览</h2><div id="region" class="filters" role="group" aria-label="地区"></div></aside>
