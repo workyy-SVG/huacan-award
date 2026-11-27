@@ -1,0 +1,322 @@
+{
+  "approved-cover.jpg": {
+    "file": "approved-cover-ad50da20ef76.webp",
+    "source_sha256": "ad50da20ef76df6f9b4b7bdf26eacb608c15b260353a79a6acebfbd1519432c5"
+  },
+  "central-map-blue.jpg": {
+    "file": "central-map-blue-aa4f7c043698.webp",
+    "source_sha256": "aa4f7c0436981d4f208bd454668406711a0e25ef7d09c0e4c805097a96093103"
+  },
+  "central-map-clean.jpg": {
+    "file": "central-map-clean-34a568dc5bc2.webp",
+    "source_sha256": "34a568dc5bc292e0f7fa87b0499ac45bb37d6e1045bf677db5b7dd10a06983f6"
+  },
+  "cha-1-regional.jpg": {
+    "file": "cha-1-regional-a5efc7156c32.webp",
+    "source_sha256": "a5efc7156c3270f3d6d1b2d567968dfb050db12204952c8999935dc42c95d484"
+  },
+  "cha-2-regional.jpg": {
+    "file": "cha-2-regional-864cdd74c716.webp",
+    "source_sha256": "864cdd74c71679cd22654fa552ea05abb56424a0468675ebeb719093d144b58e"
+  },
+  "cha-4-regional.jpg": {
+    "file": "cha-4-regional-ba59208c624b.webp",
+    "source_sha256": "ba59208c624b8b9a2a67544dcf3f7c64576c6abce990fc950dbcb19c7c4ff899"
+  },
+  "cha-5-regional.jpg": {
+    "file": "cha-5-regional-1008fc822ad7.webp",
+    "source_sha256": "1008fc822ad7ee4c19946740b8838dd0a45ff0a56283bdc77e5683f3e3822a1a"
+  },
+  "cha-hongkong-restored.jpg": {
+    "file": "cha-hongkong-restored-fe115a44542a.webp",
+    "source_sha256": "fe115a44542ac4c2144c33172ba5f4557b9efdaefc8c7fc04155efb6a3c4ea0e"
+  },
+  "cha-scene-1.jpg": {
+    "file": "cha-scene-1-dd38853a767d.webp",
+    "source_sha256": "dd38853a767dff18b6b8ce51cac0028bb2430a2134ef291b3ec10fe126821b85"
+  },
+  "cha-scene-2.jpg": {
+    "file": "cha-scene-2-8a862c67cb37.webp",
+    "source_sha256": "8a862c67cb37182827e833afbcdbed273e710925bd0fb2e85e1a9b9dd37af6c4"
+  },
+  "cha-scene-3.jpg": {
+    "file": "cha-scene-3-a60f6e7d9518.webp",
+    "source_sha256": "a60f6e7d95189cf5556dccc049fa37cafacb348506e9db480a3a384a0a2710cb"
+  },
+  "cha-strip.jpg": {
+    "file": "cha-strip-25621b511986.webp",
+    "source_sha256": "25621b511986489d831cbe302c3e4b05984d29830db29813e514acd4fa84b665"
+  },
+  "cha-theme.jpg": {
+    "file": "cha-theme-2c092506838d.webp",
+    "source_sha256": "2c092506838d9337bd5b7ce2b11151ea7a67299ccf7c72811f790abe684e0699"
+  },
+  "chuan-1-regional.jpg": {
+    "file": "chuan-1-regional-81279716bfc9.webp",
+    "source_sha256": "81279716bfc9a7172e5e7c3bb8b95891c2a9e4b8f7e0d08280588f99830f3631"
+  },
+  "chuan-2-regional.jpg": {
+    "file": "chuan-2-regional-5fc9f007dda8.webp",
+    "source_sha256": "5fc9f007dda8321bb1d3361fd2b2ea4e9c2e47b25cb8498f1770384dc74c8b31"
+  },
+  "chuan-3-regional.jpg": {
+    "file": "chuan-3-regional-97be94d5a859.webp",
+    "source_sha256": "97be94d5a85922cdd2bc24a57644a7585a6595b2b5ed0cd697d5f7840acad40d"
+  },
+  "chuan-4-regional.jpg": {
+    "file": "chuan-4-regional-7b12043c31c5.webp",
+    "source_sha256": "7b12043c31c513847bd1f7db399567d8fba980f3a78de0d8611b3bdd69dcf4e7"
+  },
+  "chuan-5-regional.jpg": {
+    "file": "chuan-5-regional-54193b73f1eb.webp",
+    "source_sha256": "54193b73f1eb7e4ca35c09f511c49a3957ee84fa0eb3a196431e85bf8bbf075e"
+  },
+  "chuan-scene-1.jpg": {
+    "file": "chuan-scene-1-3b59c95297be.webp",
+    "source_sha256": "3b59c95297bec8b328153bc732766465822a1cf2a2554ddc3aeaba64f50cd5e6"
+  },
+  "chuan-scene-2.jpg": {
+    "file": "chuan-scene-2-5b49861c48cc.webp",
+    "source_sha256": "5b49861c48ccfd6e077f5fa57bab905699913f268e6b913b8750d9cc5b6eebc9"
+  },
+  "chuan-scene-3.jpg": {
+    "file": "chuan-scene-3-99de98d7fc96.webp",
+    "source_sha256": "99de98d7fc969b42f09111097feafdfa26fecf2207d6eb1bfb9f88770e6de071"
+  },
+  "chuan-scene-4.jpg": {
+    "file": "chuan-scene-4-5f33871accec.webp",
+    "source_sha256": "5f33871accec444dd8ea4862d6eeb77eeea445c5cfca90d91d91ba9ceace817c"
+  },
+  "chuan-strip.jpg": {
+    "file": "chuan-strip-c5bf2b6d5331.webp",
+    "source_sha256": "c5bf2b6d5331ac0d8ad07010d40beb7feb23c3df1b3feaf906a69f1dcb43d641"
+  },
+  "chuan-theme.jpg": {
+    "file": "chuan-theme-b18f99deab41.webp",
+    "source_sha256": "b18f99deab41c3510b822741bb539b93a40468b465de2712a30249943507e20c"
+  },
+  "coast.jpg": {
+    "file": "coast-9390d9b0bff0.webp",
+    "source_sha256": "9390d9b0bff07eb4bf350c0fa1eb44241d818b18103c1f49a100fa19b9375f97"
+  },
+  "deng-1-regional.jpg": {
+    "file": "deng-1-regional-017ebac2e69a.webp",
+    "source_sha256": "017ebac2e69a87597c3c372778aa2f9c60427ab9d4b32887eb446938f337f7e4"
+  },
+  "deng-2-regional.jpg": {
+    "file": "deng-2-regional-ad6a507e4941.webp",
+    "source_sha256": "ad6a507e49413009cc1423e7c6a7fc6f83d48118c2bf8e0c15d79c41ffaa95d7"
+  },
+  "deng-3-regional.jpg": {
+    "file": "deng-3-regional-425e07ef3d81.webp",
+    "source_sha256": "425e07ef3d814a665bea82e0bb3fb595e7c44a77320a3c714ada6a6332c7911f"
+  },
+  "deng-4-regional.jpg": {
+    "file": "deng-4-regional-f6ac59215736.webp",
+    "source_sha256": "f6ac592157365deaebdceef1afb113d48533e202d9a3bf15aaac1a69bf294218"
+  },
+  "deng-5-regional.jpg": {
+    "file": "deng-5-regional-ce9a1d50c5c2.webp",
+    "source_sha256": "ce9a1d50c5c25f4f65f4f857e2ec4a3bbe82724b2df2f55e1cdd52921dde40a4"
+  },
+  "deng-scene-1.jpg": {
+    "file": "deng-scene-1-b3c721f31663.webp",
+    "source_sha256": "b3c721f316631656da24f998b9994870c6ef1a611b0b90e39979d128a2acb0f1"
+  },
+  "deng-scene-2.jpg": {
+    "file": "deng-scene-2-7d4254e67f32.webp",
+    "source_sha256": "7d4254e67f32c88f84f301aa25a00f494833ab62e0863468a60b1d61892b3a81"
+  },
+  "deng-scene-3.jpg": {
+    "file": "deng-scene-3-080a0c2f91cf.webp",
+    "source_sha256": "080a0c2f91cf40ef7427e0bdda6c732e7f152d260722f029f5d89b4f909863aa"
+  },
+  "deng-scene-4.jpg": {
+    "file": "deng-scene-4-52bf590c409b.webp",
+    "source_sha256": "52bf590c409b6d96d9d258835e49b6269fa98184b2db018a9d3b1313964ba478"
+  },
+  "deng-strip.jpg": {
+    "file": "deng-strip-6854719d780b.webp",
+    "source_sha256": "6854719d780b48fc6ca4bdab735faa673b6f231ae4f45f4009afe8a449b0aa3d"
+  },
+  "deng-theme.jpg": {
+    "file": "deng-theme-1fc72fe95802.webp",
+    "source_sha256": "1fc72fe95802e5e7b533765ee285b2d41cc29ef06d9a7d4e34e6a004c32f9193"
+  },
+  "globe-cover-reference.jpg": {
+    "file": "globe-cover-reference-113235dd613d.webp",
+    "source_sha256": "113235dd613dfd166ea1ef399cd4f700f94cf5d2cd2aca41e80117d1b263aaad"
+  },
+  "home-hongkong.jpg": {
+    "file": "home-hongkong-0b290816abd5.webp",
+    "source_sha256": "0b290816abd5ee4653940abd6f12b17edeac2254a80d48811c3c6630e088d2d6"
+  },
+  "home-macao.jpg": {
+    "file": "home-macao-a840a7f910a7.webp",
+    "source_sha256": "a840a7f910a7f6144f3661e9f9cbb0957cf1d27a57695aaeab981cd9c7bde790"
+  },
+  "home-taiwan.jpg": {
+    "file": "home-taiwan-354388c809a6.webp",
+    "source_sha256": "354388c809a63c01da56506023ea69aedbb8f8bcad21eed1d98472469b4e49a5"
+  },
+  "home-terrain-corner-repair.jpg": {
+    "file": "home-terrain-corner-repair-ca544edbee59.webp",
+    "source_sha256": "ca544edbee59c821a053e76936820d22c859d726a03e1ee2eacab25ce780ab64"
+  },
+  "home-terrain-reference.jpg": {
+    "file": "home-terrain-reference-a87251a4bb0c.webp",
+    "source_sha256": "a87251a4bb0c78113a9a9dfb5a9754c10e51b60baf0b1c6ab108cbd40043ab61"
+  },
+  "ink-left.jpg": {
+    "file": "ink-left-9575a421fd31.webp",
+    "source_sha256": "9575a421fd31d00d8e14472c620aa7ee4e20198bb686030cf54a4176312a2c3a"
+  },
+  "ink-right.jpg": {
+    "file": "ink-right-229a7fcaf838.webp",
+    "source_sha256": "229a7fcaf8382b2e14913dee694d0a47d5ff68fe160d977b1f21e14bb5407a8c"
+  },
+  "lantern.jpg": {
+    "file": "lantern-a80661acecfb.webp",
+    "source_sha256": "a80661acecfb64b74fe89c74756c7da13d323dff0fd9ce294704c934e8bb48fc"
+  },
+  "men-1-regional.jpg": {
+    "file": "men-1-regional-b589da3c3e71.webp",
+    "source_sha256": "b589da3c3e717a2c3be73ef22e8a87790154db2ed42177d30434981adc446592"
+  },
+  "men-2-regional.jpg": {
+    "file": "men-2-regional-6e19250757d4.webp",
+    "source_sha256": "6e19250757d40b217ededc20d696744b9445aaca7b6508ffba616f34a430f944"
+  },
+  "men-3-regional.jpg": {
+    "file": "men-3-regional-aedd6e93b8dc.webp",
+    "source_sha256": "aedd6e93b8dc48a5765e4bed9786d2219354f1017ed4cbe387f018dc499c3a6f"
+  },
+  "men-4-regional.jpg": {
+    "file": "men-4-regional-5980cb295109.webp",
+    "source_sha256": "5980cb2951096d5ba79e3bf94f3ecb1ccdf2321696b900feed781e76a3ba6030"
+  },
+  "men-5-regional.jpg": {
+    "file": "men-5-regional-bbbef762e70d.webp",
+    "source_sha256": "bbbef762e70d69fffa0e117b49f1d8a881bc9ce06ebef6783fe9615c75c81c64"
+  },
+  "men-scene-1.jpg": {
+    "file": "men-scene-1-1d0e3142e5dd.webp",
+    "source_sha256": "1d0e3142e5dd865b6aa768c77ef7c7ade9d891e448efa23fd09a0af523a5fd12"
+  },
+  "men-scene-2.jpg": {
+    "file": "men-scene-2-c9f9205d1d1f.webp",
+    "source_sha256": "c9f9205d1d1f8a76979d41c5fe050a2c168f63a12a7a6d3904df7c2c86bea887"
+  },
+  "men-scene-3.jpg": {
+    "file": "men-scene-3-329a287266cf.webp",
+    "source_sha256": "329a287266cf055bb6666284546ed98d5782c45807c59b7ea2eafc5a2f866334"
+  },
+  "men-strip.jpg": {
+    "file": "men-strip-adc2289811e8.webp",
+    "source_sha256": "adc2289811e8c8982e4d2cb7f83682462d2ce1bf37e1d5089b9575afb64d2b40"
+  },
+  "men-theme.jpg": {
+    "file": "men-theme-50a7fea72034.webp",
+    "source_sha256": "50a7fea72034aa15a252d4475c796a99c5869ff52937f0da7bdcc0a732785728"
+  },
+  "nian-hongkong.jpg": {
+    "file": "nian-hongkong-df4001f3f9a9.webp",
+    "source_sha256": "df4001f3f9a9c974346323ff25e518d94deba0103c498c9b2f15b24065f105c5"
+  },
+  "nian-jinmen.jpg": {
+    "file": "nian-jinmen-456972c763dc.webp",
+    "source_sha256": "456972c763dc078fe67d063c58e9ba3c23a95148748571731b5a1f9fc5bd77c7"
+  },
+  "nian-macao.jpg": {
+    "file": "nian-macao-d910a5aa5701.webp",
+    "source_sha256": "d910a5aa5701acae9852e3b61e494843a645a00b412a26d67aadf385de0ba9dd"
+  },
+  "nian-quanzhou.jpg": {
+    "file": "nian-quanzhou-29cc5315f907.webp",
+    "source_sha256": "29cc5315f907fe748c29ff5f598cd61093ca58776cc7f01e6b821d3851e46049"
+  },
+  "nian-singapore.jpg": {
+    "file": "nian-singapore-1413d1b769c5.webp",
+    "source_sha256": "1413d1b769c58e82fea457dc7fc6c5d19a79f17988dc94f5b08dd4cabc617c9d"
+  },
+  "nian-theme.jpg": {
+    "file": "nian-theme-43e6bd8d2e4d.webp",
+    "source_sha256": "43e6bd8d2e4d2466865592c95f34a102b572bd2f5f9de5733d01908e40701db7"
+  },
+  "paper.jpg": {
+    "file": "paper-80a82abd3a71.webp",
+    "source_sha256": "80a82abd3a712c60d7e2babffe80c7e6ad2becd4497d1ab1c4807b93b4ea9947"
+  },
+  "plate-1edc3e0957a5.png": {
+    "file": "plate-1edc3e0957a5-41c7cb8cda58.webp",
+    "source_sha256": "41c7cb8cda589a772deff95382a56cb42f85df06003ba4f9a815287718ccdc60"
+  },
+  "plate-497517a52d5b.jpg": {
+    "file": "plate-497517a52d5b-9a88f4d34fd0.webp",
+    "source_sha256": "9a88f4d34fd0db2b7ec1d72cb2b1b6d69ed75ddffd43766ea6daf833e591bfb9"
+  },
+  "plate-54b7e0e546f2.png": {
+    "file": "plate-54b7e0e546f2-42aa8bdcf6a1.webp",
+    "source_sha256": "42aa8bdcf6a15c97dc1e7b52be24f3ecf0529554a68c364b838301055ac81ed1"
+  },
+  "plate-79aea2c4e7f5.png": {
+    "file": "plate-79aea2c4e7f5-dc27907cfff1.webp",
+    "source_sha256": "dc27907cfff110219f088d3497e114d619791ef72148515654489cbf1a3a1080"
+  },
+  "plate-b23064f1454b.png": {
+    "file": "plate-b23064f1454b-e9fa72a5624e.webp",
+    "source_sha256": "e9fa72a5624e8a461cfa003f2ecee1afbd6bf2a94f22d447b334bf3ec0ab3589"
+  },
+  "plate-b88ac5d92541.png": {
+    "file": "plate-b88ac5d92541-975b56257585.webp",
+    "source_sha256": "975b56257585ab00d5a36870f2c8eb717f6cc5a7941e418078a63603c3c0a7e5"
+  },
+  "plate-ebd591cbcc80.png": {
+    "file": "plate-ebd591cbcc80-d883ae785ac5.webp",
+    "source_sha256": "d883ae785ac5a5e635099724925277521de22b9f7b6b72c416d404692393aae0"
+  },
+  "yuan-1-regional.jpg": {
+    "file": "yuan-1-regional-46a4beb05363.webp",
+    "source_sha256": "46a4beb05363cd9ef7c9ff3a2eff8432ea114e7701fe3ee09ccacca706929705"
+  },
+  "yuan-2-regional.jpg": {
+    "file": "yuan-2-regional-00e1b964122b.webp",
+    "source_sha256": "00e1b964122b8704fc439887a03ee4d65a466468d4d811af2daa328718a43a46"
+  },
+  "yuan-3-regional.jpg": {
+    "file": "yuan-3-regional-171b09cdd617.webp",
+    "source_sha256": "171b09cdd6173fa17ab772653690a09bdd93b3dc93c228baabf67eb87606634c"
+  },
+  "yuan-4-regional.jpg": {
+    "file": "yuan-4-regional-0f922c9196ee.webp",
+    "source_sha256": "0f922c9196ee1f6f60ee7cf59da3a48be0ac67398f4f8a13158b486ee45da7fc"
+  },
+  "yuan-5-regional.jpg": {
+    "file": "yuan-5-regional-31f001fdcead.webp",
+    "source_sha256": "31f001fdceadfe0eb57227e9665e12912f08b91f47463b7b9302b49759538cdf"
+  },
+  "yuan-scene-1.jpg": {
+    "file": "yuan-scene-1-6a110de66999.webp",
+    "source_sha256": "6a110de66999194f24d12086a5b2136422542d9a34d5a8f642fb840d2cab27c2"
+  },
+  "yuan-scene-2.jpg": {
+    "file": "yuan-scene-2-4992ea8aa831.webp",
+    "source_sha256": "4992ea8aa831fa25cd3ba4e56f11e830885f82c3b32b9ad1a75ffa5b8dfb42e4"
+  },
+  "yuan-scene-3.jpg": {
+    "file": "yuan-scene-3-667a2f9eb867.webp",
+    "source_sha256": "667a2f9eb867e5e28643a35eaf8e5f25e61f7553b38a27ec9b03879ddd56c019"
+  },
+  "yuan-scene-4.jpg": {
+    "file": "yuan-scene-4-1f08c037c3f0.webp",
+    "source_sha256": "1f08c037c3f065214773c02b010fbe7a5b1fb18da90001a278d187835cd91b31"
+  },
+  "yuan-strip.jpg": {
+    "file": "yuan-strip-82f986b167b3.webp",
+    "source_sha256": "82f986b167b30045aab3554a85f14cd48eca350345c710fd6014288afe69de62"
+  },
+  "yuan-theme.jpg": {
+    "file": "yuan-theme-2b2318e8d69f.webp",
+    "source_sha256": "2b2318e8d69f244b6454d9bbac11411d97c0c8f296e71c52e507a8ff7b4df10d"
+  }
+}

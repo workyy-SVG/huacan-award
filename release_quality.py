@@ -31,18 +31,24 @@ def improve_release(html, root):
         payload['pages'][name] = page
     encoded = base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False).encode(),mtime=0)).decode()
     html = html[:packed.start(2)] + encoded + html[packed.end(2):]
-    atlas = """const streamlitBase = new URL(document.baseURI).searchParams.get('streamlitUrl');
-const atlasBase = new URL('app/static/atlas/', streamlitBase || new URL('/', document.baseURI).href).href;
-for (const key of Object.keys(images)) images[key] = images[key].replaceAll('__ZILI_ATLAS__/', atlasBase);
-for (const key of Object.keys(pages)) pages[key] = pages[key].replaceAll('__ZILI_ATLAS__/', atlasBase);
-for (const style of document.querySelectorAll('style')) style.textContent = style.textContent.replaceAll('__ZILI_ATLAS__/', atlasBase);
+    manifest = json.loads((root/'qwen-component'/'asset-manifest.json').read_text(encoding='utf-8'))
+    atlas = 'const atlasManifest = ' + json.dumps(manifest) + ';\n' + """const componentBase = new URL(document.baseURI).searchParams.has('streamlitUrl') ? document.baseURI : new URL('qwen-component/', document.baseURI).href;
+function localizeAtlas(text) {
+  return text.replace(/__ZILI_ATLAS__\\/([\\w.-]+)/g, (_, name) => {
+    if (!atlasManifest[name]) throw Error('Missing artwork: ' + name);
+    return new URL('atlas/' + atlasManifest[name].file, componentBase).href;
+  });
+}
+for (const key of Object.keys(images)) images[key] = localizeAtlas(images[key]);
+for (const key of Object.keys(pages)) pages[key] = localizeAtlas(pages[key]);
+for (const style of document.querySelectorAll('style')) style.textContent = localizeAtlas(style.textContent);
 """
     story_art_start = html.index('const storyArt = ') + len('const storyArt = ')
     _, story_art_length = json.JSONDecoder().raw_decode(html[story_art_start:])
     story_art_end = story_art_start + story_art_length
     if html[story_art_end] != ';':
         raise ValueError('Story artwork initializer changed')
-    html = html[:story_art_end+1] + "\nfor (const key of Object.keys(storyArt)) storyArt[key] = storyArt[key].replaceAll('__ZILI_ATLAS__/', atlasBase);\n" + html[story_art_end+1:]
+    html = html[:story_art_end+1] + "\nfor (const key of Object.keys(storyArt)) storyArt[key] = localizeAtlas(storyArt[key]);\n" + html[story_art_end+1:]
     cache = json.loads((root / 'dictionary-cache.json').read_text(encoding='utf-8-sig'))['entries']
     html = replace_once(html, 'let restored;', atlas + '\nlet restored;')
     runtime = 'window.ziliDictionaryCache = ' + json.dumps(cache,ensure_ascii=False).replace('<', r'\u003c') + ';\n' + (root / 'release_runtime.js').read_text(encoding='utf-8')
@@ -65,6 +71,6 @@ if (!href || /^(?:[a-z]+:|\\/\\/)/i.test(href)) return;
 event.preventDefault(); event.stopImmediatePropagation(); parent.ziliEarlyNavigate(href);
 }, true);</script>"""
     html = replace_once(html, "  frame.onload = () => {", "  window.ziliEarlyNavigate = href => {\n    const [path, fragment] = href.split('#');\n    if (!path) { goToSection(frame.contentDocument, fragment); rememberRoute(current, fragment); return; }\n    const next = path === './' ? 'index.html' : path.replace(/^\\.\\//, '');\n    if (Object.hasOwn(pages, next)) navigate(next, fragment || '');\n  };\n  frame.onload = () => {")
-    assignment = "\n  const earlyScript = " + json.dumps(early).replace('</', r'<\/') + ";\n  frame.srcdoc = preparedPage.replaceAll('__ZILI_ATLAS__/', atlasBase).replace('</head>', earlyScript + '</head>').replace('<html', '<html data-navigation-sequence=\"' + sequence + '\"');\n}\nfunction openFunction(key)"
+    assignment = "\n  const earlyScript = " + json.dumps(early).replace('</', r'<\/') + ";\n  frame.srcdoc = localizeAtlas(preparedPage).replace('</head>', earlyScript + '</head>').replace('<html', '<html data-navigation-sequence=\"' + sequence + '\"');\n}\nfunction openFunction(key)"
     html = replace_once(html, '\n}\nfunction openFunction(key)', assignment)
     return html
