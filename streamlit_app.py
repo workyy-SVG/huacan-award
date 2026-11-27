@@ -878,9 +878,12 @@ if release_html.is_file():
             site_key=component_key,
             response=previous, key="zili_site",
         )
-        st.session_state.site_html_key = component_key
         if isinstance(request, dict) and isinstance(request.get("id"), str):
             mode=request.get('mode')
+            if mode == 'site_ready':
+                if request.get('site_key') == component_key:
+                    st.session_state.site_html_key = component_key
+                return
             if mode in ('tts_stream','tts_cancel'):
                 if st.session_state.get('speech_command_id')!=request['id']:
                     st.session_state.speech_command_id=request['id']

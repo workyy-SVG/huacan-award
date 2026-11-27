@@ -61,6 +61,8 @@ class SiteRefreshTests(unittest.TestCase):
         self.render()
         self.assertEqual(self.interval, .25)
         self.assertTrue(self.renders[-1]['html'])
+        self.request = dict(id='ready', mode='site_ready', site_key=self.renders[-1]['site_key'])
+        self.render()
         for i, language in enumerate(['mandarin', 'cantonese', 'cantonese', 'taiwan']):
             old = self.state.get('speech_stream_job')
             self.request = dict(id=str(i), mode='tts_stream', text='团圆', language=language)
@@ -96,6 +98,8 @@ class SiteRefreshTests(unittest.TestCase):
         self.render()
         self.render()
         self.assertTrue(self.renders[-1]['html'])
+        self.request = dict(id='ready', mode='site_ready', site_key=self.renders[-1]['site_key'])
+        self.render()
         self.render()
         self.assertEqual(self.renders[-1]['html'], '')
 

@@ -39,7 +39,13 @@ addEventListener('message', ({source,data}) => {
     return;
   }
   if (source !== site.contentWindow) return;
-  if (data?.type === 'zili-ready') { ready = true; deliver(latestResponse); return; }
+  if (data?.type === 'zili-ready') {
+    ready = true;
+    // A fast polling tick may replace the initial render before the browser has
+    // received its large HTML payload. Stop sending HTML only after this ack.
+    streamlit('streamlit:setComponentValue',{value:{id:crypto.randomUUID(),mode:'site_ready',site_key:currentSiteKey},dataType:'json'});
+    deliver(latestResponse); return;
+  }
   if (data?.type === 'qwen-cancel' && data.id === activeRequest) {
     const stream=activeMode==='tts_stream';clearActive();
     if(stream)streamlit('streamlit:setComponentValue',{value:{id:crypto.randomUUID(),mode:'tts_cancel'},dataType:'json'});
