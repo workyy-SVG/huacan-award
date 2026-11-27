@@ -725,6 +725,45 @@ html body .page #form .observation .character-history {
     notes_script = (ROOT / "reading-notes.js").read_text(encoding="utf-8")
     hook = "    if (page === keepsakePage) renderKeepsakes(doc);"
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
+    coast_uri = "data:image/webp;base64," + base64.b64encode((ROOT / "coast.webp").read_bytes()).decode("ascii")
+    coast_mount = """
+    {
+      const lookup = doc.getElementById('story-lookup');
+      if (lookup) {
+        const landscape = doc.createElement('div');
+        landscape.className = 'lookup-coast';
+        landscape.setAttribute('aria-hidden', 'true');
+        const glyph = doc.createElement('span');
+        const seal = doc.createElement('small');
+        seal.textContent = '字里尋蹤';
+        landscape.append(glyph, seal);
+        lookup.after(landscape);
+        const input = lookup.querySelector('form input');
+        const update = () => { glyph.textContent = Array.from(input?.value.trim() || '茶')[0]; };
+        update();
+        lookup.addEventListener('input', update);
+        lookup.addEventListener('change', () => queueMicrotask(update));
+        lookup.addEventListener('submit', update);
+        const style = doc.createElement('style');
+        style.textContent = `
+          .lookup-coast{display:none}
+          html body.lookup-only .page>main>.lookup-coast{
+            display:flex!important;position:relative;align-items:center;box-sizing:border-box;
+            width:calc(100% - 2 * clamp(12px,3vw,44px));margin:18px auto;
+            height:clamp(220px,37vh,430px);padding-left:7%;border-radius:4px;
+            background:linear-gradient(90deg,#f6efdf 2%,#f6efdfed 21%,#f6efdf44 60%,transparent),url(COAST_IMAGE) center 60%/cover;
+          }
+          .lookup-coast span{display:grid;place-items:center;width:clamp(105px,15vw,215px);
+            aspect-ratio:1;color:#284b43;font:clamp(84px,12vw,174px)/1 KaiTi,STKaiti,serif;
+            border:1px solid #886e463d;background:linear-gradient(90deg,transparent 49.7%,#876d4033 50%,transparent 50.3%),linear-gradient(transparent 49.7%,#876d4033 50%,transparent 50.3%)}
+          .lookup-coast small{position:absolute;left:3%;bottom:8%;writing-mode:vertical-rl;
+            padding:3px;border:1px solid;color:#953c2c;font:15px KaiTi,serif}
+        `;
+        doc.head.append(style);
+      }
+    }
+""".replace("COAST_IMAGE", coast_uri)
+    html = html.replace(hook, coast_mount + "\n" + hook, 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
     stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
     stats_html = stats_html.replace('<link rel="stylesheet" href="stats-3d.css">',
