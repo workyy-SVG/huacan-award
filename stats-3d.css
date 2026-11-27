@@ -1,0 +1,23 @@
+/* Raised surfaces keep the existing palette, labels and statistical scale. */
+#ring{width:min(100%,340px);height:auto;aspect-ratio:auto;margin:0 auto 6px;border-radius:0;transform:none;box-shadow:none;background:transparent!important}
+#ring svg{width:100%;height:auto;display:block;overflow:visible}
+.pie-slice{cursor:pointer;transition:transform .22s ease,filter .22s ease;transform:translate(0,0)}
+.pie-slice:hover,.pie-slice:focus-visible{transform:translate(var(--lift-x),var(--lift-y));filter:drop-shadow(0 6px 4px #263d3338);outline:none}
+.pie-slice:focus-visible .pie-highlight{fill:#ffffff44;stroke:#183e50;stroke-width:2}
+.pie-total{font:700 29px system-ui;fill:#183e50}
+.pie-unit{font:13px system-ui;fill:#4e605f}
+button.legend{padding:5px 7px;border:1px solid transparent;border-radius:6px;color:inherit;background:transparent;text-align:left;font:inherit;cursor:pointer}
+button.legend:hover,button.legend[aria-pressed=true]{background:#35675f12;border-color:#91aaa9}
+button.legend:focus-visible{outline:2px solid #35675f;outline-offset:2px}
+.row{grid-template-columns:80px minmax(0,1fr) 36px;gap:12px;margin:22px 0;padding-right:9px}
+.track{height:24px;position:relative;border-radius:2px;background:#e4e4d866;overflow:visible}
+.fill{position:relative;height:100%;min-width:0;transform:none;box-shadow:0 7px 7px -5px #264a4166;border-radius:1px;background:linear-gradient(90deg,#427c73,#508b80);transition:width .65s cubic-bezier(.2,.75,.25,1),opacity .2s}
+.fill::before{content:"";position:absolute;left:0;right:0;top:-7px;height:7px;transform:skewX(-40deg);transform-origin:bottom;background:#72a699}
+.fill::after{content:"";position:absolute;top:0;right:-8px;width:8px;height:100%;transform:skewY(-49deg);transform-origin:left;background:#2b554b}
+.fill.empty{opacity:0}
+#themes .fill{background:linear-gradient(90deg,#b37558,#ba8060);transform:none;box-shadow:0 7px 7px -5px #80443166}
+#themes .fill::before{background:#d6a58a}
+#themes .fill::after{background:#814933}
+.row b{font-variant-numeric:tabular-nums}
+@media(max-width:650px){.row{grid-template-columns:72px minmax(0,1fr) 30px;gap:10px}.track{height:22px}#ring{max-width:310px}}
+@media(prefers-reduced-motion:reduce){.pie-slice,.fill{transition:none}}

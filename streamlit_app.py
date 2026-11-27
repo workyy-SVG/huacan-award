@@ -727,6 +727,10 @@ html body .page #form .observation .character-history {
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
     stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
+    stats_html = stats_html.replace('<link rel="stylesheet" href="stats-3d.css">',
+                                    '<style>' + (ROOT / 'stats-3d.css').read_text(encoding='utf-8') + '</style>')
+    stats_html = stats_html.replace('<script src="stats-3d.js"></script>',
+                                    '<script>' + (ROOT / 'stats-3d.js').read_text(encoding='utf-8') + '</script>')
     stats_html = stats_html.replace('</style>', '''
 body{background:#faf6eb}
 section,#ring b{background:#fffcf5}
@@ -792,7 +796,7 @@ release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
