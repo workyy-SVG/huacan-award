@@ -19,5 +19,11 @@ button.legend:focus-visible{outline:2px solid #35675f;outline-offset:2px}
 #themes .fill::before{background:#d6a58a}
 #themes .fill::after{background:#814933}
 .row b{font-variant-numeric:tabular-nums}
+.word-chart{display:block;width:100%;height:auto;margin:8px 0 12px;overflow:visible}
+.word-chart .column-grid{stroke:#8fa5b52b;stroke-width:1}
+.word-chart .column-baseline{stroke:#879da8;stroke-width:1.2}
+.word-chart .column-tick,.word-chart .column-unit{font:16px system-ui;fill:#536b77}
+.word-chart .column-word{font:20px KaiTi,serif;fill:#183e50}
+.word-chart .column-value{font:600 18px system-ui;fill:#183e50;font-variant-numeric:tabular-nums}
 @media(max-width:650px){.row{grid-template-columns:72px minmax(0,1fr) 30px;gap:10px}.track{height:22px}#ring{max-width:310px}}
 @media(prefers-reduced-motion:reduce){.pie-slice,.fill{transition:none}}

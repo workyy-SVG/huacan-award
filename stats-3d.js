@@ -78,7 +78,53 @@ async function init() {
       return {track,fill,value};
     });
   }
-  const wordBars=makeBars(get('bars'),letters),themeBars=makeBars(get('themes'),names);
+  const themeBars=makeBars(get('themes'),names);
+  const columnMaximum=Math.max(5,...letters.map(letter=>rows.filter(row=>row.character===letter).length));
+  const columnsSvg=svgNode('svg',{viewBox:'0 0 440 330',class:'word-chart',role:'group','aria-label':'各汉字故事数竖向柱状图，纵轴从零起点，单位条'});
+  const defs=svgNode('defs'),gradient=svgNode('linearGradient',{id:'word-column-blue',x1:0,y1:0,x2:0,y2:1});
+  gradient.append(svgNode('stop',{offset:'0%','stop-color':'#5086a2'}),svgNode('stop',{offset:'100%','stop-color':'#315e79'}));defs.append(gradient);columnsSvg.append(defs);
+  const baseline=265,plotHeight=220;
+  const step=columnMaximum<=8?1:Math.ceil(columnMaximum/5);
+  for(let value=0;value<=columnMaximum;value+=step){
+    const y=baseline-value/columnMaximum*plotHeight;
+    columnsSvg.append(svgNode('line',{x1:40,y1:y,x2:424,y2:y,class:value?'column-grid':'column-baseline'}));
+    const tick=svgNode('text',{x:30,y:y+6,'text-anchor':'end',class:'column-tick'});tick.textContent=value;columnsSvg.append(tick);
+  }
+  const units=svgNode('text',{x:14,y:25,class:'column-unit'});units.textContent='条';columnsSvg.append(units);
+  const columns=letters.map((letter,i)=>{
+    const x=56+i*61,width=32,depth=5;
+    const group=svgNode('g',{role:'meter','aria-label':letter+'故事数','aria-valuemin':0,'aria-valuemax':columnMaximum});
+    const title=svgNode('title');
+    const shadow=svgNode('ellipse',{cx:x+width/2+2,cy:baseline+4,rx:23,ry:3,fill:'#315e7915'});
+    const front=svgNode('rect',{x,width,fill:'url(#word-column-blue)'});
+    const side=svgNode('path',{fill:'#274f69'}),top=svgNode('path',{fill:'#8aaec3'});
+    const number=svgNode('text',{x:x+width/2+2,'text-anchor':'middle',class:'column-value'});
+    const label=svgNode('text',{x:x+width/2+2,y:300,'text-anchor':'middle',class:'column-word'});label.textContent=letter;
+    group.append(title,shadow,side,front,top,number,label);columnsSvg.append(group);
+    return {x,width,depth,group,title,front,side,top,number,shadow};
+  });
+  get('bars').replaceChildren(columnsSvg);
+  let displayedColumns=letters.map(()=>0),columnAnimation,columnsInitialized=false;
+  function paintColumns(values){
+    displayedColumns=values;
+    values.forEach((value,i)=>{
+      const {x,width:w,depth:d,front,side,top,number,shadow}=columns[i];
+      const height=value/columnMaximum*plotHeight,y=baseline-height;
+      front.setAttribute('y',y);front.setAttribute('height',height);
+      side.setAttribute('d',`M${x+w},${y} l${d},${-d} V${baseline-d} l${-d},${d} Z`);
+      top.setAttribute('d',`M${x},${y} l${d},${-d} h${w} l${-d},${d} Z`);
+      for(const face of [side,top,shadow])face.style.display=value>.001?'':'none';
+      number.setAttribute('y',y-(value>.001?13:9));
+    });
+  }
+  function updateColumns(values){
+    columns.forEach((column,i)=>{column.number.textContent=values[i];column.title.textContent=letters[i]+'：'+values[i]+' 条';column.group.setAttribute('aria-valuenow',values[i]);});
+    cancelAnimationFrame(columnAnimation);
+    if(reduced.matches||!columnsInitialized){paintColumns(values);columnsInitialized=true;return;}
+    const from=[...displayedColumns],started=performance.now();
+    function tick(now){const progress=Math.min(1,(now-started)/650),eased=1-Math.pow(1-progress,3);paintColumns(values.map((value,i)=>from[i]+(value-from[i])*eased));if(progress<1)columnAnimation=requestAnimationFrame(tick);}
+    columnAnimation=requestAnimationFrame(tick);
+  }
   function updateBars(bars,values){
     const maximum=Math.max(1,...values);
     bars.forEach((bar,i)=>{bar.fill.style.width=values[i]/maximum*100+'%';bar.fill.classList.toggle('empty',values[i]===0);bar.value.textContent=values[i];bar.track.setAttribute('aria-valuemax',maximum);bar.track.setAttribute('aria-valuenow',values[i]);});
@@ -99,9 +145,9 @@ async function init() {
       slices[i].g.setAttribute('aria-label',label+'，点击筛选');slices[i].title.textContent=label;
       legends[i].text.textContent=label;legends[i].button.setAttribute('aria-pressed',String(region.value===groups[i]));
     });
-    animatePie(g);updateBars(wordBars,w);updateBars(themeBars,t);
+    animatePie(g);updateColumns(w);updateBars(themeBars,t);
     get('regionNote').textContent=!n?'当前筛选没有匹配的故事。':g.every(v=>v===g[0])?'当前五个地区分组各收录 '+g[0]+' 条。百分比按当前故事总数计算。':'图例列出各地区的收录量，百分比按当前故事总数计算。';
-    get('wordNote').textContent='当前涵盖 '+w.filter(Boolean).length+' 个汉字，每根条形对应一个字的故事数。';
+    get('wordNote').textContent='当前涵盖 '+w.filter(Boolean).length+' 个汉字，每根立柱对应一个字的故事数；筛选前后使用相同刻度。';
     const peak=Math.max(...t);get('themeNote').textContent=!n?'当前筛选没有可统计的主题。':'当前收录最多的主题为'+names.filter((_,i)=>t[i]===peak).join('、')+'（'+peak+' 条）。';
   }
   region.onchange=word.onchange=draw;
