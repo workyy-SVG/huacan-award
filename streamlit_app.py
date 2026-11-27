@@ -727,12 +727,6 @@ html body .page #form .observation .character-history {
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
     stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
-    stats_html = stats_html.replace('</style>', '''
-body{background:#f5f9fc}
-section{background:#fcfdff}
-#ring b{background:#fcfdff;box-shadow:inset 0 4px 3px #c8d6df}
-.track{background:#e4edf3}
-</style>''', 1)
     catalogue_json = (ROOT / "cases.json").read_text(encoding="utf-8")
     stats_html = stats_html.replace(
         "fetch('cases.json')",

@@ -1,10 +1,2 @@
-/* Cool, near-white paper for the regional stories; preserve typography. */
-html body main .gallery #records .folio {
-  --wash:#f5f9fc;
-  background:linear-gradient(120deg,#fdfefe,#f1f7fb) !important;
-}
-html body main .gallery #records .folio-reader {
-  background:linear-gradient(90deg,#ffffffc9,#f0f6fb66) !important;
-}
 /* The last story's 56px bottom margin is the space before the statistics. */
 html body main .gallery #records .folio:last-child {margin-bottom:28px}
