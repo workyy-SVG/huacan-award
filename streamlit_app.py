@@ -489,7 +489,7 @@ iframe[data-testid="stIFrame"], iframe[data-testid="stCustomComponentV1"] {
     border: 0;
 }
 </style>""")
-site_payload = bundle_site(site_version())
+# Build the legacy bundle only when the published release is absent.
 @st.cache_data(show_spinner=False)
 def published_story_theme(_path, story, version):
     """Extend the story gutter colors through the full reading area."""
@@ -705,6 +705,8 @@ html body .page #form .observation .character-history {
 }
 """
 
+    from release_fixes import patch_release
+    html = patch_release(html, ROOT, story)
     notes_script = (ROOT / "reading-notes.js").read_text(encoding="utf-8")
     hook = "    if (page === keepsakePage) renderKeepsakes(doc);"
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
@@ -727,9 +729,12 @@ html body .page #form .observation .character-history {
 release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
-        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css"
+        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "release_fixes.py", "opencc-full.gz.b64",
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json"
     ))]
-    version = tuple(path.stat().st_mtime_ns for path in assets)
+    assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
+    assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
+    version = tuple((str(path.relative_to(ROOT)), path.stat().st_mtime_ns, path.stat().st_size) for path in sorted(set(assets)))
     story = st.query_params.get("story", "")
     site = declare_component("zili_site", path=str(ROOT / "qwen-component"))
     previous = st.session_state.get("qwen_response")
@@ -748,7 +753,9 @@ if release_html.is_file():
             response = answers.get(signature)
             if response is None:
                 catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
-                response = qwen_answer(request, catalogue, st.secrets)
+                from request_limits import allow_request
+                permitted = allow_request(st.session_state)
+                response = qwen_answer(request, catalogue, st.secrets) if permitted else {"error": "提问较频繁，请稍等片刻再试。仍可使用地区筛选和关键词搜索。"}
                 if "error" not in response:
                     if len(answers) >= 24:
                         answers.pop(next(iter(answers)))
@@ -757,6 +764,7 @@ if release_html.is_file():
             st.rerun()
     st.stop()
 
+site_payload = bundle_site(site_version())
 render_html("""<!doctype html><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9decd}
 *{box-sizing:border-box}
@@ -1258,5 +1266,6 @@ navigate('index.html');
   document.getElementById('layout').replaceWith(notice);
 });
 </script>""", height=860, scrolling=False)
+
 
 

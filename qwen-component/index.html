@@ -1,43 +1,48 @@
 <!doctype html>
-<html lang="zh-CN">
-<meta charset="utf-8">
-<title>字里寻踪</title>
+<html lang="zh-CN"><meta charset="utf-8"><title>字里寻踪</title>
 <style>html,body,iframe{margin:0;width:100%;height:100%;border:0;display:block}</style>
 <iframe id="site" title="字里寻踪"></iframe>
 <script>
 const site = document.getElementById('site');
-let currentSiteKey;
-let activeRequest;
-
-function streamlit(type, payload = {}) {
-  parent.postMessage({isStreamlitMessage:true, type, ...payload}, '*');
+let currentSiteKey, activeRequest, timer, latestResponse, ready = false;
+function streamlit(type, payload = {}) { parent.postMessage({isStreamlitMessage:true,type,...payload}, '*'); }
+function deliver(response) {
+  if (!response) return;
+  try { sessionStorage.setItem('zili-answer:' + response.id, JSON.stringify(response)); } catch {}
+  if (ready) site.contentWindow.postMessage({type:'qwen-response',...response}, '*');
 }
-
-addEventListener('message', ({source, data}) => {
+function clearActive() { clearTimeout(timer); activeRequest = undefined; }
+addEventListener('message', ({source,data}) => {
   if (source === parent && data?.type === 'streamlit:render') {
-    const {html, site_key: key, response} = data.args;
+    const {html,site_key:key,response} = data.args;
     if (currentSiteKey !== key) {
-      currentSiteKey = key;
-      activeRequest = undefined;
+      currentSiteKey = key; ready = false; clearActive();
       site.srcdoc = html;
     }
-    if (activeRequest && response?.id === activeRequest) {
-      activeRequest = undefined;
-      site.contentWindow.postMessage({type:'qwen-response', ...response}, '*');
+    if (response?.id) {
+      latestResponse = response;
+      if (response.id === activeRequest) clearActive();
+      deliver(response);
     }
     return;
   }
-  if (source === site.contentWindow && data?.type === 'qwen-request' && !activeRequest) {
-    activeRequest = data.request.id;
-    streamlit('streamlit:setComponentValue', {value:data.request, dataType:'json'});
+  if (source !== site.contentWindow) return;
+  if (data?.type === 'zili-ready') { ready = true; deliver(latestResponse); return; }
+  if (data?.type === 'qwen-cancel' && data.id === activeRequest) { clearActive(); return; }
+  if (data?.type !== 'qwen-request' || typeof data.request?.id !== 'string') return;
+  if (activeRequest) {
+    deliver({id:data.request.id,error:'上一个问题仍在回答，请稍后再试。'});
+    return;
   }
+  activeRequest = data.request.id;
+  const id = activeRequest;
+  timer = setTimeout(() => {
+    if (activeRequest !== id) return;
+    clearActive();
+    deliver({id,error:'请求超时，请重新提交。'});
+  }, 35000);
+  streamlit('streamlit:setComponentValue',{value:data.request,dataType:'json'});
 });
-
-function resize() {
-  streamlit('streamlit:setFrameHeight', {height:parent.innerHeight});
-}
-streamlit('streamlit:componentReady', {apiVersion:1});
-resize();
-addEventListener('resize', resize);
-</script>
-</html>
+function resize() { streamlit('streamlit:setFrameHeight',{height:parent.innerHeight}); }
+streamlit('streamlit:componentReady',{apiVersion:1}); resize(); addEventListener('resize',resize);
+</script></html>

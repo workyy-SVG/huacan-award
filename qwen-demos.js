@@ -86,16 +86,26 @@
       form.requestSubmit();
     };
 
+    const pendingKey = 'zili-pending:' + mode + ':' + story;
+    let resumed;
+    try { resumed = JSON.parse(sessionStorage.getItem(pendingKey) || 'null'); } catch {}
+    if (resumed && Date.now() - resumed.time > 40000) resumed = null;
     form.onsubmit = event => {
       event.preventDefault();
       const question = input.value.trim();
       if (!question || submit.disabled) return;
-      const id = crypto.randomUUID();
+      const restored = resumed; resumed = null;
+      const id = restored?.id || crypto.randomUUID();
+      try { sessionStorage.setItem(pendingKey, JSON.stringify({id, question, time:restored?.time || Date.now()})); } catch {}
       submit.disabled = picker.disabled = true;
       result.textContent = '千问正在回答…';
-      const timeout = setTimeout(() => finish({error:'请求超时，请稍后重试。'}), 40000);
+      const timeout = setTimeout(() => {
+        parent.postMessage({type:'qwen-cancel', id}, '*');
+        finish({error:'请求超时，请稍后重试。'});
+      }, Math.max(1, 40000 - (Date.now() - (restored?.time || Date.now()))));
       function finish(response) {
         clearTimeout(timeout);
+        try { sessionStorage.removeItem(pendingKey); } catch {}
         window.removeEventListener('message', receive);
         submit.disabled = picker.disabled = false;
         result.textContent = response.error || response.text || '';
@@ -136,9 +146,15 @@
         request.character = doc.getElementById('hanzi').value.trim();
         request.dictionary = lookup.textContent.trim();
       }
-      parent.postMessage({type:'qwen-request', request}, '*');
+      if (!restored) parent.postMessage({type:'qwen-request', request}, '*');
+      else {
+        let completed;
+        try { completed = JSON.parse(sessionStorage.getItem('zili-answer:' + id) || 'null'); } catch {}
+        if (completed) finish(completed);
+      }
     };
     anchor[before ? 'before' : 'after'](section);
+    if (resumed) { input.value = resumed.question; form.requestSubmit(); }
     return section;
   }
 
@@ -148,7 +164,7 @@
   if (page === 'regions.html') {
     const keywordSearch = doc.getElementById('habit-search');
     panel(keywordSearch, 'search', '用一句话找故事', ['帮我找和端午划船有关的故事', '帮我找春节贴春联的故事', '哪里有龙舟竞渡的故事？', '想读香港大澳的龙舟故事', '想了解澳门的端午划船习俗', '泉州除夕怎么贴春联？', '台湾的门贴有什么故事？', '有哪些门贴和迎新年的故事？']);
-    keywordSearch?.remove();
+    if (keywordSearch) { keywordSearch.title = '关键词搜索，无需 AI'; }
   }
   if (lookup) {
     const help = panel(lookup, 'lookup', '千问讲解', ['用大白话讲讲这个字', '给我两个日常例句', '这个字是什么意思？', '怎么给小学生讲这个字？', '用一句话解释这个字', '这个字可以怎么用？给个例句', '用这个字造两个句子', '给我适合朗读的例句']);
@@ -168,3 +184,4 @@
     syncLookup();
   }
 })();
+

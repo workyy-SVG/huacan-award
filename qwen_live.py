@@ -111,10 +111,14 @@ def answer(request, catalogue, secrets):
             if mode == "search":
                 ids = json.loads(text.removeprefix("```json").removesuffix("```").strip())["ids"]
                 by_id = {item["id"]: item for item in records}
-                matched = [by_id[i] for i in ids[:5] if type(i) is int and i in by_id]
+                if not isinstance(ids, list): raise ValueError("Invalid search IDs")
+                matched = [by_id[i] for i in dict.fromkeys(i for i in ids if type(i) is int and i in by_id)][:5]
                 return {"records": matched}
             if mode == "story":
                 cited = {int(i) for i in re.findall(r"\[(\d+)\]", text)}
+                valid = {item["id"] for item in records}
+                if not cited or not cited.issubset(valid):
+                    raise ValueError("Missing or invalid source citation")
                 return {"text": text, "sources": [item for item in records if item["id"] in cited]}
             return {"text": text}
         except HTTPError as error:
@@ -140,4 +144,5 @@ def answer(request, catalogue, secrets):
             logging.warning("Qwen request failed: %s", type(error).__name__)
         if not attempt:
             sleep(0.4)
-    return {"error": "已自动重试一次，仍未收到千问回答。请稍后重试，若持续出现请管理员检查百炼服务日志。"}
+    return {"error": "已重试一次，但未获得可核验的回答。请稍后重试，若持续出现请管理员检查百炼服务日志。"}
+

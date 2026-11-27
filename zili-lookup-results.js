@@ -15,6 +15,10 @@
     link.append(arrow);
   }
   result.append(grid);
+  const standards = document.createElement('p');
+  standards.className = 'lookup-standards';
+  standards.textContent = '笔画来源说明：萌典采用词典所载字形与部首计数；Hanzi Writer 采用动画字形的实际笔顺数据。字形标准或部首计数不同，可能出现画数差异，请结合当前字形分别阅读。';
+  result.append(standards);
 
   const buttons = grid.querySelector('.lookup-forms');
   const glyph = grid.querySelector('.lookup-glyph');
