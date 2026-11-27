@@ -58,7 +58,7 @@ let ziliVoiceMode='mandarin';
 function bindZiliVoiceGuide(doc){
   ziliVoiceGuide?.destroy();
   const view=doc.defaultView;
-  const supported=typeof view.Audio==='function';
+  const supported=!!(view.AudioContext||view.webkitAudioContext);
   const host=doc.createElement('div');host.id='zili-voice-assistant';
   host.innerHTML='<button type="button" class="zv-launch" aria-expanded="false" aria-controls="zv-panel"><span class="zv-seal" aria-hidden="true">听</span>寻踪小助手</button><section id="zv-panel" aria-label="寻踪小助手朗读控制" hidden><header><div><b>寻踪小助手</b><small>让汉字文化被听见</small></div><button type="button" class="zv-close" aria-label="收起语音助手">⌄</button></header><div class="zv-body"><p class="zv-page"></p><p class="zv-status" role="status" aria-live="polite"></p><label>选择朗读段落<select class="zv-segments" aria-label="选择朗读段落"></select></label><div class="zv-actions"><button type="button" class="zv-play">开始讲解</button><button type="button" class="zv-next">下一段</button><button type="button" class="zv-stop">停止</button><button type="button" class="zv-restart">从头朗读</button></div><div class="zv-settings"><label>朗读语速<select class="zv-rate" aria-label="朗读语速"><option value="0.75">0.75×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label><label>讲解声音<select class="zv-voice" aria-label="讲解声音"><option value="">设备默认中文声音</option></select></label></div><p class="zv-note">按页面原文朗读；声音由设备提供。收起可继续听，切换页面自动停止。</p></div></section>';
   doc.body.append(host);
@@ -69,22 +69,46 @@ function bindZiliVoiceGuide(doc){
   get('.zv-settings').before(languageLabel);
   const languageNote=doc.createElement('p');languageNote.className='zv-language-note';languageNote.setAttribute('role','status');languageLabel.after(languageNote);
   const reset=doc.createElement('button');reset.type='button';reset.className='zv-reset';reset.textContent='恢复默认位置';get('.zv-note').before(reset);
-  get('.zv-note').textContent='云端生成语音，需要联网，无需安装系统声音。拖动入口或标题可移动；方向键微调，Home 复位。';
+  get('.zv-note').textContent='边生成边播放，需要联网。连续朗读时会高亮当前内容组。拖动入口或标题可移动；Home 复位。';
   if(['hongkong','macau'].includes(ziliVoiceMode))ziliVoiceMode='cantonese';
   get('.zv-language').value=ziliVoiceMode;
-  let entries=[],currentState='idle',highlighted=null;
+  let entries=[],currentState='idle',highlighted=[],answerEntries=null,picking=false;
   let voiceReady=false,drag=null,suppressClick=false,warmController=null;
   const prepared=doc.createElement('p');prepared.className='zv-language-note zv-prepared';prepared.setAttribute('role','status');languageNote.after(prepared);
   function prepareSelected(){
-    warmController?.abort();warmController=null;
-    if(!supported||panel.hidden||!entries.length)return;
-    const entry=entries[Number(segments.value)||0];if(!entry)return;
-    const chunk=entry.text.match(/^[\s\S]{1,279}(?:[。！？；\n]|$)/)?.[0]||entry.text.slice(0,280);
-    const controller=new AbortController();warmController=controller;prepared.textContent='正在提前准备所选段落…';
-    ziliRequestCloudAudio(chunk,get('.zv-language').value,controller.signal).then(()=>{
-      if(controller.signal.aborted)return;prepared.textContent='所选段落已准备好，点击即可播放。';
-    }).catch(()=>{if(!controller.signal.aborted)prepared.textContent='点击开始讲解时将重新获取音频。';});
+    prepared.textContent='连续流式朗读：从所选段落往下读，音频边生成边播放。';
   }
+  const scopeActions=doc.createElement('div');scopeActions.className='zv-actions';
+  scopeActions.innerHTML='<button type="button" class="zv-pick">从这里朗读</button><button type="button" class="zv-original">朗读本页原文</button>';
+  get('.zv-segments').parentElement.after(scopeActions);
+  function fillEntries(next){
+    entries=next;segments.replaceChildren();
+    entries.forEach((entry,i)=>segments.add(new view.Option((i+1)+' · '+entry.text.slice(0,42)+(entry.text.length>42?'…':''),String(i))));
+    reader?.load(entries);
+    play.disabled=!supported||!entries.length||!voiceReady;
+    get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
+  }
+  function readAnswer(event){
+    const {node,text}=event.detail||{};if(!node?.isConnected||typeof text!=='string'||!text.trim())return;
+    answerEntries=[{node,text:text.trim(),valid:()=>node.isConnected&&node.textContent.includes(text.trim())}];
+    panel.hidden=false;launch.setAttribute('aria-expanded','true');get('.zv-page').textContent='朗读千问回答';
+    fillEntries(answerEntries);fitPanel();reader?.play();
+  }
+  doc.addEventListener('zili-read-answer',readAnswer);
+  function endPicking(){picking=false;doc.querySelectorAll('.zv-read-target').forEach(node=>node.classList.remove('zv-read-target'));doc.body.classList.remove('zv-picking');get('.zv-pick').textContent='从这里朗读';}
+  function pickText(event){
+    if(!picking||host.contains(event.target))return;
+    const selected=entries.findIndex(entry=>entry.node===event.target||entry.node?.contains(event.target));
+    if(selected<0)return;event.preventDefault();event.stopImmediatePropagation();endPicking();
+    panel.hidden=false;launch.setAttribute('aria-expanded','true');segments.value=String(selected);reader.select(selected);fitPanel();reader.play();
+  }
+  get('.zv-pick').onclick=()=>{
+    if(picking){endPicking();return;}answerEntries=null;refresh();picking=true;
+    entries.forEach(entry=>entry.node?.classList.add('zv-read-target'));doc.body.classList.add('zv-picking');
+    get('.zv-pick').textContent='取消选择';status.textContent='请点击想开始朗读的正文段落。';
+  };
+  get('.zv-original').onclick=()=>{answerEntries=null;endPicking();refresh();reader?.play();};
+  doc.addEventListener('click',pickText,true);
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
   function visible(node){
     if(!node.isConnected||node.closest('#zili-voice-assistant,[hidden],[aria-hidden="true"],nav,aside,form,dialog,script,style'))return false;
@@ -102,23 +126,19 @@ function bindZiliVoiceGuide(doc){
       return {node,text:clone.textContent.replace(/\s+/g,' ').trim(),valid:()=>visible(node)};
     }).filter(item=>item.text&&/[\p{L}\p{N}]/u.test(item.text));
   }
-  function highlight(item){highlighted?.classList.remove('zili-voice-reading');highlighted=item?.node||null;highlighted?.classList.add('zili-voice-reading');}
-  const reader=supported?createZiliCloudReader({requestAudio:(text,signal)=>ziliRequestCloudAudio(text,get('.zv-language').value,signal),Audio:view.Audio,onParagraph:highlight,onState:update}):null;
-  function update({state,index,total,message}){
+  function highlight(item){highlighted.forEach(node=>node.classList.remove('zili-voice-reading'));highlighted=item?.nodes||[];highlighted.forEach(node=>node.classList.add('zili-voice-reading'));}
+  const reader=supported?createZiliStreamReader({Context:view.AudioContext||view.webkitAudioContext,openStream:(text,packet,signal)=>ziliOpenSpeechStream(text,get('.zv-language').value,packet,signal),onParagraph:highlight,onState:update}):null;
+  function update({state,index,end,total,message}){
     currentState=state;
     play.textContent=(state==='playing'||state==='loading')?'暂停讲解':state==='paused'?'继续讲解':state==='ended'?'重新朗读':'开始讲解';
     play.setAttribute('aria-label',play.textContent);
     if(total&&index<total)segments.value=String(index);
-    status.textContent=message||(state==='playing'?'正在讲解':state==='paused'?'已暂停':'准备就绪')+(total?' · 第 '+Math.min(index+1,total)+' / '+total+' 段':'');
+    status.textContent=message||(state==='playing'?'正在讲解':state==='paused'?'已暂停':'准备就绪')+(total?' · 第 '+Math.min(index+1,total)+(end>index?'—'+(end+1):'')+' / '+total+' 段':'');
     segments.disabled=['playing','loading','paused'].includes(state);
   }
   function refresh(){
-    entries=collect();segments.replaceChildren();
-    entries.forEach((entry,i)=>segments.add(new view.Option((i+1)+' · '+entry.text.slice(0,42)+(entry.text.length>42?'…':''),String(i))));
-    reader?.load(entries);
+    fillEntries(answerEntries||collect());
     if(!entries.length)status.textContent='当前没有可朗读的正文，请先打开故事或查询汉字。';
-    play.disabled=!supported||!entries.length||!voiceReady;
-    get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
   }
   function fitPanel(){
     if(panel.hidden)return;
@@ -191,11 +211,11 @@ function bindZiliVoiceGuide(doc){
     segments.onchange=()=>{reader.select(Number(segments.value));prepareSelected();};
     get('.zv-rate').onchange=()=>reader.configure(Number(get('.zv-rate').value));
   }else{
-    status.textContent='当前浏览器不支持音频播放，请更换浏览器。';
+    status.textContent='当前浏览器不支持实时音频播放，请更换浏览器。';
     host.querySelectorAll('.zv-actions button,.zv-segments,.zv-rate,.zv-voice').forEach(control=>control.disabled=true);
   }
   const unload=()=>reader?.destroy();view.addEventListener('pagehide',unload);
   view.addEventListener('resize',restorePosition);view.visualViewport?.addEventListener('resize',restorePosition);
   const panelObserver=new view.ResizeObserver(fitPanel);panelObserver.observe(panel);restorePosition();
-  ziliVoiceGuide={destroy(){warmController?.abort();reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();host.remove();}};
+  ziliVoiceGuide={destroy(){endPicking();doc.removeEventListener('zili-read-answer',readAnswer);doc.removeEventListener('click',pickText,true);reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();host.remove();}};
 }

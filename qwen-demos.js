@@ -77,6 +77,10 @@
     const submit = form.querySelector('button');
     const picker = form.querySelector('select');
     const result = section.querySelector('[role="status"]');
+    const readAnswer = doc.createElement('button');
+    readAnswer.type='button';readAnswer.textContent='朗读回答';readAnswer.hidden=true;
+    readAnswer.style.cssText='margin-top:10px;padding:7px 14px;border:1px solid #8baeba;border-radius:7px;background:#285267;color:#fff;font-weight:600;cursor:pointer';
+    section.append(readAnswer);
     const placeholder = new Option('选择预设问题', '', true, true);
     placeholder.disabled = true;
     picker.add(placeholder);
@@ -99,6 +103,7 @@
       const id = restored?.id || crypto.randomUUID();
       try { sessionStorage.setItem(pendingKey, JSON.stringify({id, question, time:restored?.time || Date.now()})); } catch {}
       submit.disabled = picker.disabled = true;
+      readAnswer.hidden=true;
       result.textContent = '千问正在回答…';
       const timeout = setTimeout(() => {
         parent.postMessage({type:'qwen-cancel', id}, '*');
@@ -110,6 +115,10 @@
         window.removeEventListener('message', receive);
         submit.disabled = picker.disabled = false;
         result.textContent = response.error || response.text || '';
+        if(response.text&&!response.error){
+          readAnswer.hidden=false;
+          readAnswer.onclick=()=>doc.dispatchEvent(new doc.defaultView.CustomEvent('zili-read-answer',{detail:{node:result,text:response.text}}));
+        }
         if (response.records?.length === 0) result.textContent = '站内没有找到相关故事。';
         for (const record of response.records || []) {
           const card = doc.createElement('article');

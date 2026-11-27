@@ -4,14 +4,15 @@
 <iframe id="site" title="字里寻踪"></iframe>
 <script>
 const site = document.getElementById('site');
-let currentSiteKey, activeRequest, timer, latestResponse, bootstrapKey, ready = false;
+let currentSiteKey, activeRequest, activeMode, timer, latestResponse, bootstrapKey, ready = false;
 function streamlit(type, payload = {}) { parent.postMessage({isStreamlitMessage:true,type,...payload}, '*'); }
 function deliver(response) {
   if (!response) return;
-  if (!response.audio) try { sessionStorage.setItem('zili-answer:' + response.id, JSON.stringify(response)); } catch {}
+  if (!response.audio && !response.stream) try { sessionStorage.setItem('zili-answer:' + response.id, JSON.stringify(response)); } catch {}
   if (ready) site.contentWindow.postMessage({type:'qwen-response',...response}, '*');
 }
-function clearActive() { clearTimeout(timer); activeRequest = undefined; }
+function clearActive() { clearTimeout(timer); activeRequest = undefined; activeMode = undefined; }
+function armTimer(id) { clearTimeout(timer); timer=setTimeout(()=>{if(activeRequest===id){clearActive();deliver({id,error:'请求超时，请重新提交。'});}},35000); }
 addEventListener('message', ({source,data}) => {
   if (source === parent && data?.type === 'streamlit:render') {
     const {html,site_key:key,response} = data.args;
@@ -29,26 +30,30 @@ addEventListener('message', ({source,data}) => {
     }
     if (response?.id) {
       latestResponse = response;
-      if (response.id === activeRequest) clearActive();
+      if (response.id === activeRequest) {
+        if(response.stream && !response.done && !response.error) armTimer(activeRequest);
+        else clearActive();
+      }
       deliver(response);
     }
     return;
   }
   if (source !== site.contentWindow) return;
   if (data?.type === 'zili-ready') { ready = true; deliver(latestResponse); return; }
-  if (data?.type === 'qwen-cancel' && data.id === activeRequest) { clearActive(); return; }
+  if (data?.type === 'qwen-cancel' && data.id === activeRequest) {
+    const stream=activeMode==='tts_stream';clearActive();
+    if(stream)streamlit('streamlit:setComponentValue',{value:{id:crypto.randomUUID(),mode:'tts_cancel'},dataType:'json'});
+    return;
+  }
   if (data?.type !== 'qwen-request' || typeof data.request?.id !== 'string') return;
   if (activeRequest) {
     deliver({id:data.request.id,error:'上一个问题仍在回答，请稍后再试。'});
     return;
   }
   activeRequest = data.request.id;
+  activeMode = data.request.mode;
   const id = activeRequest;
-  timer = setTimeout(() => {
-    if (activeRequest !== id) return;
-    clearActive();
-    deliver({id,error:'请求超时，请重新提交。'});
-  }, 35000);
+  armTimer(id);
   streamlit('streamlit:setComponentValue',{value:data.request,dataType:'json'});
 });
 function resize() { streamlit('streamlit:setFrameHeight',{height:parent.innerHeight}); }

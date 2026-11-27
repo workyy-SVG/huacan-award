@@ -797,7 +797,7 @@ section,#ring b{background:#fffcf5}
         raise ValueError('Featured script switch hook changed')
     from release_quality import improve_release
     html = improve_release(html, ROOT)
-    voice_script = '\n'.join((ROOT / name).read_text(encoding='utf-8') for name in ('voice-cache.js','voice-cloud.js','voice-assistant.js'))
+    voice_script = '\n'.join((ROOT / name).read_text(encoding='utf-8') for name in ('voice-cache.js','voice-cloud.js','voice-stream.js','voice-assistant.js'))
     from release_quality import replace_once
     html = replace_once(html, "function navigate(page, hash = '', tab = '') {",
                         voice_script + "\nfunction navigate(page, hash = '', tab = '') {")
@@ -811,62 +811,88 @@ release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css", "voice-cloud.js", "voice-cache.js", "cloud_tts.py", "speech_cache.py"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css", "voice-cloud.js", "voice-cache.js", "voice-stream.js", "cloud_tts.py", "speech_cache.py", "speech_stream.py"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
     version = tuple((str(path.relative_to(ROOT)), path.stat().st_mtime_ns, path.stat().st_size) for path in sorted(set(assets)))
     story = st.query_params.get("story", "")
     site = declare_component("zili_site", path=str(ROOT / "qwen-component"))
-    previous = st.session_state.get("qwen_response")
-    component_key = json.dumps([story, version])
-    send_html = st.session_state.get('site_html_key') != component_key
-    request = site(
-        html=published_story_theme(release_html, story, version) if send_html else '',
-        site_key=component_key,
-        response=previous, key="zili_site",
-    )
-    st.session_state.site_html_key = component_key
-    if isinstance(request, dict) and isinstance(request.get("id"), str):
-        if request.get('mode') == 'bootstrap':
-            if st.session_state.get('site_bootstrap_id') != request['id']:
-                st.session_state.site_bootstrap_id = request['id']
-                st.session_state.site_html_key = None
+    @st.fragment(run_every=0.25 if st.session_state.get('speech_stream_job') else None)
+    def render_connected_site():
+        previous = st.session_state.get("qwen_response")
+        job = st.session_state.get('speech_stream_job')
+        if job:
+            packet=job.drain()
+            if packet:
+                previous=packet
+                st.session_state.qwen_response=packet
+        component_key = json.dumps([story, version])
+        send_html = st.session_state.get('site_html_key') != component_key
+        request = site(
+            html=published_story_theme(release_html, story, version) if send_html else '',
+            site_key=component_key,
+            response=previous, key="zili_site",
+        )
+        st.session_state.site_html_key = component_key
+        if isinstance(request, dict) and isinstance(request.get("id"), str):
+            mode=request.get('mode')
+            if mode in ('tts_stream','tts_cancel'):
+                if st.session_state.get('speech_command_id')!=request['id']:
+                    st.session_state.speech_command_id=request['id']
+                    if job:job.cancelled.set()
+                    if mode=='tts_stream':
+                        from speech_stream import SpeechStream
+                        st.session_state.speech_stream_job=SpeechStream(request,st.secrets)
+                    else:st.session_state.speech_stream_job=None
+                    st.rerun()
+                if job and job.done and job.queue.empty() and previous and previous.get('done'):
+                    st.session_state.speech_stream_job=None
+                    st.rerun()
+                return
+            if request.get('mode') == 'bootstrap':
+                if st.session_state.get('site_bootstrap_id') != request['id']:
+                    st.session_state.site_bootstrap_id = request['id']
+                    st.session_state.site_html_key = None
+                    st.rerun()
+                st.stop()
+            if not previous or request["id"] != previous["id"]:
+                if request.get('mode') == 'tts':
+                    from cloud_tts import synthesize
+                    st.session_state.qwen_response = {'id': request['id'], **synthesize(request, st.secrets)}
+                    st.rerun()
+                # Reuse successful answers to the same question in this browser session.
+                catalogue_bytes = (ROOT / "cases.json").read_bytes()
+                catalogue = json.loads(catalogue_bytes)
+                signature = (hashlib.sha256(catalogue_bytes).hexdigest(), PROMPT_VERSION,
+                             str(config(st.secrets, 'QWEN_MODEL', 'qwen-plus')),
+                             str(config(st.secrets, 'QWEN_BASE_URL', ''))) + tuple(str(request.get(field, "")).strip() for field in (
+                    "mode", "story", "question", "character", "dictionary"
+                ))
+                answers = st.session_state.setdefault("qwen_recent_answers", {})
+                cached = answers.get(signature)
+                response = cached[1] if isinstance(cached, tuple) and time() - cached[0] < 600 else None
+                invalid = validate_request(request)
+                if invalid:
+                    response = {'error': invalid}
+                if response is None:
+                    from request_limits import allow_request
+                    permitted = allow_request(st.session_state)
+                    try:
+                        response = qwen_answer(request, catalogue, st.secrets) if permitted else {"error": "提问较频繁，请稍等片刻再试。仍可使用地区筛选和关键词搜索。"}
+                    except Exception:
+                        logging.exception('Qwen service failed')
+                        response = {'error': '问答暂时无法完成，请稍后重试。故事和关键词搜索仍可使用。'}
+                    if "error" not in response:
+                        if len(answers) >= 24:
+                            answers.pop(next(iter(answers)))
+                        answers[signature] = (time(), response)
+                st.session_state.qwen_response = {"id": request["id"], **response}
                 st.rerun()
-            st.stop()
-        if not previous or request["id"] != previous["id"]:
-            if request.get('mode') == 'tts':
-                from cloud_tts import synthesize
-                st.session_state.qwen_response = {'id': request['id'], **synthesize(request, st.secrets)}
-                st.rerun()
-            # Reuse successful answers to the same question in this browser session.
-            catalogue_bytes = (ROOT / "cases.json").read_bytes()
-            catalogue = json.loads(catalogue_bytes)
-            signature = (hashlib.sha256(catalogue_bytes).hexdigest(), PROMPT_VERSION,
-                         str(config(st.secrets, 'QWEN_MODEL', 'qwen-plus')),
-                         str(config(st.secrets, 'QWEN_BASE_URL', ''))) + tuple(str(request.get(field, "")).strip() for field in (
-                "mode", "story", "question", "character", "dictionary"
-            ))
-            answers = st.session_state.setdefault("qwen_recent_answers", {})
-            cached = answers.get(signature)
-            response = cached[1] if isinstance(cached, tuple) and time() - cached[0] < 600 else None
-            invalid = validate_request(request)
-            if invalid:
-                response = {'error': invalid}
-            if response is None:
-                from request_limits import allow_request
-                permitted = allow_request(st.session_state)
-                try:
-                    response = qwen_answer(request, catalogue, st.secrets) if permitted else {"error": "提问较频繁，请稍等片刻再试。仍可使用地区筛选和关键词搜索。"}
-                except Exception:
-                    logging.exception('Qwen service failed')
-                    response = {'error': '问答暂时无法完成，请稍后重试。故事和关键词搜索仍可使用。'}
-                if "error" not in response:
-                    if len(answers) >= 24:
-                        answers.pop(next(iter(answers)))
-                    answers[signature] = (time(), response)
-            st.session_state.qwen_response = {"id": request["id"], **response}
+        if job and job.done and job.queue.empty() and previous and previous.get('stream') and previous.get('done'):
+            st.session_state.speech_stream_job=None
             st.rerun()
+    render_connected_site()
     st.stop()
 
 site_payload = bundle_site(site_version())
