@@ -32,11 +32,13 @@ def improve_release(html, root):
     encoded = base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False).encode(),mtime=0)).decode()
     html = html[:packed.start(2)] + encoded + html[packed.end(2):]
     manifest = json.loads((root/'qwen-component'/'asset-manifest.json').read_text(encoding='utf-8'))
-    atlas = 'const atlasManifest = ' + json.dumps(manifest) + ';\n' + """const componentBase = new URL(document.baseURI).searchParams.has('streamlitUrl') ? document.baseURI : new URL('qwen-component/', document.baseURI).href;
+    atlas_images = {name: 'data:image/webp;base64,' + base64.b64encode((root/'qwen-component'/'atlas'/item['file']).read_bytes()).decode()
+                    for name,item in manifest.items()}
+    atlas = 'const atlasImages = ' + json.dumps(atlas_images) + ';\n' + """
 function localizeAtlas(text) {
   return text.replace(/__ZILI_ATLAS__\\/([\\w.-]+)/g, (_, name) => {
-    if (!atlasManifest[name]) throw Error('Missing artwork: ' + name);
-    return new URL('atlas/' + atlasManifest[name].file, componentBase).href;
+    if (!atlasImages[name]) throw Error('Missing artwork: ' + name);
+    return atlasImages[name];
   });
 }
 for (const key of Object.keys(images)) images[key] = localizeAtlas(images[key]);
