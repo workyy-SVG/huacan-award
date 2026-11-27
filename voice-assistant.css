@@ -24,3 +24,16 @@ html body #zili-voice-assistant :disabled{opacity:.55;cursor:not-allowed}
 html body #zili-voice-assistant :focus-visible{outline:2px solid #37758e;outline-offset:3px}
 html body .zili-voice-reading{background-color:#dfe9e8!important;box-shadow:inset 3px 0 #36687b!important;border-radius:4px}
 @media(max-width:680px){html body #zili-voice-assistant{right:12px;bottom:max(58px,env(safe-area-inset-bottom))}html body #zili-voice-assistant #zv-panel{width:310px}html body #zili-voice-assistant select{font-size:16px}}
+/* Deeper ink, clearer weight, and explicit drag handles. */
+html body #zili-voice-assistant{color:#143b4e;font-weight:600}
+html body #zili-voice-assistant .zv-launch{font-weight:700;color:#fff1cc;touch-action:none;user-select:none;cursor:grab}
+html body #zili-voice-assistant header{touch-action:none;user-select:none;cursor:grab}
+html body #zili-voice-assistant .zv-launch:active,html body #zili-voice-assistant header:active{cursor:grabbing}
+html body #zili-voice-assistant p{color:#173f52;font-weight:600}
+html body #zili-voice-assistant label{color:#264b5b;font-weight:600}
+html body #zili-voice-assistant header b{font-weight:700}
+html body #zili-voice-assistant header small{font-weight:600;color:#f0e7ce}
+html body #zili-voice-assistant .zv-status{color:#204b60;font-weight:700}
+html body #zili-voice-assistant .zv-note{color:#3d5964;font-weight:600}
+html body #zili-voice-assistant .zv-language-note{font-size:12px;color:#3b5663;margin:7px 0 12px}
+html body #zili-voice-assistant .zv-reset{margin-top:12px;border:1px solid #a6bfc7;border-radius:6px;background:#f0f4f1;color:#214756;padding:6px 10px;font-weight:600}

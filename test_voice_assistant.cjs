@@ -34,3 +34,17 @@ function setup(){
   reader.load([]);reader.play();assert.equal(spoken.length,0);assert.match(states.at(-1).message,/没有可朗读/);reader.destroy();
 }
 console.log('PASS: speech sequencing, chunking, pause/resume, stale events, settings, permissions, navigation cleanup and empty content');
+{
+  const voices=[{lang:'zh-CN',voiceURI:'ordinary'},{lang:'zh-TW',voiceURI:'taiwan-mandarin'},{lang:'zh-HK',voiceURI:'cantonese'},{lang:'nan-TW',voiceURI:'hokkien'},{lang:'yue-Hant-HK',voiceURI:'yue'}];
+  const ids=mode=>Array.from(context.ziliRegionalVoices(voices,mode),v=>v.voiceURI);
+  assert.deepEqual(ids('mandarin'),['ordinary']);
+  assert.deepEqual(ids('hongkong'),['cantonese','yue']);
+  assert.deepEqual(ids('macau'),['cantonese','yue']);
+  assert.deepEqual(ids('taiwan'),['hokkien']);
+  assert.equal(context.ziliRegionalVoices([{lang:'zh-TW'}],'taiwan').length,0,'Taiwanese Mandarin must never impersonate Hokkien');
+  const p=context.ziliClampVoicePosition(-50,2000,900,700,160,48);
+  assert.equal(p.x,8);assert.equal(p.y,644);
+  const tiny=context.ziliClampVoicePosition(400,500,320,360,180,48);
+  assert.equal(tiny.x,132);assert.equal(tiny.y,304);
+}
+console.log('PASS: real locale matching, no Mandarin/Hokkien substitution and viewport drag bounds');

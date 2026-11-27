@@ -40,7 +40,21 @@ function createZiliReader({synth, Utterance, onState, onParagraph}) {
   };
 }
 
+// Match actual language metadata. zh-TW is Mandarin, never Taiwanese Hokkien.
+function ziliRegionalVoices(voices,mode){
+  return voices.filter(voice=>{
+    const lang=voice.lang.toLowerCase().replaceAll('_','-');
+    if(mode==='mandarin')return /^(zh-(cn|sg|hans)(-|$)|cmn(-|$)|zh$)/.test(lang);
+    if(mode==='hongkong'||mode==='macau')return /^(yue(-|$)|zh-(hk|mo)(-|$))/.test(lang);
+    return /^(nan(-|$)|zh-min-nan(-|$))/.test(lang);
+  });
+}
+function ziliClampVoicePosition(x,y,width,height,buttonWidth,buttonHeight){
+  return {x:Math.max(8,Math.min(x,width-buttonWidth-8)),y:Math.max(8,Math.min(y,height-buttonHeight-8))};
+}
 let ziliVoiceGuide=null;
+let ziliVoicePosition=null;
+let ziliVoiceMode='mandarin';
 function bindZiliVoiceGuide(doc){
   ziliVoiceGuide?.destroy();
   const view=doc.defaultView;
@@ -51,7 +65,15 @@ function bindZiliVoiceGuide(doc){
   doc.body.append(host);
   const get=selector=>host.querySelector(selector);
   const launch=get('.zv-launch'),panel=get('#zv-panel'),status=get('.zv-status'),segments=get('.zv-segments'),play=get('.zv-play');
+  const languageLabel=doc.createElement('label');languageLabel.className='zv-language-label';
+  languageLabel.innerHTML='讲解语言<select class="zv-language" aria-label="讲解语言"><option value="mandarin">中文普通话</option><option value="hongkong">香港粤语</option><option value="taiwan">台湾台语（闽南语）</option><option value="macau">澳门粤语</option></select>';
+  get('.zv-settings').before(languageLabel);
+  const languageNote=doc.createElement('p');languageNote.className='zv-language-note';languageNote.setAttribute('role','status');languageLabel.after(languageNote);
+  const reset=doc.createElement('button');reset.type='button';reset.className='zv-reset';reset.textContent='恢复默认位置';get('.zv-note').before(reset);
+  get('.zv-note').textContent='拖动入口或面板标题可移动。入口聚焦后可用方向键微调、Home 键复位。收起继续听，切换页面停止。';
+  get('.zv-language').value=ziliVoiceMode;
   let entries=[],currentState='idle',highlighted=null,voices=[],selectedVoice='';
+  let voiceReady=false,drag=null,suppressClick=false;
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
   function visible(node){
     if(!node.isConnected||node.closest('#zili-voice-assistant,[hidden],[aria-hidden="true"],nav,aside,form,dialog,script,style'))return false;
@@ -84,26 +106,78 @@ function bindZiliVoiceGuide(doc){
     entries.forEach((entry,i)=>segments.add(new view.Option((i+1)+' · '+entry.text.slice(0,42)+(entry.text.length>42?'…':''),String(i))));
     reader?.load(entries);
     if(!entries.length)status.textContent='当前没有可朗读的正文，请先打开故事或查询汉字。';
-    play.disabled=!supported||!entries.length;
-    get('.zv-next').disabled=get('.zv-restart').disabled=!supported||!entries.length;
+    play.disabled=!supported||!entries.length||!voiceReady;
+    get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
   }
-  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&currentState!=='playing'&&currentState!=='paused')refresh();}
-  launch.onclick=()=>open(panel.hidden);
+  function fitPanel(){
+    if(panel.hidden)return;
+    panel.style.maxHeight=Math.max(120,view.innerHeight-90)+'px';
+    const button=launch.getBoundingClientRect(),box=panel.getBoundingClientRect();
+    const left=Math.max(8,Math.min(button.right-box.width,view.innerWidth-box.width-8));
+    let top=button.top-box.height-12;
+    if(top<8)top=button.bottom+12;
+    top=Math.max(8,Math.min(top,view.innerHeight-box.height-8));
+    const hostBox=host.getBoundingClientRect();
+    panel.style.left=(left-hostBox.left)+'px';panel.style.top=(top-hostBox.top)+'px';panel.style.right='auto';panel.style.bottom='auto';
+  }
+  function position(x,y,remember=true){
+    const box=launch.getBoundingClientRect(),p=ziliClampVoicePosition(x,y,view.innerWidth,view.innerHeight,box.width,box.height);
+    host.style.left=p.x+'px';host.style.top=p.y+'px';host.style.right='auto';host.style.bottom='auto';
+    if(remember)ziliVoicePosition={x:p.x/Math.max(1,view.innerWidth-box.width),y:p.y/Math.max(1,view.innerHeight-box.height)};
+    fitPanel();
+  }
+  function restorePosition(){
+    if(ziliVoicePosition){const box=launch.getBoundingClientRect();position(ziliVoicePosition.x*(view.innerWidth-box.width),ziliVoicePosition.y*(view.innerHeight-box.height),false);}
+    else fitPanel();
+  }
+  reset.onclick=()=>{ziliVoicePosition=null;for(const property of ['left','top','right','bottom'])host.style.removeProperty(property);fitPanel();};
+  function pointerDown(event){
+    if(event.button!==0||event.target.closest('button')&&event.target.closest('button')!==launch)return;
+    const box=launch.getBoundingClientRect();drag={id:event.pointerId,startX:event.clientX,startY:event.clientY,x:box.left,y:box.top,moved:false};
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function pointerMove(event){
+    if(!drag||event.pointerId!==drag.id)return;
+    const dx=event.clientX-drag.startX,dy=event.clientY-drag.startY;
+    if(Math.hypot(dx,dy)>6)drag.moved=true;
+    if(drag.moved){event.preventDefault();position(drag.x+dx,drag.y+dy);}
+  }
+  function pointerUp(event){if(!drag||event.pointerId!==drag.id)return;if(drag.moved){suppressClick=true;view.setTimeout(()=>suppressClick=false,0);}drag=null;}
+  for(const handle of [launch,get('header')]){handle.addEventListener('pointerdown',pointerDown);handle.addEventListener('pointermove',pointerMove);handle.addEventListener('pointerup',pointerUp);handle.addEventListener('pointercancel',()=>drag=null);}
+  launch.addEventListener('keydown',event=>{
+    if(event.key==='Home'){event.preventDefault();reset.click();return;}
+    const delta={ArrowLeft:[-10,0],ArrowRight:[10,0],ArrowUp:[0,-10],ArrowDown:[0,10]}[event.key];
+    if(delta){event.preventDefault();const box=launch.getBoundingClientRect();position(box.left+delta[0],box.top+delta[1]);}
+  });
+  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&currentState!=='playing'&&currentState!=='paused')refresh();fitPanel();}
+  launch.onclick=event=>{if(suppressClick){event.preventDefault();return;}open(panel.hidden);};
   get('.zv-close').onclick=()=>{open(false);launch.focus();};
   host.addEventListener('keydown',e=>{if(e.key==='Escape'){open(false);launch.focus();}});
   function loadVoices(){
-    voices=synth.getVoices().filter(voice=>/^(zh|cmn|yue)(-|_|$)/i.test(voice.lang));
-    const previous=selectedVoice;get('.zv-voice').replaceChildren(new view.Option('设备默认中文声音',''));
+    const mode=get('.zv-language').value;
+    voices=ziliRegionalVoices(synth.getVoices(),mode);
+    // No reviewed Taiwanese-language scripts are bundled; do not read Mandarin prose as Hokkien.
+    voiceReady=mode!=='taiwan'&&voices.length>0;
+    get('.zv-voice').replaceChildren();
     voices.forEach(voice=>get('.zv-voice').add(new view.Option(voice.name+' · '+voice.lang,voice.voiceURI)));
-    selectedVoice=voices.some(voice=>voice.voiceURI===previous)?previous:'';
+    if(!voices.length)get('.zv-voice').add(new view.Option('当前设备暂无对应声音',''));
+    selectedVoice=voices.some(voice=>voice.voiceURI===selectedVoice)?selectedVoice:voices[0]?.voiceURI||'';
     get('.zv-voice').value=selectedVoice;
+    get('.zv-voice').disabled=!voiceReady;
+    languageNote.textContent=mode==='taiwan'?'台语需要专门的闽南语声音和台语讲解文稿，目前尚未接入，暂不可播放。台湾普通话不作为台语替代。':!voiceReady?'当前设备未提供'+(mode==='mandarin'?'普通话':'粤语')+'声音，暂不可播放；不会改用其他语言替代。':mode==='macau'?'澳门粤语：当前使用设备提供的粤语声音，与香港选项共用；不代表独立澳门口音。':mode==='hongkong'?'香港粤语：使用设备提供的真实粤语声音，按页面原文朗读。':'中文普通话：使用设备提供的普通话声音。';
+    play.disabled=!entries.length||!voiceReady;get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
+    if(voiceReady)reader.configure(Number(get('.zv-rate').value),voices.find(voice=>voice.voiceURI===selectedVoice));
+    else reader.stop();
+    fitPanel();
   }
   if(supported){
     loadVoices();synth.addEventListener('voiceschanged',loadVoices);
+    get('.zv-language').onchange=()=>{reader.stop();ziliVoiceMode=get('.zv-language').value;selectedVoice='';loadVoices();};
     play.onclick=()=>{
       if(currentState==='playing'){reader.pause();return;}
       if(currentState==='paused'){reader.play();return;}
       if(currentState==='ended'){refresh();reader.restart();return;}
+      if(!voiceReady)return;
       const selected=Number(segments.value)||0;refresh();reader.select(selected);reader.play();
     };
     get('.zv-stop').onclick=()=>reader.stop();get('.zv-restart').onclick=()=>{refresh();reader.restart();};
@@ -113,8 +187,10 @@ function bindZiliVoiceGuide(doc){
     get('.zv-rate').onchange=get('.zv-voice').onchange=settings;
   }else{
     status.textContent='当前浏览器不支持语音朗读，请在支持系统语音的 Chrome、Edge 或 Safari 中打开。';
-    host.querySelectorAll('.zv-body button,.zv-body select').forEach(control=>control.disabled=true);
+    host.querySelectorAll('.zv-actions button,.zv-segments,.zv-rate,.zv-voice').forEach(control=>control.disabled=true);
   }
   const unload=()=>reader?.destroy();view.addEventListener('pagehide',unload);
-  ziliVoiceGuide={destroy(){reader?.destroy();view.removeEventListener('pagehide',unload);if(supported)synth.removeEventListener('voiceschanged',loadVoices);host.remove();}};
+  view.addEventListener('resize',restorePosition);view.visualViewport?.addEventListener('resize',restorePosition);
+  const panelObserver=new view.ResizeObserver(fitPanel);panelObserver.observe(panel);restorePosition();
+  ziliVoiceGuide={destroy(){reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();if(supported)synth.removeEventListener('voiceschanged',loadVoices);host.remove();}};
 }
