@@ -727,6 +727,10 @@ html body .page #form .observation .character-history {
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
     stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
+    stats_html = stats_html.replace('</style>', '''
+body{background:#faf6eb}
+section,#ring b{background:#fffcf5}
+</style>''', 1)
     catalogue_json = (ROOT / "cases.json").read_text(encoding="utf-8")
     stats_html = stats_html.replace(
         "fetch('cases.json')",

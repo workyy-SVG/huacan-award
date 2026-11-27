@@ -1,2 +1,10 @@
+/* Lighten the original warm paper slightly, retaining its cream undertone. */
+html body main .gallery #records .folio {
+  --wash:#faf6e9;
+  background:radial-gradient(ellipse at 50% 15%,#fffdf7 0,transparent 62%),var(--wash);
+}
+html body main .gallery #records .folio-reader {
+  background:linear-gradient(90deg,#fffdf5aa,transparent);
+}
 /* The last story's 56px bottom margin is the space before the statistics. */
 html body main .gallery #records .folio:last-child {margin-bottom:28px}
