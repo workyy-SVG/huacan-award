@@ -727,16 +727,22 @@ html body .page #form .observation .character-history {
     stats_mount = """if (page === 'regions.html') {
       const toggle = doc.createElement('details');
       const label = doc.createElement('summary');
-      label.textContent = '查看民俗样本统计';
+      label.textContent = '民俗样本统计 · 收起';
       label.style.cssText = 'cursor:pointer;color:#244d67;padding:8px 0;font-weight:600';
       toggle.append(label);
-      doc.getElementById('status')?.after(toggle);
+      doc.getElementById('records')?.after(toggle);
+      toggle.open = true;
       toggle.addEventListener('toggle', () => {
+        label.textContent = toggle.open ? '民俗样本统计 · 收起' : '展开民俗样本统计';
         if (!toggle.open || toggle.querySelector('iframe')) return;
         const chart = doc.createElement('iframe');
         chart.title = '民俗样本统计';
         chart.style.cssText = 'display:block;width:100%;height:min(80vh,820px);border:0;border-radius:10px';
         chart.srcdoc = """ + json.dumps(stats_html, ensure_ascii=False).replace("</", r"<\/") + """;
+        chart.onload = () => {
+          const body = chart.contentDocument.body;
+          new ResizeObserver(() => { if (toggle.open && body.offsetHeight) chart.style.height = Math.ceil(body.getBoundingClientRect().height) + 'px'; }).observe(body);
+        };
         toggle.append(chart);
       });
     }"""
