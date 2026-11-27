@@ -62,6 +62,7 @@ def synthesize(request, secrets):
         return disk_cached
     body = {'model': model, 'input': {'text': text, 'voice': voice, 'language_type': 'Chinese'}}
     endpoint = 'https://' + parsed.hostname + '/api/v1/services/aigc/multimodal-generation/generation'
+    stage='synthesis'
     try:
         with provider_call():
             req = Request(endpoint, data=json.dumps(body).encode(), headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'})
@@ -72,6 +73,7 @@ def synthesize(request, secrets):
             result = json.loads(raw)
             audio = result.get('output', {}).get('audio', {})
             url = audio_url(audio.get('url', ''))
+            stage='download'
             with build_opener(AudioRedirect()).open(url, timeout=10) as response:
                 content = response.read(MAX_AUDIO + 1)
             if not 44 <= len(content) <= MAX_AUDIO or content[:4] != b'RIFF' or content[8:12] != b'WAVE':
@@ -83,6 +85,7 @@ def synthesize(request, secrets):
             _cache.move_to_end(signature)
             while len(_cache) > 256 or sum(len(v[1]['audio']) for v in _cache.values()) > 64 * 1024 * 1024:
                 _cache.popitem(last=False)
+        stage='cache'
         save_clip(signature,answer)
         return answer
     except HTTPError as error:
@@ -96,4 +99,4 @@ def synthesize(request, secrets):
         return {'error': '云端语音请求较多，请稍后重试。'}
     except Exception as error:
         logging.warning('Cloud speech failed: %s', type(error).__name__)
-        return {'error': '云端语音连接失败，请稍后重试。不会改用电脑系统声音。'}
+        return {'error': '云端语音连接失败，请稍后重试。不会改用电脑系统声音。', 'diagnostic':stage+':'+type(error).__name__}

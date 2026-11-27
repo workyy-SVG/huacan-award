@@ -37,7 +37,7 @@ function ziliFetchCloudAudio(text,language,signal){
     const timeout=setTimeout(()=>{parent.postMessage({type:'qwen-cancel',id},'*');finish(new Error('云端语音超时，请稍后重新开始。'));},40000);
     function receive({source,data}){
       if(source!==parent||data?.type!=='qwen-response'||data.id!==id)return;
-      if(data.error){finish(new Error(data.error));return;}
+      if(data.error){document.documentElement.dataset.voiceDiagnostic=data.diagnostic||'';finish(new Error(data.error));return;}
       if(typeof data.audio!=='string'||!/^data:audio\/wav;base64,[A-Za-z0-9+/=]+$/.test(data.audio)){finish(new Error('云端未返回有效音频。'));return;}
       finish(null,data.audio);
     }
