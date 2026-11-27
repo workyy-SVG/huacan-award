@@ -494,23 +494,12 @@ site_payload = bundle_site(site_version())
 def published_story_theme(_path, story, version):
     """Extend the story gutter colors through the full reading area."""
     html = _path.read_text(encoding="utf-8")
-    # Resolve packaged artwork before it enters the nested document.
-    from functools import lru_cache
-
-    @lru_cache(maxsize=None)
-    def atlas_data(name):
-        asset = ROOT / "static" / "atlas" / name
-        with Image.open(asset) as picture:
-            limit = 1920 if name.startswith(("home-", "plate-")) else 1100
-            if name.endswith("-theme.jpg"):
-                limit = 3840
-            picture.thumbnail((limit, limit), Image.Resampling.LANCZOS)
-            output = BytesIO()
-            picture.save(output, "WEBP", quality=82)
-        return "data:image/webp;base64," + base64.b64encode(output.getvalue()).decode("ascii")
+    # Nested component documents have different base URLs. Pin the artwork to
+    # its published revision so every page and lightbox loads the same master.
+    asset_root = "https://raw.githubusercontent.com/workyy-SVG/huacan-award/84de889/static/atlas/"
 
     def embed_atlas(match):
-        return atlas_data(match.group(1))
+        return asset_root + match.group(1)
 
     atlas_path = re.compile(r"app/static/atlas/([\w.-]+\.(?:jpg|png|webp))")
     packed = re.compile(r"(const packed = ')([^']+)(';)")
