@@ -723,6 +723,24 @@ html body .page #form .observation .character-history {
     hook = "    if (page === keepsakePage) renderKeepsakes(doc);"
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
+    stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
+    stats_mount = """if (page === 'regions.html') {
+      const toggle = doc.createElement('details');
+      const label = doc.createElement('summary');
+      label.textContent = '查看民俗样本统计';
+      label.style.cssText = 'cursor:pointer;color:#244d67;padding:8px 0;font-weight:600';
+      toggle.append(label);
+      doc.getElementById('status')?.after(toggle);
+      toggle.addEventListener('toggle', () => {
+        if (!toggle.open || toggle.querySelector('iframe')) return;
+        const chart = doc.createElement('iframe');
+        chart.title = '民俗样本统计';
+        chart.style.cssText = 'display:block;width:100%;height:min(80vh,820px);border:0;border-radius:10px';
+        chart.srcdoc = """ + json.dumps(stats_html, ensure_ascii=False).replace("</", r"<\/") + """;
+        toggle.append(chart);
+      });
+    }"""
+    html = html.replace(hook, stats_mount + "\n" + hook, 1)
     html = html.replace(hook, qwen_demos + "\n" + hook, 1)
     html = html.replace(hook, "    if (isStory(page)) {\n" + notes_script + "\n}\n" + hook, 1)
     if story in {Path(name).stem for name in PAGES[3:]}:
@@ -750,7 +768,7 @@ html body .page #form .observation .character-history {
 release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
-        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "release_fixes.py", "opencc-full.gz.b64",
+        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
         "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
