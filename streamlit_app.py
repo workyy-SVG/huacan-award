@@ -715,6 +715,15 @@ html body .page #form .observation .character-history {
     html = html.replace(hook, "    if (isStory(page)) {\n" + notes_script + "\n}\n" + hook, 1)
     if story in {Path(name).stem for name in PAGES[3:]}:
         html = html.replace("\nnavigate('index.html');", "\nnavigate(" + json.dumps(story + ".html") + ");", 1)
+    # Lift the desktop Macao photo and bow its guide above the entry button.
+    html = html.replace("--cx:9%;--cy:76%", "--cx:9%;--cy:72%", 1)
+    straight_guide = "  path.setAttribute('d','M '+x+' '+y+' L '+(cx+dx*edge)+' '+(cy+dy*edge));"
+    curved_guide = """  const endX = cx + dx * edge, endY = cy + dy * edge;
+  const guide = path.dataset.to === 'macao' && area.width > 680
+    ? ' Q ' + (x + (endX - x) * 0.35) + ' ' + (Math.min(y, endY) - 34) + ' '
+    : ' L ';
+  path.setAttribute('d', 'M ' + x + ' ' + y + guide + endX + ' ' + endY);"""
+    html = html.replace(straight_guide, curved_guide, 1)
     mobile_css = (ROOT / "mobile-home.css").read_text(encoding="utf-8")
     html = html.replace("'</style></head>'", json.dumps("</style><style>" + mobile_css + "</style></head>"))
     return html.replace(
