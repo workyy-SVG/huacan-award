@@ -15,6 +15,7 @@ REQUIRED.append('qwen-component/asset-manifest.json')
 REQUIRED.append('guide.html')
 REQUIRED.append('regions-polish.css')
 REQUIRED.extend(['stats-3d.js','stats-3d.css'])
+REQUIRED.append('featured-spacing.css')
 
 def check():
     for name in REQUIRED:

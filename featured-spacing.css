@@ -1,0 +1,5 @@
+/* Shift the title and all six cards together into the lower empty strip. */
+html body .sheet:has(.features)>main {
+  position:relative;
+  top:clamp(20px,3.6vh,34px);
+}
