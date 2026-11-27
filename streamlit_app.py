@@ -724,6 +724,12 @@ html body .page #form .observation .character-history {
     html = html.replace("main>:not(#story-lookup)", "main>:not(#story-lookup,.qwen-lookup-demo)", 1)
     qwen_demos = (ROOT / "qwen-demos.js").read_text(encoding="utf-8-sig")
     stats_html = (ROOT / "folk-stats.html").read_text(encoding="utf-8")
+    catalogue_json = (ROOT / "cases.json").read_text(encoding="utf-8")
+    stats_html = stats_html.replace(
+        "fetch('cases.json')",
+        "Promise.resolve(new Response(" + json.dumps(catalogue_json, ensure_ascii=True).replace("<", r"\u003c") + "))",
+        1,
+    )
     stats_mount = """if (page === 'regions.html') {
       const toggle = doc.createElement('details');
       const label = doc.createElement('summary');
