@@ -5,6 +5,9 @@ import json
 import mimetypes
 from pathlib import Path
 import re
+import hashlib
+import logging
+from time import time
 
 from io import BytesIO
 
@@ -12,7 +15,7 @@ from PIL import Image
 import streamlit as st
 from streamlit.components.v1 import declare_component, html as render_html
 
-from qwen_live import answer as qwen_answer
+from qwen_live import answer as qwen_answer, validate_request, PROMPT_VERSION, config
 
 ROOT = Path(__file__).resolve().parent
 # Region navigation is provided by the fixed Streamlit sidebar.
@@ -496,7 +499,7 @@ def published_story_theme(_path, story, version):
     html = _path.read_text(encoding="utf-8")
     # Nested component documents have different base URLs. Pin the artwork to
     # its published revision so every page and lightbox loads the same master.
-    asset_root = "https://raw.githubusercontent.com/workyy-SVG/huacan-award/84de889/static/atlas/"
+    asset_root = "__ZILI_ATLAS__/"
 
     def embed_atlas(match):
         return asset_root + match.group(1)
@@ -768,7 +771,7 @@ html body .page #form .observation .character-history {
     html = html.replace(straight_guide, curved_guide, 1)
     mobile_css = (ROOT / "mobile-home.css").read_text(encoding="utf-8")
     html = html.replace("'</style></head>'", json.dumps("</style><style>" + mobile_css + "</style></head>"))
-    return html.replace(
+    html = html.replace(
         "themeCSS+(storyArt[page]||'')",
         "themeCSS+(storyArt[page]||'').replaceAll('html body .page #form::after','html body .page #form + section::before')" + " + (storyArt[page] ? " + json.dumps(source_style + reading_style) + " : '')"
         + " + (page === 'regions.html' ? " + json.dumps(gallery_style + gallery_toolbar_style) + " : '')"
@@ -777,11 +780,15 @@ html body .page #form .observation .character-history {
     )
 
 
+    from release_quality import improve_release
+    return improve_release(html, ROOT)
+
+
 release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
@@ -797,20 +804,31 @@ if release_html.is_file():
     if isinstance(request, dict) and isinstance(request.get("id"), str):
         if not previous or request["id"] != previous["id"]:
             # Reuse successful answers to the same question in this browser session.
-            signature = tuple(str(request.get(field, "")).strip() for field in (
+            catalogue_bytes = (ROOT / "cases.json").read_bytes()
+            catalogue = json.loads(catalogue_bytes)
+            signature = (hashlib.sha256(catalogue_bytes).hexdigest(), PROMPT_VERSION,
+                         str(config(st.secrets, 'QWEN_MODEL', 'qwen-plus')),
+                         str(config(st.secrets, 'QWEN_BASE_URL', ''))) + tuple(str(request.get(field, "")).strip() for field in (
                 "mode", "story", "question", "character", "dictionary"
             ))
             answers = st.session_state.setdefault("qwen_recent_answers", {})
-            response = answers.get(signature)
+            cached = answers.get(signature)
+            response = cached[1] if isinstance(cached, tuple) and time() - cached[0] < 600 else None
+            invalid = validate_request(request)
+            if invalid:
+                response = {'error': invalid}
             if response is None:
-                catalogue = json.loads((ROOT / "cases.json").read_text(encoding="utf-8"))
                 from request_limits import allow_request
                 permitted = allow_request(st.session_state)
-                response = qwen_answer(request, catalogue, st.secrets) if permitted else {"error": "提问较频繁，请稍等片刻再试。仍可使用地区筛选和关键词搜索。"}
+                try:
+                    response = qwen_answer(request, catalogue, st.secrets) if permitted else {"error": "提问较频繁，请稍等片刻再试。仍可使用地区筛选和关键词搜索。"}
+                except Exception:
+                    logging.exception('Qwen service failed')
+                    response = {'error': '问答暂时无法完成，请稍后重试。故事和关键词搜索仍可使用。'}
                 if "error" not in response:
                     if len(answers) >= 24:
                         answers.pop(next(iter(answers)))
-                    answers[signature] = response
+                    answers[signature] = (time(), response)
             st.session_state.qwen_response = {"id": request["id"], **response}
             st.rerun()
     st.stop()

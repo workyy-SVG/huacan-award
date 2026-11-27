@@ -177,7 +177,8 @@ async function lookup() {
     status.textContent = [entry.radical && '部首 ' + entry.radical, entry.stroke_count && '词典字形笔画 ' + entry.stroke_count].filter(Boolean).join('　');
     for (const reading of entry.heteronyms) {
       const paragraph = document.createElement('p');
-      paragraph.textContent = [reading.pinyin || reading.bopomofo, reading.definitions?.find(item => item.def)?.def].filter(Boolean).join('　');
+      paragraph.textContent = [reading.pinyin || reading.bopomofo, (reading.definitions || []).filter(item => item.def).map((item, index) => (index + 1) + '. ' + (item.type ? '[' + item.type + '] ' : '') + item.def + (item.example?.length ? ' 例：' + item.example.join('；') : '')).join('\n')].filter(Boolean).join('　');
+      paragraph.style.whiteSpace = 'pre-wrap';
       definitions.append(paragraph);
     }
   } catch {

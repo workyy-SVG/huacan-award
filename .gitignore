@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+.streamlit/secrets.toml
+*.sqlite3
+validation-*.html
+validation-*.js

@@ -20,7 +20,7 @@ request = {'mode':'story','story':'nian','question':'这里有什么习俗？'}
 with patch.object(qwen_live,'sleep'), patch.object(qwen_live,'urlopen',side_effect=lambda *a,**k:response('测试回答 [999]')) as calls:
     assert 'error' in qwen_live.answer(request,catalogue,{'DASHSCOPE_API_KEY':'mock'})
     assert calls.call_count == 2
-with patch.object(qwen_live,'urlopen',side_effect=lambda *a,**k:response('测试回答 [1]')):
+with patch.object(qwen_live,'urlopen',side_effect=lambda *a,**k:response('{"evidence":[{"id":1,"quote":"除夕团圆饭"}]}')):
     assert len(qwen_live.answer(request,catalogue,{'DASHSCOPE_API_KEY':'mock'})['sources']) == 1
 with patch.object(qwen_live,'urlopen',side_effect=lambda *a,**k:response('{"ids":[1,1,999]}')):
     assert len(qwen_live.answer({'mode':'search','question':'团圆'},catalogue,{'DASHSCOPE_API_KEY':'mock'})['records']) == 1

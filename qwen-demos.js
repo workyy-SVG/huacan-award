@@ -71,6 +71,7 @@
     section.style.cssText = 'margin:12px 0;padding:10px 14px;border:1px solid #aac3d0;border-radius:8px;background:#eef6f8;color:#244d67';
     section.innerHTML = '<summary style="cursor:pointer;font-weight:700"></summary><form style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"><input required maxlength="400" style="flex:1;min-width:150px" aria-label="输入问题"><button>提交</button><select aria-label="预设问题"></select></form><div role="status" style="white-space:pre-wrap;margin-top:8px"></div><small>千问实时回答</small>';
     section.querySelector('summary').textContent = title;
+    if (mode === 'story') section.querySelector('small').textContent = '千问选取相关资料，回答保留站内资料原文。';
     const form = section.querySelector('form');
     const input = form.querySelector('input');
     const submit = form.querySelector('button');
