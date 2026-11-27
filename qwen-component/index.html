@@ -8,7 +8,7 @@ let currentSiteKey, activeRequest, timer, latestResponse, ready = false;
 function streamlit(type, payload = {}) { parent.postMessage({isStreamlitMessage:true,type,...payload}, '*'); }
 function deliver(response) {
   if (!response) return;
-  try { sessionStorage.setItem('zili-answer:' + response.id, JSON.stringify(response)); } catch {}
+  if (!response.audio) try { sessionStorage.setItem('zili-answer:' + response.id, JSON.stringify(response)); } catch {}
   if (ready) site.contentWindow.postMessage({type:'qwen-response',...response}, '*');
 }
 function clearActive() { clearTimeout(timer); activeRequest = undefined; }

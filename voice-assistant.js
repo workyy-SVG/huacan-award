@@ -58,21 +58,21 @@ let ziliVoiceMode='mandarin';
 function bindZiliVoiceGuide(doc){
   ziliVoiceGuide?.destroy();
   const view=doc.defaultView;
-  const synth=view.speechSynthesis;
-  const supported=!!(synth&&view.SpeechSynthesisUtterance);
+  const supported=typeof view.Audio==='function';
   const host=doc.createElement('div');host.id='zili-voice-assistant';
   host.innerHTML='<button type="button" class="zv-launch" aria-expanded="false" aria-controls="zv-panel"><span class="zv-seal" aria-hidden="true">听</span>寻踪小助手</button><section id="zv-panel" aria-label="寻踪小助手朗读控制" hidden><header><div><b>寻踪小助手</b><small>让汉字文化被听见</small></div><button type="button" class="zv-close" aria-label="收起语音助手">⌄</button></header><div class="zv-body"><p class="zv-page"></p><p class="zv-status" role="status" aria-live="polite"></p><label>选择朗读段落<select class="zv-segments" aria-label="选择朗读段落"></select></label><div class="zv-actions"><button type="button" class="zv-play">开始讲解</button><button type="button" class="zv-next">下一段</button><button type="button" class="zv-stop">停止</button><button type="button" class="zv-restart">从头朗读</button></div><div class="zv-settings"><label>朗读语速<select class="zv-rate" aria-label="朗读语速"><option value="0.75">0.75×</option><option value="1" selected>1.0×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label><label>讲解声音<select class="zv-voice" aria-label="讲解声音"><option value="">设备默认中文声音</option></select></label></div><p class="zv-note">按页面原文朗读；声音由设备提供。收起可继续听，切换页面自动停止。</p></div></section>';
   doc.body.append(host);
   const get=selector=>host.querySelector(selector);
   const launch=get('.zv-launch'),panel=get('#zv-panel'),status=get('.zv-status'),segments=get('.zv-segments'),play=get('.zv-play');
   const languageLabel=doc.createElement('label');languageLabel.className='zv-language-label';
-  languageLabel.innerHTML='讲解语言<select class="zv-language" aria-label="讲解语言"><option value="mandarin">中文普通话</option><option value="hongkong">香港粤语</option><option value="taiwan">台湾台语（闽南语）</option><option value="macau">澳门粤语</option></select>';
+  languageLabel.innerHTML='讲解语言<select class="zv-language" aria-label="讲解语言"><option value="mandarin">中文普通话</option><option value="cantonese">香港澳门粤语</option><option value="taiwan">台湾台语（闽南语）</option></select>';
   get('.zv-settings').before(languageLabel);
   const languageNote=doc.createElement('p');languageNote.className='zv-language-note';languageNote.setAttribute('role','status');languageLabel.after(languageNote);
   const reset=doc.createElement('button');reset.type='button';reset.className='zv-reset';reset.textContent='恢复默认位置';get('.zv-note').before(reset);
-  get('.zv-note').textContent='拖动入口或面板标题可移动。入口聚焦后可用方向键微调、Home 键复位。收起继续听，切换页面停止。';
+  get('.zv-note').textContent='云端生成语音，需要联网，无需安装系统声音。拖动入口或标题可移动；方向键微调，Home 复位。';
+  if(['hongkong','macau'].includes(ziliVoiceMode))ziliVoiceMode='cantonese';
   get('.zv-language').value=ziliVoiceMode;
-  let entries=[],currentState='idle',highlighted=null,voices=[],selectedVoice='';
+  let entries=[],currentState='idle',highlighted=null;
   let voiceReady=false,drag=null,suppressClick=false;
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
   function visible(node){
@@ -92,14 +92,14 @@ function bindZiliVoiceGuide(doc){
     }).filter(item=>item.text&&/[\p{L}\p{N}]/u.test(item.text));
   }
   function highlight(item){highlighted?.classList.remove('zili-voice-reading');highlighted=item?.node||null;highlighted?.classList.add('zili-voice-reading');}
-  const reader=supported?createZiliReader({synth,Utterance:view.SpeechSynthesisUtterance,onParagraph:highlight,onState:update}):null;
+  const reader=supported?createZiliCloudReader({requestAudio:(text,signal)=>ziliRequestCloudAudio(text,get('.zv-language').value,signal),Audio:view.Audio,onParagraph:highlight,onState:update}):null;
   function update({state,index,total,message}){
     currentState=state;
-    play.textContent=state==='playing'?'暂停讲解':state==='paused'?'继续讲解':state==='ended'?'重新朗读':'开始讲解';
+    play.textContent=(state==='playing'||state==='loading')?'暂停讲解':state==='paused'?'继续讲解':state==='ended'?'重新朗读':'开始讲解';
     play.setAttribute('aria-label',play.textContent);
     if(total&&index<total)segments.value=String(index);
     status.textContent=message||(state==='playing'?'正在讲解':state==='paused'?'已暂停':'准备就绪')+(total?' · 第 '+Math.min(index+1,total)+' / '+total+' 段':'');
-    segments.disabled=state==='playing'||state==='paused';
+    segments.disabled=['playing','loading','paused'].includes(state);
   }
   function refresh(){
     entries=collect();segments.replaceChildren();
@@ -151,32 +151,25 @@ function bindZiliVoiceGuide(doc){
     const delta={ArrowLeft:[-10,0],ArrowRight:[10,0],ArrowUp:[0,-10],ArrowDown:[0,10]}[event.key];
     if(delta){event.preventDefault();const box=launch.getBoundingClientRect();position(box.left+delta[0],box.top+delta[1]);}
   });
-  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&currentState!=='playing'&&currentState!=='paused')refresh();fitPanel();}
+  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&!['playing','loading','paused'].includes(currentState))refresh();fitPanel();}
   launch.onclick=event=>{if(suppressClick){event.preventDefault();return;}open(panel.hidden);};
   get('.zv-close').onclick=()=>{open(false);launch.focus();};
   host.addEventListener('keydown',e=>{if(e.key==='Escape'){open(false);launch.focus();}});
   function loadVoices(){
     const mode=get('.zv-language').value;
-    voices=ziliRegionalVoices(synth.getVoices(),mode);
-    // No reviewed Taiwanese-language scripts are bundled; do not read Mandarin prose as Hokkien.
-    voiceReady=mode!=='taiwan'&&voices.length>0;
-    get('.zv-voice').replaceChildren();
-    voices.forEach(voice=>get('.zv-voice').add(new view.Option(voice.name+' · '+voice.lang,voice.voiceURI)));
-    if(!voices.length)get('.zv-voice').add(new view.Option('当前设备暂无对应声音',''));
-    selectedVoice=voices.some(voice=>voice.voiceURI===selectedVoice)?selectedVoice:voices[0]?.voiceURI||'';
-    get('.zv-voice').value=selectedVoice;
-    get('.zv-voice').disabled=!voiceReady;
-    languageNote.textContent=mode==='taiwan'?'台语需要专门的闽南语声音和台语讲解文稿，目前尚未接入，暂不可播放。台湾普通话不作为台语替代。':!voiceReady?'当前设备未提供'+(mode==='mandarin'?'普通话':'粤语')+'声音，暂不可播放；不会改用其他语言替代。':mode==='macau'?'澳门粤语：当前使用设备提供的粤语声音，与香港选项共用；不代表独立澳门口音。':mode==='hongkong'?'香港粤语：使用设备提供的真实粤语声音，按页面原文朗读。':'中文普通话：使用设备提供的普通话声音。';
-    play.disabled=!entries.length||!voiceReady;get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
-    if(voiceReady)reader.configure(Number(get('.zv-rate').value),voices.find(voice=>voice.voiceURI===selectedVoice));
-    else reader.stop();
-    fitPanel();
+    voiceReady=true;
+    const names={mandarin:'普通话 · Cherry',cantonese:'粤语 · Kiki',taiwan:'闽南语 · Roy'};
+    get('.zv-voice').replaceChildren(new view.Option(names[mode],'cloud'));
+    get('.zv-voice').disabled=true;
+    languageNote.textContent=mode==='taiwan'?'云端闽南语音色 Roy；不是台湾普通话。方言表达和发音由模型生成，具体效果请试听。':mode==='cantonese'?'香港、澳门合并使用云端粤语音色 Kiki。':'云端普通话音色 Cherry。';
+    play.disabled=!entries.length;get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
+    reader.configure(Number(get('.zv-rate').value));fitPanel();
   }
   if(supported){
-    loadVoices();synth.addEventListener('voiceschanged',loadVoices);
-    get('.zv-language').onchange=()=>{reader.stop();ziliVoiceMode=get('.zv-language').value;selectedVoice='';loadVoices();};
+    loadVoices();
+    get('.zv-language').onchange=()=>{reader.stop();ziliVoiceMode=get('.zv-language').value;loadVoices();};
     play.onclick=()=>{
-      if(currentState==='playing'){reader.pause();return;}
+      if(currentState==='playing'||currentState==='loading'){reader.pause();return;}
       if(currentState==='paused'){reader.play();return;}
       if(currentState==='ended'){refresh();reader.restart();return;}
       if(!voiceReady)return;
@@ -185,14 +178,13 @@ function bindZiliVoiceGuide(doc){
     get('.zv-stop').onclick=()=>reader.stop();get('.zv-restart').onclick=()=>{refresh();reader.restart();};
     get('.zv-next').onclick=()=>{if(currentState==='ended'){refresh();reader.play();}else reader.next();};
     segments.onchange=()=>reader.select(Number(segments.value));
-    const settings=()=>{selectedVoice=get('.zv-voice').value;reader.configure(Number(get('.zv-rate').value),voices.find(voice=>voice.voiceURI===selectedVoice)||null);};
-    get('.zv-rate').onchange=get('.zv-voice').onchange=settings;
+    get('.zv-rate').onchange=()=>reader.configure(Number(get('.zv-rate').value));
   }else{
-    status.textContent='当前浏览器不支持语音朗读，请在支持系统语音的 Chrome、Edge 或 Safari 中打开。';
+    status.textContent='当前浏览器不支持音频播放，请更换浏览器。';
     host.querySelectorAll('.zv-actions button,.zv-segments,.zv-rate,.zv-voice').forEach(control=>control.disabled=true);
   }
   const unload=()=>reader?.destroy();view.addEventListener('pagehide',unload);
   view.addEventListener('resize',restorePosition);view.visualViewport?.addEventListener('resize',restorePosition);
   const panelObserver=new view.ResizeObserver(fitPanel);panelObserver.observe(panel);restorePosition();
-  ziliVoiceGuide={destroy(){reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();if(supported)synth.removeEventListener('voiceschanged',loadVoices);host.remove();}};
+  ziliVoiceGuide={destroy(){reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();host.remove();}};
 }

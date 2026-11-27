@@ -797,7 +797,7 @@ section,#ring b{background:#fffcf5}
         raise ValueError('Featured script switch hook changed')
     from release_quality import improve_release
     html = improve_release(html, ROOT)
-    voice_script = (ROOT / 'voice-assistant.js').read_text(encoding='utf-8')
+    voice_script = (ROOT / 'voice-cloud.js').read_text(encoding='utf-8') + '\n' + (ROOT / 'voice-assistant.js').read_text(encoding='utf-8')
     from release_quality import replace_once
     html = replace_once(html, "function navigate(page, hash = '', tab = '') {",
                         voice_script + "\nfunction navigate(page, hash = '', tab = '') {")
@@ -811,7 +811,7 @@ release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css", "voice-cloud.js", "cloud_tts.py"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
@@ -826,6 +826,10 @@ if release_html.is_file():
     )
     if isinstance(request, dict) and isinstance(request.get("id"), str):
         if not previous or request["id"] != previous["id"]:
+            if request.get('mode') == 'tts':
+                from cloud_tts import synthesize
+                st.session_state.qwen_response = {'id': request['id'], **synthesize(request, st.secrets)}
+                st.rerun()
             # Reuse successful answers to the same question in this browser session.
             catalogue_bytes = (ROOT / "cases.json").read_bytes()
             catalogue = json.loads(catalogue_bytes)
