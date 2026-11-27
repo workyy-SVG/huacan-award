@@ -735,6 +735,8 @@ html body .page #form .observation .character-history {
 body{background:#faf6eb}
 section,#ring b{background:#fffcf5}
 </style>''', 1)
+    map_uri = "data:image/webp;base64," + base64.b64encode((ROOT / "central-map-clean.webp").read_bytes()).decode("ascii")
+    stats_html = stats_html.replace("central-map-clean.webp", map_uri)
     catalogue_json = (ROOT / "cases.json").read_text(encoding="utf-8")
     stats_html = stats_html.replace(
         "fetch('cases.json')",

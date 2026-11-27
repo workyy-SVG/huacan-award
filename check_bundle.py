@@ -18,7 +18,7 @@ html=published_story_theme(ROOT/'published-theme.html','',())
 assert 'data-tab="guide"' in html
 assert "button.id = 'script-switch'" not in html
 release_payload = json.loads(gzip.decompress(base64.b64decode(re.search(r"const packed = '([^']+)'",html)[1])))
-assert '用户交互流程图' in release_payload['pages']['guide.html']
+assert '图解' in release_payload['pages']['guide.html']
 assert 'OpenCC.Converter' in html
 assert 'zili-pending:' in html
 assert 'mobile-home.css' not in html  # the stylesheet is bundled, not fetched by browser

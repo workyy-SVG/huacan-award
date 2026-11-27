@@ -19,7 +19,7 @@ def improve_release(html, root):
     if not packed:
         raise ValueError('Missing release bundle')
     payload = json.loads(gzip.decompress(base64.b64decode(packed[2])))
-    payload['pages']['guide.html'] = (root/'guide.html').read_text(encoding='utf-8')
+    payload['pages']['guide.html'] = (root/'guide.html').read_text(encoding='utf-8').replace('central-map-clean.webp', 'data:image/webp;base64,' + base64.b64encode((root/'central-map-clean.webp').read_bytes()).decode('ascii'))
     for name, page in payload['pages'].items():
         if name in ('index.html','nian.html','men.html','cha.html','chuan.html','deng.html','yuan.html'):
             page = replace_once(page, OLD_DEFINITION, NEW_DEFINITION)

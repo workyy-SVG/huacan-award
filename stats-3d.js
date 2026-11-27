@@ -1,53 +1,28 @@
-
 (async()=>{
-const root=document.getElementById('folk-stats');
 const response=await fetch('cases.json');
 if(!response.ok)throw Error('无法加载故事数据');
 const catalogue=await response.json();
 const rows=Object.entries(catalogue.regions).flatMap(([region,stories])=>stories.map(story=>({...story,region})));
-const regions=['中国大陆','台湾与金门','香港','澳门','东南亚'],words=['年','门','茶','船','灯','圆'],themes=['饮食与团聚','节庆装饰','传统工艺','祭祀仪式','节庆活动'];
-words.forEach(w=>root.querySelector('#word').add(new Option(w,w)));
-const colors=['#258fb4','#29b9be','#416db0','#6c91aa','#73b9c0'];
 const group=r=>/^(台湾|金门)/.test(r.place)?'台湾与金门':r.place.startsWith('香港')?'香港':r.place.startsWith('澳门')?'澳门':r.region==='海外'?'东南亚':'中国大陆';
-const ns='http://www.w3.org/2000/svg';
-function el(tag,a={},text){const n=document.createElementNS(ns,tag);Object.entries(a).forEach(([k,v])=>n.setAttribute(k,v));if(text!==undefined)n.textContent=text;return n}
-function svg(width,height,name){const n=el('svg',{viewBox:`0 0 ${width} ${height}`,role:'img','aria-label':name});return n}
-function text(s,x,y,value,size=12,a={}){s.append(el('text',{x,y,'font-size':size,...a},value))}
-function defs(s,id,color){const d=el('defs'),g=el('linearGradient',{id,x1:'0%',y1:'0%',x2:'100%',y2:'0%'});[['0%',color,'.22'],['32%',color,'.82'],['65%',color,'.48'],['100%',color,'.94']].forEach(([offset,c,o])=>g.append(el('stop',{offset,'stop-color':c,'stop-opacity':o})));d.append(g);s.append(d)}
-function cylinder(s,x,y,w,h,color,id,label){defs(s,id,color);const g=el('g',{class:'mark','data-tooltip':label});g.append(el('title',{},label));g.append(el('ellipse',{cx:x+w/2,cy:y+h+7,rx:w*.65,ry:5,fill:'#246f8620'}));if(h>0){g.append(el('path',{d:`M${x},${y} a${w/2},6 0 0 1 ${w},0 v${h} a${w/2},6 0 0 1 -${w},0 Z`,fill:`url(#${id})`}));g.append(el('ellipse',{cx:x+w/2,cy:y,rx:w/2,ry:6,fill:color,opacity:'.65'}));g.append(el('ellipse',{cx:x+w/2,cy:y,rx:w/2-3,ry:3,fill:'#efffff',opacity:'.65'}));g.append(el('path',{d:`M${x+5},${y+8}v${Math.max(0,h-15)}`,stroke:'#eaffff','stroke-opacity':'.65','stroke-width':2}));}s.append(g)}
-let selectedRegion=null;
-function ring(data){
-  const s=svg(360,210,'地区故事占比立体环图，点击色块查看地区、故事数和占比');
-  s.setAttribute('role','group');
-  let angle=-Math.PI/2;
-  const total=data.reduce((a,b)=>a+b,0),marks=[],buttons=[];
-  function pt(r,a,z=0){return[180+r*Math.cos(a),102+r*.48*Math.sin(a)+z]}
-  function shape(a,b,z){let p=[];for(let j=0;j<=40;j++)p.push(pt(135,a+(b-a)*j/40,z));for(let j=40;j>=0;j--)p.push(pt(88,a+(b-a)*j/40,z));return'M'+p.map(p=>p.join(',')).join('L')+'Z'}
-  s.append(el('ellipse',{cx:180,cy:127,rx:145,ry:68,fill:'#247d8a10'}));
-  const host=root.querySelector('.ring-chart'),legend=document.createElement('div'),detail=document.createElement('p');
-  legend.className='legend';detail.className='ring-detail';detail.setAttribute('role','status');detail.setAttribute('aria-live','polite');
-  function updateSelection(){
-    marks.forEach(({node,index})=>{const selected=regions[index]===selectedRegion;node.setAttribute('aria-pressed',String(selected));node.classList.toggle('selected',selected);node.classList.toggle('dimmed',selectedRegion!==null&&!selected)});
-    buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(regions[i]===selectedRegion)));
-    if(selectedRegion===null){detail.textContent='点击色块或下方地区，查看对应数量与占比。';detail.style.removeProperty('--selected-color');return}
-    const i=regions.indexOf(selectedRegion),value=data[i];
-    detail.textContent=selectedRegion+' · '+value+' 条故事 · 占当前筛选 '+(total?Math.round(value/total*100):0)+'%';
-    detail.style.setProperty('--selected-color',colors[i]);
-  }
-  function choose(i){selectedRegion=regions[i]===selectedRegion?null:regions[i];updateSelection()}
-  data.forEach((v,i)=>{
-    if(!v)return;
-    const end=angle+v/total*Math.PI*2,g=el('g',{class:'mark ring-slice',role:'button',tabindex:'0','aria-label':regions[i]+'，'+v+' 条故事，占 '+Math.round(v/total*100)+'%','aria-pressed':'false'});
-    g.append(el('title',{},regions[i]+' · '+v+' 条 · '+Math.round(v/total*100)+'%'));
-    for(let z=12;z>=0;z-=2)g.append(el('path',{d:shape(angle+.012,end-.012,z),fill:colors[i],opacity:z?'.7':'.95'}));
-    g.addEventListener('click',()=>choose(i));
-    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(i)}});
-    marks.push({node:g,index:i});s.append(g);angle=end;
-  });
-  text(s,180,107,total,30,{'text-anchor':'middle','pointer-events':'none'});text(s,180,128,'条故事',12,{'text-anchor':'middle','pointer-events':'none'});
-  regions.forEach((r,i)=>{const n=document.createElement('button'),dot=document.createElement('i');dot.style.background=colors[i];dot.setAttribute('aria-hidden','true');n.type='button';n.setAttribute('aria-label',r+' '+data[i]+' 条，查看占比');n.onclick=()=>choose(i);n.append(dot,r+' '+data[i]);buttons.push(n);legend.append(n)});
-  host.replaceChildren(s,legend,detail);updateSelection();
+const $=s=>document.querySelector(s),words=[...'年门茶船灯圆'],areas=['中国大陆','台湾与金门','香港','澳门','东南亚'],colors=['#256661','#c37c43','#527c91','#a85043','#808451'];
+const tally=Object.entries(rows.reduce((o,r)=>(o[r.theme]=(o[r.theme]||0)+1,o),{})).sort((a,b)=>b[1]-a[1]);
+for(const [theme,n] of tally){$('#rank').insertAdjacentHTML('beforeend','<div class="rank"><span>'+theme+'</span><div><i style="width:'+n/tally[0][1]*100+'%"></i></div><b>'+n+' 则 · '+Math.round(n/rows.length*100)+'%</b></div>')}
+let focusKey=null;
+const tones=['#a65c42','#427b75','#b48843','#58748a','#79794f'];
+function weave(){
+const narrow=window.innerWidth<620,W=narrow?370:840,H=345,A=narrow?40:95,B=W-(narrow?100:168),unit=7;
+const themes=tally.map(t=>t[0]),counts=words.map(w=>themes.map(t=>rows.filter(r=>r.character===w&&r.theme===t).length));
+const start=(sizes)=>{let y=12;return sizes.map(n=>{let v=y;y+=n*unit+(H-24-rows.length*unit)/(sizes.length-1);return v})};
+const ls=start(words.map(w=>rows.filter(r=>r.character===w).length)),rs=start(tally.map(t=>t[1])),lc=[...ls],rc=[...rs];
+let shapes='',nodes='';
+counts.forEach((line,i)=>line.forEach((n,j)=>{if(!n)return;const y=lc[i],z=rc[j],h=n*unit,mid=(A+B)/2;lc[i]+=h;rc[j]+=h;
+shapes+='<path d="M '+A+' '+y+' C '+mid+' '+y+' '+mid+' '+z+' '+B+' '+z+' v '+h+' C '+mid+' '+(z+h)+' '+mid+' '+(y+h)+' '+A+' '+(y+h)+' Z" fill="'+tones[j]+'" opacity="'+(!focusKey?.length||[words[i],themes[j]].includes(focusKey)?'.73':'.09')+'"><title>'+words[i]+' → '+themes[j]+' · '+n+' 则</title></path>'}));
+function label(key,x,y,h,right,j){const color=right?tones[j]:'#365b55',active=focusKey===key;nodes+='<g role="button" tabindex="0" aria-pressed="'+active+'" aria-label="'+key+'" data-key="'+key+'"><rect x="'+(right?x:0)+'" y="'+(y+h/2-13)+'" width="'+(right?W-B:A)+'" height="26" fill="'+(active?'#eadfc9':'transparent')+'"/><rect x="'+(right?x:x-5)+'" y="'+y+'" width="5" height="'+h+'" fill="'+color+'"/><text x="'+(right?x+10:x-12)+'" y="'+(y+h/2+5)+'" text-anchor="'+(right?'start':'end')+'" font-size="'+(right?(narrow?12:16):21)+'" fill="#254741">'+key+(right?' · '+tally[j][1]:'')+'</text></g>'}
+words.forEach((w,i)=>label(w,A,ls[i],lc[i]-ls[i],false,i));themes.forEach((t,j)=>label(t,B,rs[j],rc[j]-rs[j],true,j));
+$('#loom').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="group" aria-label="汉字与习俗的故事流向">'+shapes+nodes+'</svg>';
+$('#loom').querySelectorAll('g').forEach(g=>{g.onclick=()=>{focusKey=focusKey===g.dataset.key?null:g.dataset.key;weave();$('#loom [data-key="'+g.dataset.key+'"]').focus()};g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();g.onclick()}}});
+const selected=rows.filter(r=>r.character===focusKey||r.theme===focusKey),by={};selected.forEach(r=>{let k=words.includes(focusKey)?r.theme:r.character;by[k]=(by[k]||0)+1});
+$('#insight').textContent=focusKey?focusKey+'的 '+selected.length+' 则故事：'+Object.entries(by).map(([k,n])=>k+' '+n+' 则').join('、')+'。':'饮食与团聚连接了「'+[...new Set(rows.filter(r=>r.theme==='饮食与团聚').map(r=>r.character))].join('」「')+'」。';
 }
-function columns(values,labels,host,max,height=280){const width=Math.max(260,root.querySelector('.'+host).clientWidth),s=svg(width,height,host==='word-chart'?'汉字故事收录量，零起点固定五条刻度':'习俗主题分布，零起点固定十二条刻度');const left=35,right=14,baseline=height-48,top=24,plot=baseline-top,step=(width-left-right)/values.length;for(let n=0;n<=max;n+=max===5?1:3){const y=baseline-n/max*plot;s.append(el('line',{x1:left,y1:y,x2:width-right,y2:y,class:'grid'}));text(s,left-9,y+4,n,11,{'text-anchor':'end'})}s.append(el('line',{x1:left,y1:baseline,x2:width-right,y2:baseline,class:'axis'}));values.forEach((v,i)=>{const w=Math.min(host==='word-chart'?30:42,step*.42),x=left+step*i+step/2-w/2,y=baseline-v/max*plot; cylinder(s,x,y,w,baseline-y,host==='word-chart'?'#258fb4':colors[i],host+i,`${labels[i]}：${v} 条`);text(s,x+w/2,y-14,v,14,{'text-anchor':'middle'});const l=labels[i];if(host==='theme-chart'&&width<550){text(s,x+w/2,baseline+24,l.slice(0,2),11,{'text-anchor':'middle'});text(s,x+w/2,baseline+40,l.slice(2),11,{'text-anchor':'middle'})}else text(s,x+w/2,baseline+32,l,host==='word-chart'?15:13,{'text-anchor':'middle'})});root.querySelector('.'+host).replaceChildren(s)}
-function draw(){const chosen=root.querySelector('#region').value,chosenWord=root.querySelector('#word').value,filtered=rows.filter(r=>(chosen==='全部地区'||group(r)===chosen)&&(chosenWord==='全部汉字'||r.character===chosenWord));root.querySelector('.total').textContent=`${chosen} · ${chosenWord} · ${filtered.length} 条故事`;const records=root.querySelector('#records');records.replaceChildren();filtered.forEach(r=>{const li=document.createElement('li');li.textContent=[r.place,r.character,r.title,r.theme].join(' · ');records.append(li)});ring(regions.map(r=>filtered.filter(x=>group(x)===r).length));columns(words.map(w=>filtered.filter(r=>r.character===w).length),words,'word-chart',5);columns(themes.map(t=>filtered.filter(r=>r.theme===t).length),themes,'theme-chart',12,250)}root.querySelector('#region').onchange=root.querySelector('#word').onchange=draw;draw();let lastWidth=root.clientWidth;new ResizeObserver(()=>{if(root.clientWidth!==lastWidth){lastWidth=root.clientWidth;draw()}}).observe(root);
-})().catch(()=>{document.getElementById('count').textContent='统计暂时无法加载，请刷新页面重试。'});
+weave();window.matchMedia('(max-width:619px)').addEventListener('change',weave);
+})().catch(()=>{document.querySelector('#loom').textContent='故事数据暂时无法载入，请刷新重试。'});
