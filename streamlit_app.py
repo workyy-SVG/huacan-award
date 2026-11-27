@@ -797,7 +797,7 @@ section,#ring b{background:#fffcf5}
         raise ValueError('Featured script switch hook changed')
     from release_quality import improve_release
     html = improve_release(html, ROOT)
-    voice_script = (ROOT / 'voice-cloud.js').read_text(encoding='utf-8') + '\n' + (ROOT / 'voice-assistant.js').read_text(encoding='utf-8')
+    voice_script = '\n'.join((ROOT / name).read_text(encoding='utf-8') for name in ('voice-cache.js','voice-cloud.js','voice-assistant.js'))
     from release_quality import replace_once
     html = replace_once(html, "function navigate(page, hash = '', tab = '') {",
                         voice_script + "\nfunction navigate(page, hash = '', tab = '') {")
@@ -811,7 +811,7 @@ release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css", "voice-cloud.js", "cloud_tts.py"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "voice-assistant.js", "voice-assistant.css", "voice-cloud.js", "voice-cache.js", "cloud_tts.py", "speech_cache.py"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))
@@ -819,12 +819,21 @@ if release_html.is_file():
     story = st.query_params.get("story", "")
     site = declare_component("zili_site", path=str(ROOT / "qwen-component"))
     previous = st.session_state.get("qwen_response")
+    component_key = json.dumps([story, version])
+    send_html = st.session_state.get('site_html_key') != component_key
     request = site(
-        html=published_story_theme(release_html, story, version),
-        site_key=json.dumps([story, version]),
+        html=published_story_theme(release_html, story, version) if send_html else '',
+        site_key=component_key,
         response=previous, key="zili_site",
     )
+    st.session_state.site_html_key = component_key
     if isinstance(request, dict) and isinstance(request.get("id"), str):
+        if request.get('mode') == 'bootstrap':
+            if st.session_state.get('site_bootstrap_id') != request['id']:
+                st.session_state.site_bootstrap_id = request['id']
+                st.session_state.site_html_key = None
+                st.rerun()
+            st.stop()
         if not previous or request["id"] != previous["id"]:
             if request.get('mode') == 'tts':
                 from cloud_tts import synthesize

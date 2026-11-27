@@ -73,7 +73,18 @@ function bindZiliVoiceGuide(doc){
   if(['hongkong','macau'].includes(ziliVoiceMode))ziliVoiceMode='cantonese';
   get('.zv-language').value=ziliVoiceMode;
   let entries=[],currentState='idle',highlighted=null;
-  let voiceReady=false,drag=null,suppressClick=false;
+  let voiceReady=false,drag=null,suppressClick=false,warmController=null;
+  const prepared=doc.createElement('p');prepared.className='zv-language-note zv-prepared';prepared.setAttribute('role','status');languageNote.after(prepared);
+  function prepareSelected(){
+    warmController?.abort();warmController=null;
+    if(!supported||panel.hidden||!entries.length)return;
+    const entry=entries[Number(segments.value)||0];if(!entry)return;
+    const chunk=entry.text.match(/^[\s\S]{1,279}(?:[。！？；\n]|$)/)?.[0]||entry.text.slice(0,280);
+    const controller=new AbortController();warmController=controller;prepared.textContent='正在提前准备所选段落…';
+    ziliRequestCloudAudio(chunk,get('.zv-language').value,controller.signal).then(()=>{
+      if(controller.signal.aborted)return;prepared.textContent='所选段落已准备好，点击即可播放。';
+    }).catch(()=>{if(!controller.signal.aborted)prepared.textContent='点击开始讲解时将重新获取音频。';});
+  }
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
   function visible(node){
     if(!node.isConnected||node.closest('#zili-voice-assistant,[hidden],[aria-hidden="true"],nav,aside,form,dialog,script,style'))return false;
@@ -151,7 +162,7 @@ function bindZiliVoiceGuide(doc){
     const delta={ArrowLeft:[-10,0],ArrowRight:[10,0],ArrowUp:[0,-10],ArrowDown:[0,10]}[event.key];
     if(delta){event.preventDefault();const box=launch.getBoundingClientRect();position(box.left+delta[0],box.top+delta[1]);}
   });
-  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&!['playing','loading','paused'].includes(currentState))refresh();fitPanel();}
+  function open(value){panel.hidden=!value;launch.setAttribute('aria-expanded',String(value));if(value&&supported&&!['playing','loading','paused'].includes(currentState)){refresh();prepareSelected();}fitPanel();}
   launch.onclick=event=>{if(suppressClick){event.preventDefault();return;}open(panel.hidden);};
   get('.zv-close').onclick=()=>{open(false);launch.focus();};
   host.addEventListener('keydown',e=>{if(e.key==='Escape'){open(false);launch.focus();}});
@@ -163,7 +174,7 @@ function bindZiliVoiceGuide(doc){
     get('.zv-voice').disabled=true;
     languageNote.textContent=mode==='taiwan'?'云端闽南语音色 Roy；不是台湾普通话。方言表达和发音由模型生成，具体效果请试听。':mode==='cantonese'?'香港、澳门合并使用云端粤语音色 Kiki。':'云端普通话音色 Cherry。';
     play.disabled=!entries.length;get('.zv-next').disabled=get('.zv-restart').disabled=play.disabled;
-    reader.configure(Number(get('.zv-rate').value));fitPanel();
+    reader.configure(Number(get('.zv-rate').value));fitPanel();prepareSelected();
   }
   if(supported){
     loadVoices();
@@ -177,7 +188,7 @@ function bindZiliVoiceGuide(doc){
     };
     get('.zv-stop').onclick=()=>reader.stop();get('.zv-restart').onclick=()=>{refresh();reader.restart();};
     get('.zv-next').onclick=()=>{if(currentState==='ended'){refresh();reader.play();}else reader.next();};
-    segments.onchange=()=>reader.select(Number(segments.value));
+    segments.onchange=()=>{reader.select(Number(segments.value));prepareSelected();};
     get('.zv-rate').onchange=()=>reader.configure(Number(get('.zv-rate').value));
   }else{
     status.textContent='当前浏览器不支持音频播放，请更换浏览器。';
@@ -186,5 +197,5 @@ function bindZiliVoiceGuide(doc){
   const unload=()=>reader?.destroy();view.addEventListener('pagehide',unload);
   view.addEventListener('resize',restorePosition);view.visualViewport?.addEventListener('resize',restorePosition);
   const panelObserver=new view.ResizeObserver(fitPanel);panelObserver.observe(panel);restorePosition();
-  ziliVoiceGuide={destroy(){reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();host.remove();}};
+  ziliVoiceGuide={destroy(){warmController?.abort();reader?.destroy();view.removeEventListener('pagehide',unload);view.removeEventListener('resize',restorePosition);view.visualViewport?.removeEventListener('resize',restorePosition);panelObserver.disconnect();host.remove();}};
 }

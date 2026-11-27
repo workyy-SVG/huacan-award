@@ -1,6 +1,8 @@
 import io
 import json
 import unittest
+import tempfile
+import os
 from unittest.mock import patch
 from urllib.error import HTTPError
 import cloud_tts
@@ -9,6 +11,9 @@ import cloud_tts
 class CloudSpeechTests(unittest.TestCase):
     def setUp(self):
         cloud_tts._cache.clear()
+        directory=tempfile.TemporaryDirectory();self.addCleanup(directory.cleanup)
+        patcher=patch.dict(os.environ,{'TTS_CACHE_DB':directory.name+'/audio.sqlite3'})
+        patcher.start();self.addCleanup(patcher.stop)
 
     def test_voices_payload_audio_and_cache(self):
         wav=b'RIFF'+b'\0'*4+b'WAVE'+b'\0'*60
@@ -27,6 +32,7 @@ class CloudSpeechTests(unittest.TestCase):
                 first=cloud_tts.synthesize(request,{'DASHSCOPE_API_KEY':'test-key'})
                 self.assertTrue(first['audio'].startswith('data:audio/wav;base64,'))
                 self.assertEqual(calls[-1]['input']['voice'],voice)
+                cloud_tts._cache.clear()  # Simulate a worker/module restart: disk reuse must work.
                 self.assertEqual(cloud_tts.synthesize(request,{'DASHSCOPE_API_KEY':'test-key'}),first)
         self.assertEqual(len(calls),3)
 

@@ -4,7 +4,7 @@
 <iframe id="site" title="字里寻踪"></iframe>
 <script>
 const site = document.getElementById('site');
-let currentSiteKey, activeRequest, timer, latestResponse, ready = false;
+let currentSiteKey, activeRequest, timer, latestResponse, bootstrapKey, ready = false;
 function streamlit(type, payload = {}) { parent.postMessage({isStreamlitMessage:true,type,...payload}, '*'); }
 function deliver(response) {
   if (!response) return;
@@ -16,6 +16,14 @@ addEventListener('message', ({source,data}) => {
   if (source === parent && data?.type === 'streamlit:render') {
     const {html,site_key:key,response} = data.args;
     if (currentSiteKey !== key) {
+      if (!html) {
+        if (bootstrapKey !== key) {
+          bootstrapKey = key;
+          streamlit('streamlit:setComponentValue',{value:{id:crypto.randomUUID(),mode:'bootstrap'},dataType:'json'});
+        }
+        return;
+      }
+      bootstrapKey = undefined;
       currentSiteKey = key; ready = false; clearActive();
       site.srcdoc = html;
     }

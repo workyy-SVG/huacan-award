@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen, HTTPRedirectHandler, build_opener
 
 from provider_budget import BudgetExceeded, provider_call
 from qwen_live import config
+from speech_cache import read_clip, save_clip
 
 VOICES = {'mandarin': 'Cherry', 'cantonese': 'Kiki', 'taiwan': 'Roy'}
 _cache = OrderedDict()
@@ -53,9 +54,12 @@ def synthesize(request, secrets):
     signature = hashlib.sha256((key + parsed.hostname + model + voice + text).encode()).hexdigest()
     with _lock:
         cached = _cache.get(signature)
-        if cached and time.monotonic() - cached[0] < 3600:
+        if cached and time.monotonic() - cached[0] < 86400:
             _cache.move_to_end(signature)
             return cached[1]
+    disk_cached=read_clip(signature)
+    if disk_cached:
+        return disk_cached
     body = {'model': model, 'input': {'text': text, 'voice': voice, 'language_type': 'Chinese'}}
     endpoint = 'https://' + parsed.hostname + '/api/v1/services/aigc/multimodal-generation/generation'
     try:
@@ -77,8 +81,9 @@ def synthesize(request, secrets):
         with _lock:
             _cache[signature] = (time.monotonic(), answer)
             _cache.move_to_end(signature)
-            while len(_cache) > 24 or sum(len(v[1]['audio']) for v in _cache.values()) > 16 * 1024 * 1024:
+            while len(_cache) > 256 or sum(len(v[1]['audio']) for v in _cache.values()) > 64 * 1024 * 1024:
                 _cache.popitem(last=False)
+        save_clip(signature,answer)
         return answer
     except HTTPError as error:
         logging.warning('Cloud speech HTTP status %s', error.code)

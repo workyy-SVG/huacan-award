@@ -18,6 +18,7 @@ REQUIRED.extend(['stats-3d.js','stats-3d.css'])
 REQUIRED.append('featured-spacing.css')
 REQUIRED.extend(['voice-assistant.js','voice-assistant.css'])
 REQUIRED.extend(['voice-cloud.js','cloud_tts.py'])
+REQUIRED.extend(['voice-cache.js','speech_cache.py'])
 
 def check():
     for name in REQUIRED:
@@ -32,7 +33,7 @@ def check():
                 ['node','--check','validation-final-0.js'],['node','--check','release_runtime.js'],
                 ['node','--check','qwen-demos.js'],['node','--check','stats-3d.js'],
                 ['node','--check','voice-assistant.js'],['node','test_voice_assistant.cjs'],
-                ['node','--check','voice-cloud.js'],['node','test_voice_cloud.cjs'],
+                ['node','--check','voice-cloud.js'],['node','--check','voice-cache.js'],['node','test_voice_cloud.cjs'],
                 [sys.executable,'-m','unittest','test_cloud_tts','-v']]
     for command in commands:
         subprocess.run(command,cwd=ROOT,check=True)
