@@ -1,0 +1,31 @@
+/* Mobile cover only. Desktop rules remain unchanged. */
+@media (max-width: 680px) {
+  html body .terrain-cover {
+    min-height: 100svh;
+    grid-template-rows: minmax(390px, 62svh) auto;
+    align-content: start;
+    background: #0b2436;
+  }
+  html body .terrain-scene { bottom: auto; height: max(390px, 62svh); }
+  html body .terrain-photo { background-size: cover; background-position: 68% center; }
+  /* Repair overlays were aligned to the stretched desktop image. */
+  html body .terrain-repair { display: none; }
+  html body .terrain-heading { grid-row: 1; margin-top: 24px; }
+  html body .terrain-heading h1 { font-size: clamp(32px, 9vw, 54px); }
+  html body .terrain-heading p { font-size: 16px; }
+  html body .projection .landmark {
+    width: 64px; height: 108px; transform: translate(-50%, -100%);
+  }
+  html body .projection.macao { --cx: 14% !important; --cy: 88% !important; }
+  html body .projection.hongkong { --cx: 84% !important; --cy: 52% !important; }
+  html body .projection.taiwan { --cx: 84% !important; --cy: 89% !important; }
+  /* Hide geographic pins: their old coordinates no longer match a cropped map. */
+  html body .terrain-beams, html body .projection .beacon,
+  html body .projection .terrain-place { display: none; }
+  html body .terrain-entry {
+    grid-row: 2; width: calc(100% - 32px); padding: 16px 0 24px;
+  }
+  html body .terrain-entry .cover-start { max-width: 100%; text-align: center; }
+  html body .terrain-entry .region-field input { font-size: 16px; }
+}
+

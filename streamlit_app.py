@@ -713,6 +713,8 @@ html body .page #form .observation .character-history {
     html = html.replace(hook, "    if (isStory(page)) {\n" + notes_script + "\n}\n" + hook, 1)
     if story in {Path(name).stem for name in PAGES[3:]}:
         html = html.replace("\nnavigate('index.html');", "\nnavigate(" + json.dumps(story + ".html") + ");", 1)
+    mobile_css = (ROOT / "mobile-home.css").read_text(encoding="utf-8")
+    html = html.replace("'</style></head>'", json.dumps("</style><style>" + mobile_css + "</style></head>"))
     return html.replace(
         "themeCSS+(storyArt[page]||'')",
         "themeCSS+(storyArt[page]||'').replaceAll('html body .page #form::after','html body .page #form + section::before')" + " + (storyArt[page] ? " + json.dumps(source_style + reading_style) + " : '')"
@@ -725,7 +727,7 @@ html body .page #form .observation .character-history {
 release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
-        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js"
+        "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css"
     ))]
     version = tuple(path.stat().st_mtime_ns for path in assets)
     story = st.query_params.get("story", "")
