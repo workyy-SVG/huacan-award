@@ -15,10 +15,6 @@ def replace_once(text, old, new):
 
 
 def improve_release(html, root):
-    switch_block = re.compile(r"    if \(page === 'featured.html'\) \{\n      const button = doc.createElement\('button'\);[\s\S]*?      doc.querySelector\('main'\)\?\.prepend\(button\);\n    \}")
-    html, removed = switch_block.subn('', html, count=1)
-    if removed != 1:
-        raise ValueError('Featured script switch hook changed')
     packed = re.search(r"(const packed = ')([^']+)(';)", html)
     if not packed:
         raise ValueError('Missing release bundle')

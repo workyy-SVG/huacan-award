@@ -788,6 +788,11 @@ section,#ring b{background:#fffcf5}
     )
 
 
+    # Remove the old control in the entrypoint so a hot reload cannot retain it.
+    switch_block = re.compile(r"    if \(page === 'featured.html'\) \{\n      const button = doc.createElement\('button'\);[\s\S]*?      doc.querySelector\('main'\)\?\.prepend\(button\);\n    \}")
+    html, removed = switch_block.subn('', html, count=1)
+    if removed != 1:
+        raise ValueError('Featured script switch hook changed')
     from release_quality import improve_release
     return improve_release(html, ROOT)
 
