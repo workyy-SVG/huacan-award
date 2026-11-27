@@ -13,6 +13,7 @@ REQUIRED = ['streamlit_app.py','published-theme.html','qwen_live.py','provider_b
             '.streamlit/config.toml','requirements.txt']
 REQUIRED.append('qwen-component/asset-manifest.json')
 REQUIRED.append('guide.html')
+REQUIRED.append('regions-polish.css')
 
 def check():
     for name in REQUIRED:
