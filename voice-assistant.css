@@ -1,0 +1,26 @@
+html body #zili-voice-assistant{position:fixed;inset:auto max(20px,env(safe-area-inset-right)) max(58px,env(safe-area-inset-bottom));z-index:2147483000;font:14px/1.6 "Microsoft YaHei",system-ui,sans-serif;color:#214756;isolation:isolate}
+html body #zili-voice-assistant *{box-sizing:border-box}
+html body #zili-voice-assistant [hidden]{display:none!important}
+html body #zili-voice-assistant button,html body #zili-voice-assistant select{font:inherit;cursor:pointer;min-height:40px;letter-spacing:normal;text-transform:none}
+html body #zili-voice-assistant .zv-launch{display:flex;align-items:center;gap:9px;margin-left:auto;padding:9px 17px;background:#122d3d;color:#fff0cf;border:1px solid #c8ad74;border-radius:28px;box-shadow:0 6px 22px #12304225;min-height:48px}
+html body #zili-voice-assistant .zv-seal{border:1px solid #d9b97d8c;border-radius:50%;width:26px;height:26px;text-align:center;font:18px/24px KaiTi,serif}
+html body #zili-voice-assistant #zv-panel{position:absolute;right:0;bottom:62px;width:320px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 145px);overflow:auto;background:#fffdf6;border:1px solid #d4c3a1;border-radius:14px;box-shadow:0 12px 40px #17313c24;margin:0;padding:0;color:#214756}
+html body #zili-voice-assistant header{display:flex;align-items:center;gap:10px;padding:14px 17px;margin:0;background:#163748;color:#f6e8cb;border:0;position:static}
+html body #zili-voice-assistant header b{font-size:16px;color:inherit}
+html body #zili-voice-assistant header small{display:block;font-size:11px;color:#d8dfd9;margin-top:3px}
+html body #zili-voice-assistant .zv-close{margin-left:auto;background:none;color:#f6e8cb;border:0;width:38px;padding:0;font-size:24px;border-radius:5px}
+html body #zili-voice-assistant .zv-body{padding:16px}
+html body #zili-voice-assistant p{margin:0 0 12px;padding:0;font-size:13px;line-height:1.7;color:#214756;white-space:normal}
+html body #zili-voice-assistant .zv-page{font-weight:600}
+html body #zili-voice-assistant .zv-status{min-height:40px;color:#316777}
+html body #zili-voice-assistant label{display:grid;gap:5px;margin:0;font:12px/1.6 "Microsoft YaHei",system-ui,sans-serif;color:#526d74}
+html body #zili-voice-assistant select{width:100%;max-width:100%;min-width:0;padding:6px 8px;border:1px solid #becdca;border-radius:6px;background:#fffdf6;color:#214756}
+html body #zili-voice-assistant .zv-actions{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+html body #zili-voice-assistant .zv-actions button{border:1px solid #b2c3c6;border-radius:7px;padding:7px 10px;background:#f0f4f1;color:#214756;font-size:12px}
+html body #zili-voice-assistant .zv-actions .zv-play{background:#285267;color:#fff;border-color:#285267}
+html body #zili-voice-assistant .zv-settings{display:grid;grid-template-columns:85px minmax(0,1fr);gap:10px}
+html body #zili-voice-assistant .zv-note{font-size:11px;color:#647373;border-top:1px solid #e1ddd0;margin:14px 0 0;padding-top:10px}
+html body #zili-voice-assistant :disabled{opacity:.55;cursor:not-allowed}
+html body #zili-voice-assistant :focus-visible{outline:2px solid #37758e;outline-offset:3px}
+html body .zili-voice-reading{background-color:#dfe9e8!important;box-shadow:inset 3px 0 #36687b!important;border-radius:4px}
+@media(max-width:680px){html body #zili-voice-assistant{right:12px;bottom:max(58px,env(safe-area-inset-bottom))}html body #zili-voice-assistant #zv-panel{width:310px}html body #zili-voice-assistant select{font-size:16px}}
