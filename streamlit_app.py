@@ -778,6 +778,7 @@ section,#ring b{background:#fffcf5}
   path.setAttribute('d', 'M ' + x + ' ' + y + guide + endX + ' ' + endY);"""
     html = html.replace(straight_guide, curved_guide, 1)
     lookup_style += (ROOT / "featured-spacing.css").read_text(encoding="utf-8")
+    lookup_style += (ROOT / "keepsake-live-guide.css").read_text(encoding="utf-8")
     mobile_css = (ROOT / "mobile-home.css").read_text(encoding="utf-8")
     html = html.replace("'</style></head>'", json.dumps("</style><style>" + mobile_css + "</style></head>"))
     html = html.replace(
@@ -795,14 +796,18 @@ section,#ring b{background:#fffcf5}
     if removed != 1:
         raise ValueError('Featured script switch hook changed')
     from release_quality import improve_release
-    return improve_release(html, ROOT)
+    html = improve_release(html, ROOT)
+    live_guide = (ROOT / 'keepsake-live-guide.js').read_text(encoding='utf-8')
+    if html.count('function manageCollection(doc, add) {') != 1:
+        raise ValueError('Collection guide hook changed')
+    return html.replace('function manageCollection(doc, add) {', live_guide + '\nfunction manageCollection(doc, add) {', 1)
 
 
 release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html", "regions-polish.css", "stats-3d.js", "stats-3d.css", "featured-spacing.css", "keepsake-live-guide.js", "keepsake-live-guide.css"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))

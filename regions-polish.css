@@ -8,3 +8,5 @@ html body main .gallery #records .folio-reader {
 }
 /* The last story's 56px bottom margin is the space before the statistics. */
 html body main .gallery #records .folio:last-child {margin-bottom:28px}
+/* Bring only the closing note up to the statistics, with a small separator. */
+html body main:has(>.gallery)>footer {margin-top:6px!important}

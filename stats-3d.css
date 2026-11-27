@@ -15,9 +15,10 @@ button.legend:focus-visible{outline:2px solid #35675f;outline-offset:2px}
 .fill::before{content:"";position:absolute;left:0;right:0;top:-7px;height:7px;transform:skewX(-40deg);transform-origin:bottom;background:#72a699}
 .fill::after{content:"";position:absolute;top:0;right:-8px;width:8px;height:100%;transform:skewY(-49deg);transform-origin:left;background:#2b554b}
 .fill.empty{opacity:0}
-#themes .fill{background:linear-gradient(90deg,#b37558,#ba8060);transform:none;box-shadow:0 7px 7px -5px #80443166}
-#themes .fill::before{background:#d6a58a}
-#themes .fill::after{background:#814933}
+#themes .fill{background:linear-gradient(90deg,#447f9d,#2b5c79);transform:none;box-shadow:0 7px 7px -5px #234d6866}
+#themes .fill::before{background:#8bb6cc}
+#themes .fill::after{background:#20465e}
+#themes .track{background:#dbe7ee66}
 .row b{font-variant-numeric:tabular-nums}
 .word-chart{display:block;width:100%;height:auto;margin:8px 0 12px;overflow:visible}
 .word-chart .column-grid{stroke:#8fa5b52b;stroke-width:1}

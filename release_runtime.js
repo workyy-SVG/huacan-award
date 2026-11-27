@@ -56,6 +56,7 @@ routeHost.addEventListener('popstate', restoreRoute);
 function manageCollection(doc, add) {
   const main = doc.querySelector('main');
   const tools = add(main, 'div');
+  tools.id = 'collection-tools';
   tools.setAttribute('role', 'group');
   tools.setAttribute('aria-label', '管理收藏');
   main.insertBefore(tools, doc.getElementById('saved-count'));
@@ -116,6 +117,7 @@ function manageCollection(doc, add) {
       else { card.remove(); doc.getElementById('saved-count').textContent=savedKeepsakes.length+' 条已保存'; }
     };
   });
+  bindLiveCollectionGuide(doc);
 }
 
 function bindShareLink(doc, page) {
