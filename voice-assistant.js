@@ -111,8 +111,10 @@ function bindZiliVoiceGuide(doc){
   }
   function fitPanel(){
     if(panel.hidden)return;
-    panel.style.maxHeight=Math.max(120,view.innerHeight-90)+'px';
-    const button=launch.getBoundingClientRect(),box=panel.getBoundingClientRect();
+    const button=launch.getBoundingClientRect();
+    const spaceAbove=button.top-20,spaceBelow=view.innerHeight-button.bottom-20;
+    panel.style.maxHeight=Math.max(120,Math.max(spaceAbove,spaceBelow))+'px';
+    const box=panel.getBoundingClientRect();
     const left=Math.max(8,Math.min(button.right-box.width,view.innerWidth-box.width-8));
     let top=button.top-box.height-12;
     if(top<8)top=button.bottom+12;
