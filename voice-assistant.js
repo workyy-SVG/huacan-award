@@ -90,6 +90,7 @@ function bindZiliVoiceGuide(doc){
   }
   function readAnswer(event){
     const {node,text}=event.detail||{};if(!node?.isConnected||typeof text!=='string'||!text.trim())return;
+    endPicking();
     answerEntries=[{node,text:text.trim(),valid:()=>node.isConnected&&node.textContent.includes(text.trim())}];
     panel.hidden=false;launch.setAttribute('aria-expanded','true');get('.zv-page').textContent='朗读千问回答';
     fillEntries(answerEntries);fitPanel();reader?.play();
@@ -103,11 +104,11 @@ function bindZiliVoiceGuide(doc){
     panel.hidden=false;launch.setAttribute('aria-expanded','true');segments.value=String(selected);reader.select(selected);fitPanel();reader.play();
   }
   get('.zv-pick').onclick=()=>{
-    if(picking){endPicking();return;}answerEntries=null;refresh();picking=true;
+    if(picking){endPicking();return;}answerEntries=null;get('.zv-page').textContent='朗读本页原文';refresh();picking=true;
     entries.forEach(entry=>entry.node?.classList.add('zv-read-target'));doc.body.classList.add('zv-picking');
     get('.zv-pick').textContent='取消选择';status.textContent='请点击想开始朗读的正文段落。';
   };
-  get('.zv-original').onclick=()=>{answerEntries=null;endPicking();refresh();reader?.play();};
+  get('.zv-original').onclick=()=>{answerEntries=null;endPicking();get('.zv-page').textContent='朗读本页原文';refresh();reader?.play();};
   doc.addEventListener('click',pickText,true);
   get('.zv-page').textContent=doc.querySelector('h1')?.textContent.trim()||doc.title||'当前页面';
   function visible(node){
