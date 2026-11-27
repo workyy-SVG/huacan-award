@@ -16,7 +16,6 @@ REQUIRED.append('guide.html')
 REQUIRED.append('regions-polish.css')
 REQUIRED.extend(['stats-3d.js','stats-3d.css'])
 REQUIRED.append('featured-spacing.css')
-REQUIRED.extend(['keepsake-live-guide.js','keepsake-live-guide.css'])
 
 def check():
     for name in REQUIRED:
