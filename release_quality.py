@@ -19,6 +19,7 @@ def improve_release(html, root):
     if not packed:
         raise ValueError('Missing release bundle')
     payload = json.loads(gzip.decompress(base64.b64decode(packed[2])))
+    payload['pages']['guide.html'] = (root/'guide.html').read_text(encoding='utf-8')
     for name, page in payload['pages'].items():
         if name in ('index.html','nian.html','men.html','cha.html','chuan.html','deng.html','yuan.html'):
             page = replace_once(page, OLD_DEFINITION, NEW_DEFINITION)
@@ -31,6 +32,12 @@ def improve_release(html, root):
         payload['pages'][name] = page
     encoded = base64.b64encode(gzip.compress(json.dumps(payload,ensure_ascii=False).encode(),mtime=0)).decode()
     html = html[:packed.start(2)] + encoded + html[packed.end(2):]
+    html = replace_once(html, '</nav></aside>', '<button type="button" data-tab="guide">使用说明<small>操作步骤与体验指南</small></button></nav></aside>')
+    html = replace_once(html, 'function openFunction(key) {', "function openFunction(key) {\n  if (key === 'guide') return navigate('guide.html', '', 'guide');")
+    html = html.replace('.terrain-entry{position:relative;justify-self:center;width:min(92%,535px);padding:0 0 2vh}',
+                        '.terrain-entry{position:relative;justify-self:center;width:min(92%,535px);padding:0 0 5vh}')
+    html = html.replace('.terrain-heading{margin-top:7vh}', '.terrain-heading{margin-top:2vh}')
+    html = html.replace('linear-gradient(150deg,#d8e8ea,#e9eeeb 78%)', 'linear-gradient(150deg,#faf8f2,#eff4f5 48%,#dcebf3 100%)')
     manifest = json.loads((root/'qwen-component'/'asset-manifest.json').read_text(encoding='utf-8'))
     atlas_images = {name: 'data:image/webp;base64,' + base64.b64encode((root/'qwen-component'/'atlas'/item['file']).read_bytes()).decode()
                     for name,item in manifest.items()}

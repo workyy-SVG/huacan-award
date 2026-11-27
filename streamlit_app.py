@@ -788,7 +788,7 @@ release_html = ROOT / "published-theme.html"
 if release_html.is_file():
     assets = [release_html, *(ROOT / name for name in (
         "reading-edition.css", "reading-notes.js", "cover-lettering.css", "qwen-demos.js", "mobile-home.css", "folk-stats.html", "release_fixes.py", "opencc-full.gz.b64",
-        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json"
+        "zili-lookup-results.js", "zili-lookup-results-original.js", "cases.json", "release_quality.py", "release_runtime.js", "dictionary-cache.json", "qwen-component/asset-manifest.json", "guide.html"
     ))]
     assets.extend(path for path in (ROOT / "static" / "atlas").rglob("*") if path.is_file())
     assets.extend(path for path in ROOT.iterdir() if path.suffix.lower() in (".webp", ".png", ".jpg"))

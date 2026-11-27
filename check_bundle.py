@@ -15,6 +15,9 @@ function=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name==
 function.decorator_list=[]
 exec(compile(ast.Module(body=[function],type_ignores=[]),'renderer','exec'))
 html=published_story_theme(ROOT/'published-theme.html','',())
+assert 'data-tab="guide"' in html
+release_payload = json.loads(gzip.decompress(base64.b64decode(re.search(r"const packed = '([^']+)'",html)[1])))
+assert '用户交互流程图' in release_payload['pages']['guide.html']
 assert 'OpenCC.Converter' in html
 assert 'zili-pending:' in html
 assert 'mobile-home.css' not in html  # the stylesheet is bundled, not fetched by browser
