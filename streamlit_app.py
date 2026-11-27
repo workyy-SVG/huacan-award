@@ -533,8 +533,16 @@ def published_story_theme(_path, story, version):
     html = html[:start] + json.dumps(story_art) + html[start + length:]
     html = packed.sub(embed_packed, atlas_path.sub(embed_atlas, html), count=1)
     cover_style = (ROOT / "cover-lettering.css").read_text(encoding="utf-8-sig")
-    heading = '<header class="terrain-heading">'
-    html = html.replace(heading, "<style>" + cover_style + "</style>" + heading, 1)
+    wordmark = (
+        '<h1 class="atlas-wordmark" aria-label="字里寻踪">'
+        '<span>字</span><span>里</span><span>寻</span><span class="seal-word">踪</span></h1>'
+        '<svg class="atlas-rule" aria-hidden="true" viewBox="0 0 240 18">'
+        '<path d="M0 12h86l12-6 6 3 13-8 15 11 10-6 14 6h84M94 15h54" '
+        'fill="none" stroke="currentColor" stroke-width="1.3"/></svg>'
+    )
+    html = html.replace('<header class="terrain-heading"><h1>字里寻踪</h1>',
+                        '<style>' + cover_style + '</style><header class="terrain-heading">' + wordmark, 1)
+
     accents = {
         "#f5dcc0": "#ad623a", "#efdfcb": "#984737",
         "#e6e8d6": "#527259", "#dce9e7": "#34647a",

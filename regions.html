@@ -25,6 +25,26 @@ header div,main{width:min(1208px,calc(100% - 36px));margin:auto}header div{paddi
 .habit-search .habit-suggestions button{display:block;min-height:42px;border:0;background:transparent;color:#702117;text-align:start}
 .habit-search .habit-suggestions button:hover,.habit-search .habit-suggestions button[aria-pressed=true]{background:#f0dfc8}
 @media(max-width:640px){.gallery>section{display:contents}.habit-search{order:-1;margin:0}.gallery #status{margin:0}}
+</style><style>
+html body main .gallery #records {display:block}
+html body main .gallery #records .folio {margin:32px 0 56px}
+html body main .gallery #records .folio>h2 {border:0;border-bottom:2px solid #9c805c;padding:0 0 12px;color:#294a47;font:700 clamp(23px,3vw,34px)/1.3 KaiTi,serif}
+.folio>h2::before {content:'◇';margin-right:.5em;color:#a34e36}
+html body .gallery #records .folio-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 20px}
+html body main .gallery #records .folio-grid article {display:flex;flex-direction:column;position:relative;min-width:0;border:0;border-bottom:2px solid #c6ae89;border-radius:0;padding:0 0 16px;background:linear-gradient(180deg,transparent,#fffbf0dd);box-shadow:none}
+html body .folio-grid article>:not(button) {margin-inline:14px}
+html body .folio-grid .image-open {position:relative;padding:0;border:0;background:transparent;cursor:zoom-in;width:100%}
+html body .folio-grid .image-open img {width:100%;height:auto;aspect-ratio:1.78;object-fit:cover;display:block;border-radius:2px}
+.image-open::after {content:'⤢';position:absolute;right:8px;bottom:8px;background:#273e3dd9;color:white;padding:1px 7px;border-radius:3px}
+html body .folio-grid .place {color:#86402d;font-weight:700;padding-top:12px}
+html body .folio-grid .summary {line-height:1.8;color:#304442}
+html body .folio-grid .actions {margin-top:auto;padding-top:12px}
+#photo-view {width:min(95vw,1200px);max-height:92dvh;padding:12px;border:1px solid #ad9574;background:#fff9ed}
+#photo-view::backdrop {background:#132323dd}
+#photo-view img {display:block;width:100%;height:min(68dvh,780px);object-fit:contain}
+#photo-view button {float:right;min-height:40px;padding:4px 16px}
+@media(max-width:800px){html body main .gallery #records .folio-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:540px){html body main .gallery #records .folio-grid{grid-template-columns:1fr}}
 </style></head><body>
 <main><h1>四海故事</h1><p class="intro">按习俗、汉字或地区找故事。</p>
 <div class="gallery"><aside class="region"><h2>按地区浏览</h2><div id="region" class="filters" role="group" aria-label="地区"></div></aside>
@@ -81,13 +101,30 @@ async function loadCatalogue() {
       const text = [item.character, item.place, item.title, item.body].join(' ');
       return [item, normalize(springCustoms.test(text) ? text + ' 春节 新春 过年' : text)];
     }));
+    const notes = {"赶回来吃的那顿饭福建泉州": "这条记录把团聚写成一段归途：家人在外谋生，年夜饭是他们赶回家的时刻。", "给没回来的人留一副碗筷金门": "把这则记录与泉州对读，一边写归家，一边写留席，两地都借一张饭桌表达挂念。", "除夕贴春联福建泉州": "这里可以留意贴联的时间：地方记录把这件事放在除夕，台湾的辞典则更细致地写了张贴的位置。", "门左右贴春联台湾（辞典所载）": "一处是大门左右，一处是门扇本身。读这条记录时，可以顺着这两个位置观察门面的布置。", "以茶待客中国大陆（申报范围）": "同样是一杯茶，家中的待客、茶馆中的相聚和仪式中的用茶，各自对应不同的生活场景。", "动手制作擂茶台湾客家社群": "这条资料留下了制作者的名字。与待客饮茶的记录并读，可以从一杯茶追到制作它的人。", "沿海社区送王船福建厦门、泉州沿海": "厦门湾、泉州湾与马六甲被同一联合申报条目联系起来，可以沿海岸对照三处地名。", "迎王祭典中的王船台湾屏东东港": "在这场祭典中，理解王船要连同迎王的仪式来读；同册澳门的船则出现在龙舟赛事中。", "针刺无骨灯福建泉州": "彩扎、刻纸、针刺三种名称提供了看灯的线索：观察轮廓怎样成形，再看灯面如何透光。", "竹纸工艺做花灯台湾（名录所载）": "竹与纸提示了观察次序：先找支撑灯形的骨架，再看覆在外面的灯面。", "老街长桌宴的年节饮食（待补汤圆细节） · 待补证据浙江宁波海曙": "这里的团聚发生在老街长桌旁。可以与台湾元宵汤圆对读，看同一个「圆」怎样从席面转到食物。", "元宵吃汤圆台湾（文献馆所载）": "汤圆、灯火与灯谜把味觉、观看和猜答放进同一晚的节庆活动。", "长辈先动筷，晚辈送祝福香港": "先动筷和说祝福各有参与者；这两个细节让饭桌上的代际关系变得具体。", "贴挥春，吃团年饭澳门": "从打扫屋子、贴挥春，到摆全盒、吃团年饭，这份材料把过年的空间从门前写到桌边。", "写挥春迎新香港": "挥春上的文字也是礼物：读字句时，可以留意祝愿指向谁。", "年末悬挥春贴门神澳门": "这则记载有明确的先后次序：先整理居所，再把挥春和门神布置到门前。", "到茶楼饮茶香港": "这则饮茶介绍同时写了杯中茶与桌上点心，适合和澳门的饮茶记录并看。", "点心配一壶茶澳门": "这里「饮茶」指一段同时品茶和吃点心的活动，读图时可以把茶具和点心放在一起观察。", "龙舟沿水道游涌香港大澳": "接神、游涌、送神构成一段有去有回的水路，龙舟贯穿其中。", "端午龙舟竞渡澳门南湾湖": "本地组与国际组是这则记录里的分组线索。南湾湖的船在此承担竞赛用途。", "中秋看彩灯香港": "这则资料记录的是中秋社区活动；与澳门元宵手作坊对读，可以区分看灯的场合与做灯的场合。", "做鱼灯与花草纸灯澳门新街坊": "玲珑鱼灯按造型得名，花草纸灯的名称则点出材料，两项活动提供了不同的观察角度。", "元宵节的汤圆香港": "这里的时间线索是正月十五，可以和春节团年饭分开阅读，看看不同节日如何借食物讲团聚。", "动手搓汤丸过元宵澳门旅游学院": "记录的主角是参与制作的学生。它让人从做汤丸的动作进入节庆，而不只看到端上桌的成品。", "一起把鱼生捞起来新加坡": "一起抛拌使祝愿成为多人完成的动作；这条记录还明确写到了家庭以外的参与者。", "用春联装点家里新加坡": "读这一条可同时看文字与形状：春联承载句子，剪饰也能用一个吉祥字点出祝愿。", "茶作为祭祖供品新加坡": "这则记录限定了时间、用途与参与范围：中元节、祭祖、部分家庭。它与日常饮茶的场景不同。", "华人社群传承送王船马来西亚马六甲": "在这份联合申报中，马六甲与闽南沿海同列。沿着同一份资料，可以追读两地的传承社群。", "传统花灯制作新加坡": "名录关注的是制作技艺；与香港的彩灯会相比，观察重点从节日现场转向灯笼怎样制成。", "春节团圆饭新加坡": "这条记录着重写家人一同吃饭。与同册的捞鱼生对读，一则写共席，一则写共同完成的动作。"};
+    const groups = {};
+    for (const item of all) {
+      const name = /^香港/.test(item.place) ? '香港' : /^澳门/.test(item.place) ? '澳门'
+        : /^(台湾|金门)/.test(item.place) ? '台湾与金门'
+        : /^(新加坡|马来西亚)/.test(item.place) ? '东南亚' : '中国大陆';
+      (groups[name] ||= []).push(item);
+    }
+    const viewer = document.createElement('dialog');
+    viewer.id = 'photo-view';
+    viewer.setAttribute('aria-label','查看场景配图');
+    document.body.append(viewer);
+    const close = element('button','关闭',viewer);
+    close.onclick = () => viewer.close();
+    const large = element('img','',viewer);
+    const caption = element('p','',viewer);
+    viewer.onclick = e => { if (e.target === viewer) viewer.close(); };
     function render() {
       const terms = normalize(keyword).split(/\s+/).filter(Boolean);
       clearSearch.hidden = !keyword && !keywordInput.value;
       for (const button of suggestions) {
         button.setAttribute('aria-pressed', String(keyword === button.textContent));
       }
-      const items = (region ? data.regions[region] : all)
+      const items = (region ? groups[region] : all)
         .filter(item => (!character || item.character === character) &&
           terms.every(term => searchText.get(item).includes(term)));
       records.replaceChildren();
@@ -95,24 +132,41 @@ async function loadCatalogue() {
         ? [region || '全部地区', character || '全部汉字',
           keyword && '关键词「' + keyword + '」', items.length + ' 条记录'].filter(Boolean).join(' · ')
         : '没有找到符合条件的故事，请换个关键词或调整筛选。';
-      for (const item of items) {
-        const tile = element('article', '', records);
+      for (const [name, collection] of Object.entries(groups)) {
+        const matches = collection.filter(item => items.includes(item));
+        if (!matches.length) continue;
+        const section = element('section','',records);
+        section.className = 'folio';
+        element('h2',name,section);
+        const grid = element('div','',section);
+        grid.className = 'folio-grid';
+        for (const item of matches) {
+        const tile = element('article', '', grid);
         tile.className = 'tile';
         if (item.image) {
           const image = item.image;
-          const picture = element('img', '', tile);
+          const opener = element('button','',tile); opener.className='image-open';
+          const picture = element('img', '', opener);
           picture.src = image;
           picture.alt = item.place + ' · ' + item.title + '（AI 场景示意）';
           picture.loading = 'lazy';
+          opener.setAttribute('aria-label','放大查看：'+item.title);
+          opener.onclick = () => {
+            large.src = picture.currentSrc || picture.src;
+            large.alt = picture.alt;
+            caption.textContent = picture.alt;
+            viewer.showModal();
+          };
         }
         element('p', item.place + ' · ' + item.character, tile).className = 'place';
         element('h2', item.title, tile);
-        element('p', item.body, tile).className = 'summary';
+        element('p', item.body + (notes[item.title+item.place] || ''), tile).className = 'summary';
         const actions = element('div', '', tile);
         actions.className = 'actions';
         const chosen = data.cases.find(entry => entry.character === item.character);
         if (chosen) link(chosen.url, '查看精选故事 →', actions);
         link(item.source, '查看出处', actions);
+        }
       }
     }
     function filters(id, allLabel, options, setValue) {
@@ -167,7 +221,7 @@ async function loadCatalogue() {
         render();
       }
     });
-    filters('region', '全部地区', Object.keys(data.regions), value => {region = value;});
+    filters('region', '全部地区', Object.keys(groups), value => {region = value;});
     filters('character', '全部', [...new Set(data.cases.map(item => item.character).concat(all.map(item => item.character)))], value => {character = value;});
     render();
   } catch {
